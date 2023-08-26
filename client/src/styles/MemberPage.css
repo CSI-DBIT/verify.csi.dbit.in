@@ -12,7 +12,6 @@ body {
   background-position: center;
   background-attachment: fixed;
   min-height: 100vh;
-  display: flex;
   flex-wrap: wrap;
   padding: 20px;
   align-items: center;

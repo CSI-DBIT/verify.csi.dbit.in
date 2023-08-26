@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useState, useEffect } from "react";
 import axios from 'axios';
+import { Link, useParams } from "react-router-dom";
 import '../styles/MemberPage.css';
-
 const MemberPage = () => {
+
     const { studentId } = useParams();
     const [studentDetails, setStudentDetails] = useState(null);
 
@@ -16,12 +16,44 @@ const MemberPage = () => {
                 console.error('Error fetching student details:', error);
             }
         };
-
         fetchStudentDetails();
     }, [studentId]);
     return (
+        //     <div className="card-container">
+        //     <div className="card">
+        //         <div className="card-header">
+        //             <div className="card-cover" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1549068106-b024baf5062d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=934&q=80')" }}></div>
+        //             <h1 className="card-fullname">{studentDetails ? studentDetails.name : 'Loading...'}</h1>
+        //             <h2 className="card-jobtitle">ID : {studentDetails ? studentDetails.studentId : 'Loading...'}</h2>
+        //         </div>
+        //         <div className="card-main">
+        //             <div className="card-section is-active" id="about">
+        //                 <div className="card-content">
+        //                     <div className="card-subtitle">ABOUT</div>
+        //                     <p className="card-desc" style={{padding:'5px'}}><span style={{ fontWeight: 'bold',padding:'5px' }}>Start Date : </span>{studentDetails ? studentDetails.startDate : 'Loading...'}</p>
+        //                     <p className="card-desc" style={{padding:'5px'}}><span style={{ fontWeight: 'bold',padding:'5px' }}>End Date : </span> {studentDetails ? studentDetails.endDate : 'Loading...'}</p>
+        //                     <p className="card-desc" style={{padding:'5px'}}><span style={{ fontWeight: 'bold',padding:'5px' }}>Membership Status : </span> {studentDetails ? studentDetails.membershipStatus : 'Loading...'}</p>
+        //                     <p className="card-desc" style={{padding:'5px'}}><span style={{ fontWeight: 'bold',padding:'5px' }}>Role : </span> {studentDetails ? studentDetails.role : 'Loading...'}</p>
+        //                 </div>
+        //             </div>
+        //             <div className="card-buttons">
+        //         <Link to="/" className="round-button">Back to Home</Link>
+        //             </div>
+
+        //         </div>
+        //     </div>
+        // </div>
+        //     <div className="card-buttons">
+        // <Link to="/" className="round-button">Back to Home</Link>
+        //     </div>
+        // );
+
         <div className="background">
             <div className="card-container">
+                {/* <div className="left" style={{ background: 'transparent' }}></div>
+          <div className="right" style={{ background: 'transparent' }}>
+  
+          </div> */}
                 <div className="center">
                     <div className="card">
                         <div className="flip">
@@ -62,6 +94,7 @@ const MemberPage = () => {
                                 <div className="card-holder">{studentDetails ? studentDetails.studentId : 'Loading...'}</div>
                                 <div className="master">
                                     <div className="circle master-red"> </div>
+                                    {/* <div className="circle master-yellow"></div> */}
                                 </div>
                             </div>
                             <div className="back">
@@ -93,14 +126,10 @@ const MemberPage = () => {
                 </div>
                 <div className="section">Student ID: {studentDetails ? studentDetails.studentId : 'Loading...'}</div>
                 <div className="section">Branch: {studentDetails ? studentDetails.Branch : 'Loading...'}</div>
-
                 <div className="card-buttons">
                     <Link to="/" className="round-button">Home</Link>
                 </div>
-
             </div>
-
-
         </div>
     )
 }
