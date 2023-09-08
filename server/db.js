@@ -8,7 +8,7 @@ const dbURL = `mongodb+srv://${dbUsername}:${dbPassword}@verify-csi-members.iaqd
 mongoose.connect(dbURL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-});
+}); 
 
 const db = mongoose.connection;
 module.exports = db;

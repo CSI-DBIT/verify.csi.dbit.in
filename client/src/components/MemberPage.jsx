@@ -6,17 +6,28 @@ const MemberPage = () => {
 
     const { studentId } = useParams();
     const [studentDetails, setStudentDetails] = useState(null);
+    const [studentCertificates, setStudentCertificates] = useState(null);
 
     useEffect(() => {
         const fetchStudentDetails = async () => {
             try {
                 const response = await axios.post('http://localhost:5000/api/student', { studentId });
+                console.log(response);
                 setStudentDetails(response.data);
             } catch (error) {
                 console.error('Error fetching student details:', error);
             }
         };
+        const fetchStudentCertificates = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5000/api/certificate/${studentId}`);
+                setStudentCertificates(response.data);
+            } catch (error) {
+                console.error('Error fetching student certificates:', error);
+            } 
+        }
         fetchStudentDetails();
+        fetchStudentCertificates();
     }, [studentId]);
     return (
         //     <div className="card-container">
@@ -126,6 +137,16 @@ const MemberPage = () => {
                 </div>
                 <div className="section">Student ID: {studentDetails ? studentDetails.studentId : 'Loading...'}</div>
                 <div className="section">Branch: {studentDetails ? studentDetails.Branch : 'Loading...'}</div>
+                <div className="section">
+                    Certificates:
+                    <ul style={{ display: "flex", flexDirection: "row", gap: '20px', margin: 0, padding: 0 }}>
+                    {
+                        studentCertificates ? studentCertificates.map((certificate, index) => {
+                            return <li key={index} style={{listStyle:"none"}}><div className="certi"><img width="96" height="96" src="https://img.icons8.com/color/96/000000/certificate.png" alt="certificate"/><Link className="certi-link" to={`http://localhost:5000` + certificate.path} target="_blank">{certificate.tag[0]}</Link></div></li>
+                        }) : 'Loading...'
+                    }
+                    </ul>
+                </div>
                 <div className="card-buttons">
                     <Link to="/" className="round-button">Home</Link>
                 </div>

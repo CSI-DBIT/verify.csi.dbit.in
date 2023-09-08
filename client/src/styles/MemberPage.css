@@ -16,7 +16,7 @@ body {
   padding: 20px;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 /* }
 
@@ -807,3 +807,23 @@ background-color: transparent;
   }
 }
 
+.certi-link {
+  color: white;
+  text-decoration: none;
+  font-family: 'Signika', sans-serif;
+  font-size: 1.3rem;
+  /* margin-left: 150px; */
+  margin-top: 20px;
+  padding: 1px;
+  text-align: left;
+}
+
+.certi {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+.certi-link:hover {
+  color: #8a84ff; 
+}
