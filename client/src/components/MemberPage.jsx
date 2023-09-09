@@ -242,11 +242,12 @@ const MemberPage = () => {
               : "Loading..."}
           </table>
         </div>
-        <div className="card-buttons">
+        {/* <div className="card-buttons">
           <Link to="/" className="round-button">
             Home
           </Link>
-        </div>
+        </div> */}
+        
       </div>
     </div>
   );

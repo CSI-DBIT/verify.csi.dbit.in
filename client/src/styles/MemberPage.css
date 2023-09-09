@@ -745,6 +745,7 @@ background-image {
   /* Example background color */
   border-radius: 15px;
   margin-top: 20px;
+  margin-bottom: 2rem;
   /* Adjust the margin to create space between the cards */
   display: flex;
   flex-direction: column;
@@ -861,6 +862,7 @@ th {
 
 table {
   margin-left: 150px;
+  margin-bottom: 2rem;
 }
 
 @media (max-width: 768px) {
