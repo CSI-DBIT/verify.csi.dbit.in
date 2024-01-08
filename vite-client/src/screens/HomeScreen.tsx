@@ -12,9 +12,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import gridBackground from "../assets/3d-perspective-grid-very-long.svg";
+import blackTriangleBg from "../assets/black triangle background.webp";
 import TextTransition, { presets } from "react-text-transition";
 import { useEffect, useState } from "react";
 import ReactCardFlip from "react-card-flip";
+import { Badge } from "@/components/ui/badge";
 const HomeScreen = () => {
   const TEXTS = ["Verify.", "Certificate.", "Membership."];
   const [index, setIndex] = useState(0);
@@ -112,26 +114,14 @@ const HomeScreen = () => {
             />
             <div className="absolute">
               <ReactCardFlip isFlipped={flipped} flipDirection="vertical">
-                <Card onClick={handleClick}>
-                  <CardHeader>
-                    <CardTitle>Verify Membership</CardTitle>
-                    <CardDescription>
-                      Verify your membership status below. Click "Verify" to
-                      confirm.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div className="space-y-1">
-                      <Label htmlFor="current">Membership Id</Label>
-                      <Input id="current" placeholder="20XXXXXX14" />
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button variant="outline">Verify</Button>
-                  </CardFooter>
+                <Card onBlurCapture={handleClick} onClick={handleClick} className="backdrop-blur-md lg:w-[500px] lg:h-[400]">
+                   <div>
+                    <div>#200XXXXXX14</div>
+                    <div><Badge className="bg-green-700" variant="outline">Active</Badge></div>
+                   </div>
                 </Card>
 
-                <Card onClick={handleClick}>
+                <Card onClick={handleClick} className="lg:w-[500px] lg:h-[400]">
                   <CardHeader>
                     <CardTitle>Validate Certificate</CardTitle>
                     <CardDescription>
