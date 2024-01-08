@@ -12,11 +12,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import gridBackground from "../assets/3d-perspective-grid-very-long.svg";
-import blackTriangleBg from "../assets/black triangle background.webp";
+import csiCardQrImage from "../assets/csi qr code.png";
 import TextTransition, { presets } from "react-text-transition";
 import { useEffect, useState } from "react";
 import ReactCardFlip from "react-card-flip";
 import { Badge } from "@/components/ui/badge";
+import { Clock4, Instagram, Linkedin, Youtube } from "lucide-react";
 const HomeScreen = () => {
   const TEXTS = ["Verify.", "Certificate.", "Membership."];
   const [index, setIndex] = useState(0);
@@ -36,10 +37,10 @@ const HomeScreen = () => {
   return (
     <div>
       <Navbar />
-      <div className="p-12 lg:flex justify-center items-center">
-        <div className="flex flex-col space-y-8 p-4 lg:w-6/12">
-          <div className="text-3xl">/ Take controls on</div>
-          <div className="flex text-6xl font-bold">
+      <div className="lg:p-12 p-4 lg:flex justify-center items-center">
+        <div className="flex flex-col lg:space-y-8 space-y-3 p-4 lg:w-6/12">
+          <div className="lg:text-3xl text-xl">/ Verify & Authenticate easily through</div>
+          <div className="flex lg:text-6xl text-3xl font-bold">
             <span>csi@</span>
             <TextTransition springConfig={presets.wobbly}>
               {TEXTS[index % TEXTS.length]}
@@ -55,73 +56,18 @@ const HomeScreen = () => {
             confidence that your certificates are legitimate and issued by
             CSI_DBIT.
           </div>
-          <Tabs defaultValue="account" className="w-[550px]">
-            <TabsList className="grid w-full h-full grid-cols-2">
-              <TabsTrigger value="account" className="text-lg">
-                Certificate
-              </TabsTrigger>
-              <TabsTrigger value="password" className="text-lg">
-                Membership
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="account">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Validate Certificate</CardTitle>
-                  <CardDescription>
-                    Validate your certificate details here. Click "Validate" to
-                    confirm authenticity.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="space-y-1">
-                    <Input id="name" placeholder="eg : xhdgrw" />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline">Validate</Button>
-                </CardFooter>
-              </Card>
-            </TabsContent>
-            <TabsContent value="password">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Verify Membership</CardTitle>
-                  <CardDescription>
-                    Verify your membership status below. Click "Verify" to
-                    confirm.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="space-y-1">
-                    <Label htmlFor="current">Membership Id</Label>
-                    <Input id="current" placeholder="20XXXXXX14" />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline">Verify</Button>
-                </CardFooter>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-        <div className="relative flex flex-col space-y-4 p-4 lg:w-6/12">
-          <Card className="lg:min-h-[600px] border flex justify-center items-center p-4">
-            <img
-              className="relative"
-              src={gridBackground}
-              alt="grid background"
-            />
-            <div className="absolute">
-              <ReactCardFlip isFlipped={flipped} flipDirection="vertical">
-                <Card onBlurCapture={handleClick} onClick={handleClick} className="backdrop-blur-md lg:w-[500px] lg:h-[400]">
-                   <div>
-                    <div>#200XXXXXX14</div>
-                    <div><Badge className="bg-green-700" variant="outline">Active</Badge></div>
-                   </div>
-                </Card>
-
-                <Card onClick={handleClick} className="lg:w-[500px] lg:h-[400]">
+          <div className="lg:w-[550px]">
+            <Tabs defaultValue="account">
+              <TabsList className="grid w-full h-full grid-cols-2">
+                <TabsTrigger value="account" className="text-lg">
+                  Certificate
+                </TabsTrigger>
+                <TabsTrigger value="password" className="text-lg">
+                  Membership
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="account">
+                <Card>
                   <CardHeader>
                     <CardTitle>Validate Certificate</CardTitle>
                     <CardDescription>
@@ -137,6 +83,134 @@ const HomeScreen = () => {
                   <CardFooter>
                     <Button variant="outline">Validate</Button>
                   </CardFooter>
+                </Card>
+              </TabsContent>
+              <TabsContent value="password">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Verify Membership</CardTitle>
+                    <CardDescription>
+                      Verify your membership status below. Click "Verify" to
+                      confirm.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div className="space-y-1">
+                      <Label htmlFor="current">Membership Id</Label>
+                      <Input id="current" placeholder="20XXXXXX14" />
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Button variant="outline">Verify</Button>
+                  </CardFooter>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+        <div className="flex flex-col space-y-4 p-4 lg:w-6/12">
+          <Card className="lg:h-[600px] border lg:flex justify-center items-center p-4">
+            <img
+              className="hidden lg:block lg:relative h-full w-full"
+              src={gridBackground}
+              alt="grid background"
+            />
+            <div className="lg:absolute">
+              <ReactCardFlip isFlipped={flipped} flipDirection="vertical">
+                <Card
+                  onClick={handleClick}
+                  className="lg:w-[600px] lg:h-[400px]"
+                >
+                  <div className="flex flex-col p-4 px-6 space-y-1 lg:space-y-6">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <Label className="lg:text-lg">Membership Id</Label>
+                        <div className="lg:text-2xl">20XXXXXX14</div>
+                      </div>
+                      <Badge
+                        className="bg-green-700 lg:text-xl"
+                        variant="outline"
+                      >
+                        Active
+                      </Badge>
+                    </div>
+                    <h1 className="text-xl lg:text-6xl font-bold">Jhon Doe</h1>
+                    <p className="lg:text-2xl">johdoe@gmail.com</p>
+                    <div className="flex items-center space-x-2">
+                      <Badge className="text-xs lg:text-2xl" variant="outline">
+                        COMPS
+                      </Badge>
+                      <Badge className="text-xs lg:text-2xl" variant="outline">
+                        SEM IV
+                      </Badge>
+                      <Badge className="text-xs lg:text-2xl" variant="outline">
+                        3 yrs
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <Label className="lg:text-lg">Start Date</Label>
+                        <div className="flex items-center space-x-1">
+                          <Clock4 />
+                          <span className="lg:text-2xl">dd/mm/yyyy</span>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="lg:text-lg">End Date</Label>
+                        <div className="flex items-center space-x-1">
+                          <Clock4 />
+                          <span className="lg:text-2xl">dd/mm/yyyy</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card
+                  onClick={handleClick}
+                  className="lg:w-[600px] lg:h-[400px]"
+                >
+                  <div className="flex flex-col p-4 px-6 space-y-1 lg:space-y-6">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <Label className="lg:text-lg">Membership Id</Label>
+                        <div className="lg:text-2xl">20XXXXXX14</div>
+                      </div>
+                      <Badge
+                        className="bg-green-700 lg:text-xl"
+                        variant="outline"
+                      >
+                        Active
+                      </Badge>
+                    </div>
+                    <div className="lg:flex items-center justify-between ">
+                      <div>
+                        <h1 className="text-xl lg:text-4xl font-bold">
+                          CSI DBIT
+                        </h1>
+                        <p className="lg:text-lg">
+                          CSI has effectively created a platform for everyone to
+                          progress together, and has relentlessly worked to
+                          provide the best.
+                        </p>
+                      </div>
+                      <div className="flex justify-center items-center">
+                        <img
+                          className="h-3/4 w-3/4"
+                          src={csiCardQrImage}
+                          alt="grid background"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <Instagram />
+                      <Button variant="link">@csidbit</Button>
+                      <Linkedin />
+                      <Button variant="link">@csidbit</Button>
+                      <Youtube />
+                      <Button variant="link">@CSIDBIT</Button>
+                    </div>
+                  </div>
                 </Card>
               </ReactCardFlip>
             </div>
