@@ -1,25 +1,31 @@
 import "./App.css";
 import { ThemeProvider } from "./components/theme-provider";
-import ErrorScreen from "./screens/ErrorScreen";
-import HomeScreen from "./screens/HomeScreen";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import MemberScreen from "./screens/MemberScreen";
 import CertificateScreen from "./screens/CertificateScreen";
+// import LoginScreen from "./screens/LoginScreen";
+import CertificateUpload from "./screens/CertificateUpload";
+import HomeScreen from "./screens/HomeScreen";
+import PageNotFound from "./screens/PageNotFound";
 
 const App = () => {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <MemberScreen />,
-      errorElement: <ErrorScreen />,
+      element: <HomeScreen />,
+      errorElement: <PageNotFound />,
     },
     {
-      path: "/member",
+      path: "/member/:studentId",
       element: <MemberScreen />,
     },
     {
       path: "/certificate",
       element: <CertificateScreen />,
+    },
+    {
+      path: "/certificate-upload",
+      element: <CertificateUpload />,
     },
   ]);
   return (

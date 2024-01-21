@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import ReactCardFlip from "react-card-flip";
 import { Badge } from "@/components/ui/badge";
 import { Clock4, Instagram, Linkedin, Youtube } from "lucide-react";
+import Footer from "@/components/Footer";
 const HomeScreen = () => {
   const TEXTS = ["Verify.", "Certificate.", "Membership."];
   const [index, setIndex] = useState(0);
@@ -35,9 +36,9 @@ const HomeScreen = () => {
     setflipped(!flipped);
   };
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <div className="lg:p-12 p-4 lg:flex justify-center items-center">
+      <div className="lg:p-12 p-4 lg:flex flex-grow justify-center items-center">
         <div className="flex flex-col lg:space-y-8 space-y-3 p-4 lg:w-6/12">
           <div className="lg:text-3xl text-xl">/ Verify & Authenticate easily through</div>
           <div className="flex lg:text-6xl text-3xl font-bold">
@@ -57,27 +58,28 @@ const HomeScreen = () => {
             CSI_DBIT.
           </div>
           <div className="lg:w-[550px]">
-            <Tabs defaultValue="account">
+            <Tabs defaultValue="certificate">
               <TabsList className="grid w-full h-full grid-cols-2">
-                <TabsTrigger value="account" className="text-lg">
+                <TabsTrigger value="certificate" className="text-lg">
                   Certificate
                 </TabsTrigger>
-                <TabsTrigger value="password" className="text-lg">
+                <TabsTrigger value="member" className="text-lg">
                   Membership
                 </TabsTrigger>
               </TabsList>
-              <TabsContent value="account">
+              <TabsContent value="certificate">
                 <Card>
                   <CardHeader>
                     <CardTitle>Validate Certificate</CardTitle>
                     <CardDescription>
                       Validate your certificate details here. Click "Validate"
-                      to confirm authenticity.
+                      to recieve certificate.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="space-y-1">
-                      <Input id="name" placeholder="eg : xhdgrw" />
+                    <Label htmlFor="current">Certificate code:</Label>
+                      <Input id="code" placeholder="eg : xhdgrw" />
                     </div>
                   </CardContent>
                   <CardFooter>
@@ -85,19 +87,18 @@ const HomeScreen = () => {
                   </CardFooter>
                 </Card>
               </TabsContent>
-              <TabsContent value="password">
+              <TabsContent value="member">
                 <Card>
                   <CardHeader>
                     <CardTitle>Verify Membership</CardTitle>
                     <CardDescription>
-                      Verify your membership status below. Click "Verify" to
-                      confirm.
+                      Verify your membership status below. Click "Verify" for member verification.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="space-y-1">
-                      <Label htmlFor="current">Membership Id</Label>
-                      <Input id="current" placeholder="20XXXXXX14" />
+                      <Label htmlFor="current">Student Id:</Label>
+                      <Input id="studentId" placeholder="20XXXXXX14" />
                     </div>
                   </CardContent>
                   <CardFooter>
@@ -217,6 +218,7 @@ const HomeScreen = () => {
           </Card>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };
