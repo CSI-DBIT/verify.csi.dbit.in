@@ -16,7 +16,7 @@ const app = express();
 const PORT = process.env.PORT;
 
 // Multer configuration
-const storage = multer.diskStorage({
+const certificateStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./certificates");
   },
@@ -25,7 +25,10 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
+const memberExcel = multer.memoryStorage();
+const memberExcelupload = multer({ storage: memberExcel });
+
+const certificateStorageupload = multer({ storage: certificateStorage });
 app
   .use(cors())
   .use(express.json())
@@ -41,8 +44,8 @@ app
   })
 
   .post(
-    "/api/upload-certificates",
-    upload.array("certificate_files"),
+    "/api/bulk-upload/certificates",
+    certificateStorageupload.array("certificate_files"),
     async (req, res) => {
       try {
         const files = req.files;
@@ -118,6 +121,43 @@ app
       res.json(documents);
     } catch (error) {
       res.status(500).json({ error: "An error occurred while fetching data." });
+    }
+  })
+  .post("/api/bulk-upload/members", memberExcelupload.single("file"), async (req, res) => {
+    try {
+      const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const data = xlsx.utils.sheet_to_json(sheet);
+  
+      await MemberDetail.insertMany(data);
+  
+      res.status(200).json({ message: "Data uploaded successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  })
+  .post("/api/add/member-details", async (req, res) => {
+    try {
+      const newMember = new MemberDetail(req.body);
+      await newMember.save();
+  
+      res.status(200).json({ message: "Member added successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  })
+  .put("/api/update/member/:studentId", async (req, res) => {
+    try {
+      const studentId = req.params.studentId;
+      await MemberDetail.findByIdAndUpdate(studentId, req.body);
+  
+      res.status(200).json({ message: "Member updated successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
     }
   })
 

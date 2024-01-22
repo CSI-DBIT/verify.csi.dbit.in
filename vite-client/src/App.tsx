@@ -3,10 +3,11 @@ import { ThemeProvider } from "./components/theme-provider";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import MemberScreen from "./screens/MemberScreen";
 import CertificateScreen from "./screens/CertificateScreen";
-// import LoginScreen from "./screens/LoginScreen";
+import LoginScreen from "./screens/LoginScreen";
 import CertificateUpload from "./screens/CertificateUpload";
 import HomeScreen from "./screens/HomeScreen";
 import PageNotFound from "./screens/PageNotFound";
+import ManageMember from "./screens/ManageMember";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -26,6 +27,14 @@ const App = () => {
     {
       path: "/certificate-upload",
       element: <CertificateUpload />,
+    },
+    {
+      path: "/login",
+      element: <LoginScreen />,
+    },
+    {
+      path: "/manage/members",
+      element: <ManageMember />,
     },
   ]);
   return (
