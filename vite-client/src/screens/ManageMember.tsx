@@ -228,7 +228,7 @@ const ManageMember = () => {
           </div>
         </div> */}
       </div>
-      <MemberForm />
+      <MemberFormComponent />
       <Footer />
     </div>
   );
@@ -248,23 +248,40 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
-import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover";
-import { format } from "date-fns";
-import { CalendarIcon, Calendar } from "lucide-react";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@radix-ui/react-popover";
+import { addDays, format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
+import { Toaster } from "@/components/ui/toaster";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
 const MemberFormschema = z.object({
   name: z.string().min(2).max(50),
   email: z.string().email(),
-  studentId: z.number().positive(),
-  branch: z.string().min(2).max(50),
-  duration: z.number().max(1),
-  startDate: z.date(),
+  studentId: z.string().max(10),
+  branch: z.string(),
+  duration: z.string(),
+  startDate: z.date().refine((data) => data > addDays(new Date(), -1)),
 });
 
 type MemberFormFields = z.infer<typeof MemberFormschema>;
 
-const MemberForm = () => {
-  const form = useForm<MemberFormFields>({
+const MemberFormComponent = () => {
+  const member_form = useForm<MemberFormFields>({
     resolver: zodResolver(MemberFormschema),
+    defaultValues: {
+      startDate: new Date(),
+    },
   });
   //   const { register, control, handleSubmit,setError, formState } = useForm<MemberFormFields>({
   //     resolver: zodResolver(MemberFormschema),
@@ -272,173 +289,228 @@ const MemberForm = () => {
 
   const onSubmit: SubmitHandler<MemberFormFields> = async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      throw new Error();
-      console.log(data);
+      // await new Promise((resolve) => setTimeout(resolve, 1000));
+      // throw new Error();
+      // console.log(data);
+      toast({
+        title: "You submitted the following values:",
+        description: (
+          <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+            <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+          </pre>
+        ),
+      });
     } catch (error) {
-        form.setError("root",{
-            message:"Form not submitted",
-        })
+      member_form.setError("root", {
+        message: "Form not submitted",
+      });
       console.log(error);
     }
   };
+  const [date, setDate] = useState<Date>()
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your name" {...field} />
-              </FormControl>
-              <FormDescription>This is your name.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your email" {...field} />
-              </FormControl>
-              <FormDescription>This is your email address.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="studentId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Student ID</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="Enter your student ID" {...field} />
-              </FormControl>
-              <FormDescription>This is your student ID.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="branch"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Branch</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your branch" {...field} />
-              </FormControl>
-              <FormDescription>This is your branch.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="duration"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Duration</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter the duration" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is the duration of the program.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="startDate"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Date of birth</FormLabel>
-              <Popover>
-                <PopoverTrigger>
+    <div>
+      <Form {...member_form}>
+        <form
+          onSubmit={member_form.handleSubmit(onSubmit)}
+          className="space-y-4"
+        >
+          <FormField
+            control={member_form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your name" {...field} />
+                </FormControl>
+                <FormDescription>This is your name.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={member_form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your email" {...field} />
+                </FormControl>
+                <FormDescription>This is your email address.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={member_form.control}
+            name="studentId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Student ID</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your student ID" {...field} />
+                </FormControl>
+                <FormDescription>This is your student ID.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={member_form.control}
+            name="branch"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Member Branch</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-[240px] pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Member Branch..." />
+                    </SelectTrigger>
                   </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={(date: Date) =>
-                      date > new Date() || date < new Date("1900-01-01")
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              <FormDescription>
-                Your date of birth is used to calculate your age.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <button type="submit" disabled={form.formState.isSubmitting}>
-          Submit
-        </button>
-      </form>
-    </Form>
-    // <form
-    //   onSubmit={handleSubmit(onSubmit)}
-    //   noValidate
-    // >
-    //   <div className="grid gap-2">
-    //     <label htmlFor="name">Name</label>
-    //     <input {...register("name")} type="text" id="name" />
-    //   </div>
-    //   <div className="grid gap-2">
-    //     <label htmlFor="email">Email</label>
-    //     <input {...register("email")} type="email" id="email" />
-    //   </div>
-    //   <div className="grid gap-2">
-    //     <label htmlFor="studentId">Student ID</label>
-    //     <input {...register("studentId")} type="number" id="studentId" />
-    //   </div>
-    //   <div className="grid gap-2">
-    //     <label htmlFor="branch">Branch</label>
-    //     <input {...register("branch")} type="text" id="branch" />
-    //   </div>
-    //   <div className="grid gap-2">
-    //     <label htmlFor="duration">Duration</label>
-    //     <input {...register("duration")} type="text" id="duration" />
-    //   </div>
-    //   <div className="grid gap-2">
-    //     <label htmlFor="startDate">Start Date</label>
-    //     <input {...register("startDate")} type="date" id="startDate" />
-    //   </div>
-    //   <button type="submit" disabled={formState.isSubmitting}>
-    //     Save changes
-    //   </button>
-    // </form>
+                  <SelectContent>
+                    <SelectItem value="1">Information Technology</SelectItem>
+                    <SelectItem value="2">Computer Science</SelectItem>
+                    <SelectItem value="3">
+                      Electronics and Telecommunication
+                    </SelectItem>
+                    <SelectItem value="4">Mechanical</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  You can manage email addresses in your
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={member_form.control}
+            name="duration"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Duration</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter the duration" {...field} />
+                </FormControl>
+                <FormDescription>
+                  This is the duration of the program.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-[280px] justify-start text-left font-normal",
+                  !date && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {date ? format(date, "PPP") : <span>Pick a date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={setDate}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          <FormField
+            control={member_form.control}
+            name="startDate"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Date of birth</FormLabel>
+                <Popover>
+                  <PopoverTrigger>
+                    <FormControl>
+                      <Button
+                        type="button"
+                        variant={"outline"}
+                        className={cn(
+                          "w-[240px] pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-auto p-0 bg-zinc-950"
+                    align="start"
+                  >
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormDescription>
+                  Your date of birth is used to calculate your age.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" disabled={member_form.formState.isSubmitting}>
+            Submit
+          </Button>
+        </form>
+      </Form>
+      {/*<form
+       onSubmit={handleSubmit(onSubmit)}
+       noValidate
+     >
+       <div className="grid gap-2">
+         <label htmlFor="name">Name</label>
+         <input {...register("name")} type="text" id="name" />
+       </div>
+       <div className="grid gap-2">
+         <label htmlFor="email">Email</label>
+         <input {...register("email")} type="email" id="email" />
+       </div>
+       <div className="grid gap-2">
+         <label htmlFor="studentId">Student ID</label>
+         <input {...register("studentId")} type="number" id="studentId" />
+       </div>
+       <div className="grid gap-2">
+         <label htmlFor="branch">Branch</label>
+         <input {...register("branch")} type="text" id="branch" />
+       </div>
+       <div className="grid gap-2">
+         <label htmlFor="duration">Duration</label>
+         <input {...register("duration")} type="text" id="duration" />
+       </div>
+       <div className="grid gap-2">
+         <label htmlFor="startDate">Start Date</label>
+         <input {...register("startDate")} type="date" id="startDate" />
+       </div>
+       <button type="submit" disabled={formState.isSubmitting}>
+         Save changes
+       </button>
+     </form> */}
+      <Toaster />
+    </div>
   );
 };
 
