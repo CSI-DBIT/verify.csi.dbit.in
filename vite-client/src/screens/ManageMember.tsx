@@ -19,7 +19,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -42,7 +41,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
@@ -147,10 +146,6 @@ const ManageMember = () => {
   );
 };
 
-//----------------------------------------------------------------
-
-
-
 const MemberFormComponent = () => {
   const MemberFormschema = z.object({
     name: z.string().min(2).max(50),
@@ -158,7 +153,7 @@ const MemberFormComponent = () => {
     studentId: z.string().length(10),
     branch: z.string(),
     duration: z.string(),
-    startDate: z.date().refine((data) => data > addDays(new Date(), -1)),
+    startDate: z.date(),
   });
 
   type MemberFormFields = z.infer<typeof MemberFormschema>;
@@ -170,9 +165,9 @@ const MemberFormComponent = () => {
     },
   });
 
-  const onMemberFormSubmit: SubmitHandler<MemberFormFields> = async (data) => {
-    try {
+  const onMemberFormSubmit: SubmitHandler<MemberFormFields> = async (data:MemberFormFields) => {
       await axios.post("http://localhost:5000/api/add/member-details",data);
+      member_form.reset({name: "",email:"",studentId:"",branch:"",duration:"",startDate:new Date(),});
       toast({
         title: "You submitted the following values:",
         description: (
@@ -181,12 +176,6 @@ const MemberFormComponent = () => {
           </pre>
         ),
       });
-    } catch (error) {
-      member_form.setError("root", {
-        message: "Form not submitted",
-      });
-      console.log(error);
-    }
   };
 
   return (
@@ -344,11 +333,9 @@ const MemberFormComponent = () => {
             </FormItem>
           )}
         />
-
         <Button type="submit" disabled={member_form.formState.isSubmitting}>
           Submit
         </Button>
-
       </form>
     </Form>
   );

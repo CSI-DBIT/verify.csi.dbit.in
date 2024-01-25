@@ -123,7 +123,7 @@ app
       res.status(500).json({ error: "An error occurred while fetching data." });
     }
   })
-  .post("/api/bulk-upload/members", memberExcelupload.single("file"), async (req, res) => {
+  .post("/api/bulk-upload/member-details", memberExcelupload.single("file"), async (req, res) => {
     try {
       const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
       const sheetName = workbook.SheetNames[0];
@@ -140,17 +140,39 @@ app
   })
   .post("/api/add/member-details", async (req, res) => {
     try {
-      // const newMember = new MemberDetail(req.body);
-      console.log(req.body);
-      res.status(200).json({ message: "member added syssfully" });
-      // await newMember.save();
+      const { name, email, studentId, branch, duration, startDate } = req.body;
   
+      // Validate required fields
+      if (!name || !email || !studentId || !branch || !duration || !startDate) {
+        return res.status(400).json({ error: "All fields are required" });
+      }
+  
+      // Check for invalid numeric values
+      if (isNaN(Number(studentId)) || isNaN(Number(branch)) || isNaN(Number(duration))) {
+        return res.status(400).json({ error: "Invalid numeric values" });
+      }
+  
+      // Create a new MemberDetail instance
+      const newMember = new MemberDetail({
+        name: String(name),
+        email: String(email),
+        studentId: Number(studentId),
+        branch: Number(branch),
+        duration: Number(duration),
+        startDate: Date(startDate),
+        dateOfCreation: Date(startDate), // Set dateOfCreation to the current date
+      });
+      // Save the new member to the database
+      await newMember.save();
+  
+      // Send a success response
       res.status(200).json({ message: "Member added successfully" });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
     }
   })
+  
   .put("/api/update/member/:studentId", async (req, res) => {
     try {
       const studentId = req.params.studentId;
