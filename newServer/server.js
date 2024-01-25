@@ -104,7 +104,7 @@ app
     }
   )
 
-  .get("/api/get-all-certificate", async (req, res) => {
+  .get("/api/get/all-certificate", async (req, res) => {
     try {
       const documents = await CertificateDetail.find({});
       res.json(documents);
@@ -113,7 +113,7 @@ app
     }
   })
 
-  .get("/api/get-all-certificate/:studentId", async (req, res) => {
+  .get("/api/get/all-certificate/:studentId", async (req, res) => {
     try {
       const documents = await CertificateDetail.find({
         studentId: req.params.studentId,
@@ -140,8 +140,10 @@ app
   })
   .post("/api/add/member-details", async (req, res) => {
     try {
-      const newMember = new MemberDetail(req.body);
-      await newMember.save();
+      // const newMember = new MemberDetail(req.body);
+      console.log(req.body);
+      res.status(200).json({ message: "member added syssfully" });
+      // await newMember.save();
   
       res.status(200).json({ message: "Member added successfully" });
     } catch (error) {
