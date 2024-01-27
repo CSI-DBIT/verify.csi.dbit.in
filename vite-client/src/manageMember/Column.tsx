@@ -8,7 +8,7 @@ export const MemberDetailSchema = z.object({
   duration: z.string(),
   startDate: z.date(),
 });
-type MemberDetails = z.infer<typeof MemberDetailSchema>;
+export type MemberDetails = z.infer<typeof MemberDetailSchema>;
 
 
 export const columns: ColumnDef<MemberDetails>[] = [
@@ -21,7 +21,7 @@ export const columns: ColumnDef<MemberDetails>[] = [
     header: "Email",
   },
   {
-    accessorKey: "studentID",
+    accessorKey: "studentId",
     header: "Student Id",
   },
   {
