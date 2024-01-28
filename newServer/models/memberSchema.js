@@ -2,36 +2,36 @@ const mongoose = require("mongoose");
 
 const memberSchema = new mongoose.Schema({
   name: {
-    type: String,
-    required: true
+    type: mongoose.Schema.Types.String,
+    required: true,
   },
   email: {
-    type: String,
+    type: mongoose.Schema.Types.String,
     unique: true,
     required: true,
   },
   studentId: {
-    type: Number,
+    type: mongoose.Schema.Types.Number,
     unique: true,
     required: true,
   },
   branch: {
-    type: Number,
-    required: true
+    type: mongoose.Schema.Types.Number,
+    required: true,
   },
   duration: {
-    type: Number,
-    required: true
+    type: mongoose.Schema.Types.Number,
+    required: true,
   },
   startDate: {
-    type: Date,
-    required: true
+    type: mongoose.Schema.Types.Date,
+    required: true,
   },
   dateOfCreation: {
-    type: Date,
-    required: true
+    type: mongoose.Schema.Types.Date,
+    required: true,
   },
 });
 
-const MemberDetail = mongoose.model('memberDetails', memberSchema);
+const MemberDetail = mongoose.model("memberDetails", memberSchema);
 module.exports = MemberDetail;

@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import axios, { AxiosError } from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import {
   Drawer,
@@ -25,11 +25,9 @@ import {
 } from "@/components/ui/dialog";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -42,7 +40,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, FileSpreadsheet, X } from "lucide-react";
+import { CalendarIcon, FileSpreadsheet, MoreHorizontal, X } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import {
@@ -55,8 +53,34 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
-import { MemberDetails, columns } from "@/manageMember/Column";
-import { DataTable } from "@/manageMember/DataTable";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  MemberDetailsSchema,
+  validationMemberDetailSchema,
+} from "@/validationSchemas/MemberDetailSchema";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+
 const ManageMember = () => {
   return (
     <div className="flex flex-col min-h-screen">
@@ -65,6 +89,8 @@ const ManageMember = () => {
         <div className="flex space-x-4">
           <BulkUploadMemberForm />
           <AddMemberForm />
+        </div>
+        <div>
           <ManageMemberTable />
         </div>
       </div>
@@ -75,26 +101,248 @@ const ManageMember = () => {
 };
 
 const ManageMemberTable = () => {
-  async function getData(): Promise<MemberDetails[]> {
-    // Fetch data from your API here.
-    return [
-      {
-        name: "Dulce doe",
-        email: "jhon@email.com",
-        studentId: "1357749320",
-        branch: "2",
-        duration: "2",
-        startDate: new Date("2024-01-27T12:49:40.000+00:00"),
-      },
-    ];
-  }
-  const data = await getData();
+  // colum  defination
+  // const columns: ColumnDef<MemberDetailsSchema>[] = [
+  //   {
+  //     accessorKey: "name",
+  //     header: "Name",
+  //   },
+  //   {
+  //     accessorKey: "email",
+  //     header: "Email",
+  //   },
+  //   {
+  //     accessorKey: "studentId",
+  //     header: "Student Id",
+  //   },
+  //   {
+  //     accessorKey: "branch",
+  //     header: () => <div>Branch</div>,
+  //     cell: ({ row }) => {
+  //       const amount = parseFloat(row.getValue("amount"));
+  //       const formatted = new Intl.NumberFormat("en-US", {
+  //         style: "currency",
+  //         currency: "USD",
+  //       }).format(amount);
 
-  return (
-    <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={data} />
-    </div>
-  );
+  //       return <div>{formatted}</div>;
+  //     },
+  //   },
+  //   {
+  //     accessorKey: "duration",
+  //     header: () => <div>Duration</div>,
+  //     cell: ({ row }) => {
+  //       const amount = parseFloat(row.getValue("amount"));
+  //       const formatted = new Intl.NumberFormat("en-US", {
+  //         style: "currency",
+  //         currency: "USD",
+  //       }).format(amount);
+
+  //       return <div>{formatted}</div>;
+  //     },
+  //   },
+  //   {
+  //     accessorKey: "startDate",
+  //     header: () => <div>Start Date</div>,
+  //     cell: ({ row }) => {
+  //       const amount = parseFloat(row.getValue("amount"));
+  //       const formatted = new Intl.NumberFormat("en-US", {
+  //         style: "currency",
+  //         currency: "USD",
+  //       }).format(amount);
+
+  //       return <div>{formatted}</div>;
+  //     },
+  //   },
+  // ];
+  const columns: ColumnDef<MemberDetailsSchema>[] = [
+    {
+      accessorKey: "name",
+      header: "Name",
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+    },
+    {
+      accessorKey: "studentId",
+      header: "Student Id",
+    },
+    {
+      accessorKey: "branch",
+      header: () => <div>Branch</div>,
+      cell: ({ row }) => {
+        const branchNumber = parseInt(row.getValue("branch"), 10);
+
+        // Map numeric values to corresponding text
+        const branchText = {
+          1: "Information Technology",
+          2: "Computer Science",
+          3: "Electronics & Telecommunication",
+          4: "Mechanical Engineering",
+        }[branchNumber];
+
+        return <div>{branchText}</div>;
+      },
+    },
+    {
+      accessorKey: "duration",
+      header: () => <div>Duration</div>,
+      cell: ({ row }) => {
+        const durationNumber = parseInt(row.getValue("duration"), 10);
+
+        // Map numeric values to corresponding text
+        const durationText = {
+          1: "One Year",
+          2: "Two Years",
+          3: "Three Years",
+        }[durationNumber];
+
+        return <div>{durationText}</div>;
+      },
+    },
+    {
+      accessorKey: "startDate",
+      header: () => <div>Start Date</div>,
+      cell: ({ row }) => {
+        const startDateString = row.getValue("startDate") as string;
+
+        // Parse the ISO date string into a Date object
+        const startDate = new Date(startDateString);
+
+        // Format the date in a desired format
+        const formattedStartDate = startDate.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+
+        return <div>{formattedStartDate}</div>;
+      },
+    },
+    {
+      id: "actions",
+      header: () => <div>Actions</div>,
+      cell: ({ row }) => {
+        const member = row.original;
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(member.studentId)}
+              >
+                Copy payment ID
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>View customer</DropdownMenuItem>
+              <DropdownMenuItem>View payment details</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
+
+  // data table component
+  interface DataTableProps<TData, TValue> {
+    columns: ColumnDef<TData, TValue>[];
+    data: TData[];
+  }
+  function DataTable<TData, TValue>({
+    columns,
+    data,
+  }: DataTableProps<TData, TValue>) {
+    const table = useReactTable({
+      data,
+      columns,
+      getCoreRowModel: getCoreRowModel(),
+    });
+
+    return (
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  }
+
+  // Define the initial state for data
+  const [data, setData] = useState<MemberDetailsSchema[]>([]);
+
+  // Define an asynchronous function to fetch data
+  const getData = async () => {
+    try {
+      // Fetch data from your API here.
+      const result = await fetch(
+        "http://localhost:5000/api/get/member-details"
+      );
+      const data = await result.json();
+      setData(data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  // Use the useEffect hook to fetch data when the component mounts
+  useEffect(() => {
+    getData();
+  }, []); // Empty dependency array ensures it runs only once when the component mounts
+
+  return <DataTable columns={columns} data={data} />;
 };
 
 const BulkUploadMemberForm = () => {
@@ -250,18 +498,8 @@ const BulkUploadMemberForm = () => {
 };
 
 const AddMemberForm = () => {
-  const AddMemberFormschema = z.object({
-    name: z.string().min(2).max(50),
-    email: z.string().email(),
-    studentId: z.string().length(10),
-    branch: z.string(),
-    duration: z.string(),
-    startDate: z.date(),
-  });
-
-  type AddMemberFormFields = z.infer<typeof AddMemberFormschema>;
-  const add_member_form = useForm<AddMemberFormFields>({
-    resolver: zodResolver(AddMemberFormschema),
+  const add_member_form = useForm<MemberDetailsSchema>({
+    resolver: zodResolver(validationMemberDetailSchema),
     defaultValues: {
       branch: "1",
       duration: "1",
@@ -269,8 +507,8 @@ const AddMemberForm = () => {
     },
   });
 
-  const onMemberFormSubmit: SubmitHandler<AddMemberFormFields> = async (
-    data: AddMemberFormFields
+  const onMemberFormSubmit: SubmitHandler<MemberDetailsSchema> = async (
+    data: MemberDetailsSchema
   ) => {
     try {
       const response = await axios.post(
@@ -328,7 +566,7 @@ const AddMemberForm = () => {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your name" {...field} />
+                    <Input placeholder="Enter member name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -341,7 +579,7 @@ const AddMemberForm = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your email" {...field} />
+                    <Input placeholder="Enter member email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -354,7 +592,7 @@ const AddMemberForm = () => {
                 <FormItem>
                   <FormLabel>Student ID</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your student ID" {...field} />
+                    <Input placeholder="Enter member's student ID" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

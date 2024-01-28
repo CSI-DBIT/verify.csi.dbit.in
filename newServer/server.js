@@ -256,6 +256,7 @@ app
       });
       // Save the new member to the database
       await newMember.save();
+      console.log(newMember);
 
       // Send a success response
       res.status(200).json({ message: "Member added successfully" });
