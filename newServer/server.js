@@ -193,7 +193,7 @@ app
           }
         }
         // If validation passes, insert data into the database
-        await MemberDetail.insertMany(data,{ordered:true});
+        await MemberDetail.insertMany(data, { ordered: true });
         res.status(200).json({ message: "Data uploaded successfully" });
       } catch (error) {
         console.error(error);
@@ -201,7 +201,7 @@ app
           // Duplicate key error (e.g., unique index violation)
           return res.status(400).json({
             error:
-              "Duplicate key error. Ensure unique constraints are not violated.",
+              "Duplicate fields error. Ensure unique constraints are not violated.",
           });
         } else {
           res.status(500).json({ error: "Internal server error" });
@@ -220,7 +220,6 @@ app
   })
   .post("/api/get/member-details/:studentId", async (req, res) => {
     try {
-      
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
@@ -262,7 +261,15 @@ app
       res.status(200).json({ message: "Member added successfully" });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: "Internal server error" });
+      if (error.code === 11000) {
+        // Duplicate key error (e.g., unique index violation)
+        return res.status(400).json({
+          error:
+            "Duplicate fields error. Ensure unique constraints are not violated.",
+        });
+      } else {
+        res.status(500).json({ error: "Internal server error" });
+      }
     }
   })
 

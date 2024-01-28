@@ -1,128 +1,20 @@
-import { Input } from "@/components/ui/input";
-import axios, { AxiosError } from "axios";
-import { FC, useEffect, useState } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { cn } from "@/lib/utils";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
-import { format } from "date-fns";
-import { toast } from "@/components/ui/use-toast";
-import { Toaster } from "@/components/ui/toaster";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  MemberDetailsSchema,
-  validationMemberDetailSchema,
-} from "@/validationSchemas/MemberDetailSchema";
-import BulkUploadMemberForm from "./manage-member-components/BulkUploadMemberForm";
-import ManageMemberTable from "./manage-member-components/TableView";
 import { Calendar } from "@/components/ui/calendar";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
+import { MemberDetailsSchema, validationMemberDetailSchema } from "@/validationSchemas/MemberDetailSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
+import { FC } from "react";
+import { useForm, SubmitHandler, Form } from "react-hook-form";
 
-const ManageMember = () => {
-  const [memberTabledata, setmemberTableData] = useState<MemberDetailsSchema[]>(
-    []
-  );
-  const [isBulkUploadCompleted, setIsBulkUploadCompleted] = useState(false);
-  const [isMemberAdded, setIsMemberAdded] = useState(false);
-
-  //fetch member data
-  const fetchData = async (): Promise<MemberDetailsSchema[]> => {
-    try {
-      const response = await axios.get(
-        "http://localhost:5000/api/get/member-details"
-      );
-      return response.data as MemberDetailsSchema[];
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError;
-        const errorMessage =
-          axiosError.response?.data?.error || "Unknown error";
-        toast({
-          title: errorMessage,
-          variant: "destructive",
-        });
-        throw new Error(errorMessage);
-      } else {
-        // Handle other types of errors
-        console.error("Unexpected error:", error);
-        toast({
-          title: "Unexpected error:",
-          variant: "destructive",
-        });
-        throw new Error("Unexpected error");
-      }
-    }
-  };
-  // Use the useEffect hook to fetch data when the component mounts
-  useEffect(() => {
-    fetchData().then((data) => setmemberTableData(data));
-    if (isMemberAdded) {
-      fetchData().then((data) => setmemberTableData(data));
-      // Reset the flag
-      setIsMemberAdded(false);
-    }
-    if (isBulkUploadCompleted) {
-      fetchData().then((data) => setmemberTableData(data));
-      // Reset the flag
-      setIsBulkUploadCompleted(false);
-    }
-    console.log("use effect run");
-  }, [
-    isBulkUploadCompleted,
-    isMemberAdded,
-    setIsBulkUploadCompleted,
-    setIsMemberAdded,
-    setmemberTableData,
-  ]);
-  return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <div className="p-4 flex flex-grow flex-col space-y-4">
-        <div className="flex space-x-4">
-          <BulkUploadMemberForm
-            setIsBulkUploadCompleted={setIsBulkUploadCompleted}
-          />
-          <AddMemberForm setIsMemberAdded={setIsMemberAdded} />
-        </div>
-        <div>
-          <ManageMemberTable memberTabledata={memberTabledata} />
-        </div>
-      </div>
-      <Footer />
-      <Toaster />
-    </div>
-  );
-};
 interface AddMemberFormProps {
   setIsMemberAdded: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -163,26 +55,17 @@ const AddMemberForm: FC<AddMemberFormProps> = ({ setIsMemberAdded }) => {
     } catch (error) {
       // Handle errors (e.g., show an error toast)
       console.error("Error submitting form:", error);
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError;
-        const errorMessage =
-          axiosError.response?.data?.error || "Unknown error";
-        toast({
-          title: errorMessage,
-          variant: "destructive",
-        });
-      } else {
-        // Handle other types of errors
-        console.error("Unexpected error:", error);
-        toast({
-          title: "Unexpected error:",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Error",
+        description:
+          "There was an error submitting the form. Please try again.",
+        variant: "destructive",
+      });
     }
   };
   return (
-    <Dialog>
+    <div>
+        <Dialog>
       <DialogTrigger>
         <Button>Add Member</Button>
       </DialogTrigger>
@@ -342,7 +225,8 @@ const AddMemberForm: FC<AddMemberFormProps> = ({ setIsMemberAdded }) => {
         </Form>
       </DialogContent>
     </Dialog>
+    </div>
   );
 };
 
-export default ManageMember;
+export default AddMemberForm;
