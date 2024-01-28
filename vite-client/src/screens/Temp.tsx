@@ -19,6 +19,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -104,6 +105,14 @@ import { DataTableViewOptions } from "@/components/reusableComponents/DataTableV
 import { DataTablePagination } from "@/components/reusableComponents/DataTablePagination";
 import { DataTableColumnHeader } from "@/components/reusableComponents/DataTableColumnHeader";
 import { DataTableFacetedFilter } from "@/components/reusableComponents/DataTableFacetedFilter";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import EditMemberForm from "./manage-member-components/EditMemberForm";
+
 const fetchData = async (): Promise<MemberDetailsSchema[]> => {
   try {
     const response = await axios.get(
@@ -132,7 +141,7 @@ const fetchData = async (): Promise<MemberDetailsSchema[]> => {
   }
 };
 
-const ManageMember = () => {
+const Temp = () => {
   const [memberTabledata, setmemberTableData] = useState<MemberDetailsSchema[]>(
     []
   );
@@ -184,6 +193,8 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
   isMemberAdded,
   setIsMemberAdded,
 }) => {
+  const [editingMember, setEditingMember] =
+    useState<MemberDetailsSchema | null>(null);
   // colum  defination
   const columns: ColumnDef<MemberDetailsSchema>[] = [
     {
@@ -272,6 +283,10 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
       cell: ({ row }) => {
         const member = row.original;
 
+        const handleEdit = (member: MemberDetailsSchema): void => {
+          console.log("Editing member:", member);
+          setEditingMember(member);
+        };
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -280,16 +295,44 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(member.studentId)}
-              >
-                Copy payment ID
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>View customer</DropdownMenuItem>
-              <DropdownMenuItem>View payment details</DropdownMenuItem>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      handleEdit(member);
+                    }}
+                  >
+                    edit
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Edit Member Details</DialogTitle>
+                    <DialogDescription>
+                      Edit member details and submit the form
+                    </DialogDescription>
+                  </DialogHeader>
+                  <EditMemberForm editingMember={editingMember} />
+                </DialogContent>
+              </Dialog>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    delete
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Delete form</DialogTitle>
+                    <DialogDescription>
+                      Here you can add fields to update your form
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -298,176 +341,6 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
       enableSorting: true,
     },
   ];
-
-  // data table component
-  interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[];
-    data: TData[];
-  }
-  function DataTable<TData, TValue>({
-    columns,
-    data,
-  }: DataTableProps<TData, TValue>) {
-    const [sorting, setSorting] = useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-      {}
-    );
-
-    const table = useReactTable({
-      data,
-      columns,
-      onColumnFiltersChange: setColumnFilters,
-      onSortingChange: setSorting,
-      onColumnVisibilityChange: setColumnVisibility,
-      getCoreRowModel: getCoreRowModel(),
-      getPaginationRowModel: getPaginationRowModel(),
-      getSortedRowModel: getSortedRowModel(),
-      getFilteredRowModel: getFilteredRowModel(),
-      getFacetedUniqueValues: getFacetedUniqueValues(),
-      getFacetedRowModel: getFacetedRowModel(),
-      state: {
-        sorting,
-        columnFilters,
-        columnVisibility,
-      },
-    });
-    const isFiltered = table.getState().columnFilters.length > 0;
-    const branch = [
-      {
-        label: "Information Technology",
-        value: "1",
-        icon: Diameter,
-      },
-      {
-        label: "Computer Science",
-        value: "2",
-        icon: ComponentIcon,
-      },
-      {
-        label: "Electronics & Telecommunication",
-        value: "3",
-        icon: Cpu,
-      },
-      {
-        label: "Mechanical Engineering",
-        value: "4",
-        icon: Cog,
-      },
-    ];
-    const duration = [
-      {
-        label: "One Year",
-        value: "1",
-        icon: Tally1,
-      },
-      {
-        label: "Two Year",
-        value: "2",
-        icon: Tally2,
-      },
-      {
-        label: "Three Year",
-        value: "3",
-        icon: Tally3,
-      },
-    ];
-
-    return (
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <div className="flex gap-4">
-            <Input
-              placeholder="Filter by name..."
-              value={
-                (table.getColumn("name")?.getFilterValue() as string) ?? ""
-              }
-              onChange={(event) =>
-                table.getColumn("name")?.setFilterValue(event.target.value)
-              }
-              className="max-w-sm"
-            />
-            {table.getColumn("duration") && (
-              <DataTableFacetedFilter
-                column={table.getColumn("duration")}
-                title="Duration"
-                options={duration}
-              />
-            )}
-            {table.getColumn("branch") && (
-              <DataTableFacetedFilter
-                column={table.getColumn("branch")}
-                title="Branch"
-                options={branch}
-              />
-            )}
-            {isFiltered && (
-              <Button
-                variant="ghost"
-                onClick={() => table.resetColumnFilters()}
-                className="flex gap-2 px-2 lg:px-3"
-              >
-                Reset
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-          <DataTableViewOptions table={table} />
-        </div>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-        <DataTablePagination table={table} />
-      </div>
-    );
-  }
 
   // Use the useEffect hook to fetch data when the component mounts
   useEffect(() => {
@@ -490,9 +363,174 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
     setIsMemberAdded,
     setmemberTableData,
   ]);
-
   return <DataTable columns={columns} data={memberTabledata} />;
 };
+
+// data table component
+interface DataTableProps<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+}
+function DataTable<TData, TValue>({
+  columns,
+  data,
+}: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+
+  const table = useReactTable({
+    data,
+    columns,
+    onColumnFiltersChange: setColumnFilters,
+    onSortingChange: setSorting,
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getFacetedRowModel: getFacetedRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+    },
+  });
+  const isFiltered = table.getState().columnFilters.length > 0;
+  const branch = [
+    {
+      label: "Information Technology",
+      value: "1",
+      icon: Diameter,
+    },
+    {
+      label: "Computer Science",
+      value: "2",
+      icon: ComponentIcon,
+    },
+    {
+      label: "Electronics & Telecommunication",
+      value: "3",
+      icon: Cpu,
+    },
+    {
+      label: "Mechanical Engineering",
+      value: "4",
+      icon: Cog,
+    },
+  ];
+  const duration = [
+    {
+      label: "One Year",
+      value: "1",
+      icon: Tally1,
+    },
+    {
+      label: "Two Year",
+      value: "2",
+      icon: Tally2,
+    },
+    {
+      label: "Three Year",
+      value: "3",
+      icon: Tally3,
+    },
+  ];
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <div className="flex gap-4">
+          <Input
+            placeholder="Filter by name..."
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("name")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+          {table.getColumn("duration") && (
+            <DataTableFacetedFilter
+              column={table.getColumn("duration")}
+              title="Duration"
+              options={duration}
+            />
+          )}
+          {table.getColumn("branch") && (
+            <DataTableFacetedFilter
+              column={table.getColumn("branch")}
+              title="Branch"
+              options={branch}
+            />
+          )}
+          {isFiltered && (
+            <Button
+              variant="ghost"
+              onClick={() => table.resetColumnFilters()}
+              className="flex gap-2 px-2 lg:px-3"
+            >
+              Reset
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        <DataTableViewOptions table={table} />
+      </div>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <DataTablePagination table={table} />
+    </div>
+  );
+}
 interface BulkUploadMemberFormProps {
   setIsBulkUploadCompleted: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -866,4 +904,4 @@ const AddMemberForm: FC<AddMemberFormProps> = ({ setIsMemberAdded }) => {
   );
 };
 
-export default ManageMember;
+export default Temp;
