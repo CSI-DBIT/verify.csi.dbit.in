@@ -65,7 +65,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Progress } from "@/components/ui/progress";
-import { Card } from "@/components/ui/card";
+import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -112,6 +112,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import EditMemberForm from "./manage-member-components/EditMemberForm";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const fetchData = async (): Promise<MemberDetailsSchema[]> => {
   try {
@@ -195,6 +196,8 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
 }) => {
   const [editingMember, setEditingMember] =
     useState<MemberDetailsSchema | null>(null);
+  const [deletingMember, setDeletingMember] =
+    useState<MemberDetailsSchema | null>(null);
   // colum  defination
   const columns: ColumnDef<MemberDetailsSchema>[] = [
     {
@@ -221,7 +224,9 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
     },
     {
       accessorKey: "branch",
-      header: () => <div>Branch</div>,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={"Branch"} />
+      ),
       cell: ({ row }) => {
         const branchNumber = parseInt(row.getValue("branch"), 10);
 
@@ -240,7 +245,9 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
     },
     {
       accessorKey: "duration",
-      header: () => <div>Duration</div>,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={"Duration"} />
+      ),
       cell: ({ row }) => {
         const durationNumber = parseInt(row.getValue("duration"), 10);
 
@@ -277,16 +284,75 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
       enableHiding: true,
       enableSorting: true,
     },
+    // {
+    //   id: "actions",
+    //   header: () => <div>Actions</div>,
+    //   cell: ({ row }) => {
+    //     const member = row.original;
+
+    //     const handleEdit = (member: MemberDetailsSchema): void => {
+    //       console.log("Editing member:", member);
+    //       setEditingMember(member);
+    //     };
+    //     return (
+    //       <DropdownMenu>
+    //         <DropdownMenuTrigger asChild>
+    //           <Button variant="ghost" className="h-8 w-8 p-0">
+    //             <span className="sr-only">Open menu</span>
+    //             <MoreHorizontal className="h-4 w-4" />
+    //           </Button>
+    //         </DropdownMenuTrigger>
+    //         <DropdownMenuContent>
+    //           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+    //           <Dialog>
+    //             <DialogTrigger asChild>
+    //               <DropdownMenuItem
+    //                 onSelect={(e) => {
+    //                   e.preventDefault();
+    //                   handleEdit(member);
+    //                 }}
+    //               >
+    //                 edit
+    //               </DropdownMenuItem>
+    //             </DialogTrigger>
+    //             <DialogContent>
+    //               <DialogHeader>
+    //                 <DialogTitle>Edit Member Details</DialogTitle>
+    //                 <DialogDescription>
+    //                   Edit member details and submit the form
+    //                 </DialogDescription>
+    //               </DialogHeader>
+    //               <EditMemberForm editingMember={editingMember} />
+    //             </DialogContent>
+    //           </Dialog>
+    //           <Dialog>
+    //             <DialogTrigger asChild>
+    //               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+    //                 delete
+    //               </DropdownMenuItem>
+    //             </DialogTrigger>
+    //             <DialogContent>
+    //               <DialogHeader>
+    //                 <DialogTitle>Delete form</DialogTitle>
+    //                 <DialogDescription>
+    //                   Here you can add fields to update your form
+    //                 </DialogDescription>
+    //               </DialogHeader>
+    //             </DialogContent>
+    //           </Dialog>
+    //         </DropdownMenuContent>
+    //       </DropdownMenu>
+    //     );
+    //   },
+    //   enableHiding: false,
+    //   enableSorting: true,
+    // },
     {
       id: "actions",
       header: () => <div>Actions</div>,
       cell: ({ row }) => {
         const member = row.original;
 
-        const handleEdit = (member: MemberDetailsSchema): void => {
-          console.log("Editing member:", member);
-          setEditingMember(member);
-        };
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -302,7 +368,8 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
                   <DropdownMenuItem
                     onSelect={(e) => {
                       e.preventDefault();
-                      handleEdit(member);
+                      console.log("Editing member:", member);
+                      setEditingMember(member);
                     }}
                   >
                     edit
@@ -320,17 +387,79 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
               </Dialog>
               <Dialog>
                 <DialogTrigger asChild>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      console.log("Deleting member:", member);
+                      setDeletingMember(member);
+                    }}
+                  >
                     delete
                   </DropdownMenuItem>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Delete form</DialogTitle>
+                    <DialogTitle>Delete Member</DialogTitle>
                     <DialogDescription>
-                      Here you can add fields to update your form
+                      Are you sure you want to delete this member?
                     </DialogDescription>
                   </DialogHeader>
+                  <div className="p-2">
+                    <ScrollArea className="h-[100px] rounded-md border p-4">
+                      <CardDescription>
+                        Name: {deletingMember?.name}
+                      </CardDescription>
+                      <CardDescription>
+                        Email: {deletingMember?.email}
+                      </CardDescription>
+                      <CardDescription>
+                        Student id: {deletingMember?.studentId}
+                      </CardDescription>
+                      <CardDescription>
+                        Branch: {deletingMember?.branch}
+                      </CardDescription>
+                      <CardDescription>
+                        Duration: {deletingMember?.duration}
+                      </CardDescription>
+                      <CardDescription>
+                        Start Date: {deletingMember?.startDate.toString()}
+                      </CardDescription>
+                    </ScrollArea>
+                  </div>
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      onClick={() => setDeletingMember(null)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        // Handle the deletion here
+                        console.log(
+                          "Deleting member with Student ID:",
+                          deletingMember?.studentId
+                        );
+                        toast({
+                          title: "You deleted the following values:",
+                          description: (
+                            <pre>{JSON.stringify(deletingMember, null, 2)}</pre>
+                          ),
+                        });
+                        // Make API call or update the member details in your data store
+                        // ...
+
+                        // For demo purposes, let's assume the deletion was successful
+                        // and update the state or perform any other necessary actions.
+
+                        // After successful deletion, reset the deletingMember state
+                        setDeletingMember(null);
+                      }}
+                    >
+                      Confirm Delete
+                    </Button>
+                  </DialogFooter>
                 </DialogContent>
               </Dialog>
             </DropdownMenuContent>

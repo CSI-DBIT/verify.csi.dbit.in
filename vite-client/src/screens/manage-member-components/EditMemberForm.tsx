@@ -60,7 +60,7 @@ const EditMemberForm: FC<EditMemberFormProps> = ({ editingMember }) => {
   ) => {
     console.log("submmiting edit form", data);
     toast({
-      title: "You submitted the following values:",
+      title: "You edited the following values:",
       description: <pre>{JSON.stringify(data, null, 2)}</pre>,
     });
     // try {
@@ -126,7 +126,11 @@ const EditMemberForm: FC<EditMemberFormProps> = ({ editingMember }) => {
             <FormItem>
               <FormLabel>Student ID</FormLabel>
               <FormControl>
-                <Input placeholder="Enter member's student ID" {...field} disabled/>
+                <Input
+                  placeholder="Enter member's student ID"
+                  {...field}
+                  disabled
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
