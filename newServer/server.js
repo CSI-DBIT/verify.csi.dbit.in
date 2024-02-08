@@ -211,7 +211,7 @@ app
   )
   .get("/api/get/member-details", async (req, res) => {
     try {
-      const documents = await MemberDetail.find({});
+      const documents = await MemberDetail.find({isDeleted:false});
       res.json(documents);
     } catch (error) {
       console.error(error);
@@ -252,6 +252,7 @@ app
         duration: Number(duration),
         startDate: Date(startDate),
         dateOfCreation: Date(startDate),
+        isDeleted: Boolean(false),
       });
       // Save the new member to the database
       await newMember.save();

@@ -27,6 +27,10 @@ const memberSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.Date,
     required: true,
   },
+  isDeleted: {
+    type: mongoose.Schema.Types.Boolean,
+    required: true,
+  },
   dateOfCreation: {
     type: mongoose.Schema.Types.Date,
     required: true,
