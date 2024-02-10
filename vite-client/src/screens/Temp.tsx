@@ -65,7 +65,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Progress } from "@/components/ui/progress";
-import { Card, CardDescription, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription } from "@/components/ui/card";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -99,19 +99,13 @@ import {
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuItem,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { DataTableViewOptions } from "@/components/reusableComponents/DataTableViewOptions";
 import { DataTablePagination } from "@/components/reusableComponents/DataTablePagination";
 import { DataTableColumnHeader } from "@/components/reusableComponents/DataTableColumnHeader";
 import { DataTableFacetedFilter } from "@/components/reusableComponents/DataTableFacetedFilter";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
 import EditMemberForm from "./manage-member-components/EditMemberForm";
+import { branchText, durationText } from "./manage-member-components/constants";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const fetchData = async (): Promise<MemberDetailsSchema[]> => {
@@ -186,6 +180,65 @@ interface ManageMemberTableProps {
   setIsMemberAdded: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const ManageMemberTable: FC<ManageMemberTableProps> = ({
   memberTabledata,
   setmemberTableData,
@@ -198,6 +251,8 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
     useState<MemberDetailsSchema | null>(null);
   const [deletingMember, setDeletingMember] =
     useState<MemberDetailsSchema | null>(null);
+  const [isOperationInProgress, setIsOperationInProgress] =
+    useState<boolean>(false);
   // colum  defination
   const columns: ColumnDef<MemberDetailsSchema>[] = [
     {
@@ -229,16 +284,7 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
       ),
       cell: ({ row }) => {
         const branchNumber = parseInt(row.getValue("branch"), 10);
-
-        // Map numeric values to corresponding text
-        const branchText = {
-          1: "Information Technology",
-          2: "Computer Science",
-          3: "Electronics & Telecommunication",
-          4: "Mechanical Engineering",
-        }[branchNumber];
-
-        return <div>{branchText}</div>;
+        return <div>{branchText[branchNumber]}</div>;
       },
       enableHiding: true,
       enableSorting: true,
@@ -250,15 +296,7 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
       ),
       cell: ({ row }) => {
         const durationNumber = parseInt(row.getValue("duration"), 10);
-
-        // Map numeric values to corresponding text
-        const durationText = {
-          1: "One Year",
-          2: "Two Years",
-          3: "Three Years",
-        }[durationNumber];
-
-        return <div>{durationText}</div>;
+        return <div>{durationText[durationNumber]}</div>;
       },
       enableHiding: true,
       enableSorting: true,
@@ -284,69 +322,6 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
       enableHiding: true,
       enableSorting: true,
     },
-    // {
-    //   id: "actions",
-    //   header: () => <div>Actions</div>,
-    //   cell: ({ row }) => {
-    //     const member = row.original;
-
-    //     const handleEdit = (member: MemberDetailsSchema): void => {
-    //       console.log("Editing member:", member);
-    //       setEditingMember(member);
-    //     };
-    //     return (
-    //       <DropdownMenu>
-    //         <DropdownMenuTrigger asChild>
-    //           <Button variant="ghost" className="h-8 w-8 p-0">
-    //             <span className="sr-only">Open menu</span>
-    //             <MoreHorizontal className="h-4 w-4" />
-    //           </Button>
-    //         </DropdownMenuTrigger>
-    //         <DropdownMenuContent>
-    //           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-    //           <Dialog>
-    //             <DialogTrigger asChild>
-    //               <DropdownMenuItem
-    //                 onSelect={(e) => {
-    //                   e.preventDefault();
-    //                   handleEdit(member);
-    //                 }}
-    //               >
-    //                 edit
-    //               </DropdownMenuItem>
-    //             </DialogTrigger>
-    //             <DialogContent>
-    //               <DialogHeader>
-    //                 <DialogTitle>Edit Member Details</DialogTitle>
-    //                 <DialogDescription>
-    //                   Edit member details and submit the form
-    //                 </DialogDescription>
-    //               </DialogHeader>
-    //               <EditMemberForm editingMember={editingMember} />
-    //             </DialogContent>
-    //           </Dialog>
-    //           <Dialog>
-    //             <DialogTrigger asChild>
-    //               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-    //                 delete
-    //               </DropdownMenuItem>
-    //             </DialogTrigger>
-    //             <DialogContent>
-    //               <DialogHeader>
-    //                 <DialogTitle>Delete form</DialogTitle>
-    //                 <DialogDescription>
-    //                   Here you can add fields to update your form
-    //                 </DialogDescription>
-    //               </DialogHeader>
-    //             </DialogContent>
-    //           </Dialog>
-    //         </DropdownMenuContent>
-    //       </DropdownMenu>
-    //     );
-    //   },
-    //   enableHiding: false,
-    //   enableSorting: true,
-    // },
     {
       id: "actions",
       header: () => <div>Actions</div>,
@@ -382,7 +357,10 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
                       Edit member details and submit the form
                     </DialogDescription>
                   </DialogHeader>
-                  <EditMemberForm editingMember={editingMember} />
+                  <EditMemberForm
+                    editingMember={editingMember}
+                    setIsOperationInProgress={setIsOperationInProgress}
+                  />
                 </DialogContent>
               </Dialog>
               <Dialog>
@@ -416,10 +394,11 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
                         Student id: {deletingMember?.studentId}
                       </CardDescription>
                       <CardDescription>
-                        Branch: {deletingMember?.branch}
+                        Branch: {branchText[Number(deletingMember?.branch)]}
                       </CardDescription>
                       <CardDescription>
-                        Duration: {deletingMember?.duration}
+                        Duration:{" "}
+                        {durationText[Number(deletingMember?.duration)]}
                       </CardDescription>
                       <CardDescription>
                         Start Date: {deletingMember?.startDate.toString()}
@@ -435,26 +414,33 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
                     </Button>
                     <Button
                       variant="outline"
-                      onClick={() => {
-                        // Handle the deletion here
-                        console.log(
-                          "Deleting member with Student ID:",
-                          deletingMember?.studentId
-                        );
-                        toast({
-                          title: "You deleted the following values:",
-                          description: (
-                            <pre>{JSON.stringify(deletingMember, null, 2)}</pre>
-                          ),
-                        });
-                        // Make API call or update the member details in your data store
-                        // ...
+                      className="hover:bg-red-600"
+                      onClick={async () => {
+                        try {
+                          setIsOperationInProgress(true);
+                          // Make API call to delete the member
+                          await axios.put(
+                            `http://localhost:5000/api/delete/member/${deletingMember?._id}`
+                          );
 
-                        // For demo purposes, let's assume the deletion was successful
-                        // and update the state or perform any other necessary actions.
-
-                        // After successful deletion, reset the deletingMember state
-                        setDeletingMember(null);
+                          // After successful deletion, reset the deletingMember state
+                          setDeletingMember(null);
+                          // Show success toast
+                          toast({
+                            title: "Member deleted successfully",
+                            variant: "default",
+                          });
+                        } catch (error) {
+                          // Handle error
+                          console.error("Error deleting member:", error);
+                          // Show error toast
+                          toast({
+                            title: "Error deleting member",
+                            description:
+                              error.message || "An unexpected error occurred",
+                            variant: "destructive",
+                          });
+                        }
                       }}
                     >
                       Confirm Delete
@@ -473,16 +459,15 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
 
   // Use the useEffect hook to fetch data when the component mounts
   useEffect(() => {
-    fetchData().then((data) => setmemberTableData(data));
-    if (isMemberAdded) {
+    fetchData().then((data) => {
+      setmemberTableData(data);
+      console.log(data);
+    });
+    if (isMemberAdded || isBulkUploadCompleted || isOperationInProgress) {
       fetchData().then((data) => setmemberTableData(data));
-      // Reset the flag
       setIsMemberAdded(false);
-    }
-    if (isBulkUploadCompleted) {
-      fetchData().then((data) => setmemberTableData(data));
-      // Reset the flag
       setIsBulkUploadCompleted(false);
+      setIsOperationInProgress(false);
     }
     console.log("use effect run");
   }, [
@@ -491,9 +476,68 @@ const ManageMemberTable: FC<ManageMemberTableProps> = ({
     setIsBulkUploadCompleted,
     setIsMemberAdded,
     setmemberTableData,
+    isOperationInProgress,
   ]);
   return <DataTable columns={columns} data={memberTabledata} />;
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // data table component
 interface DataTableProps<TData, TValue> {

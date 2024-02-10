@@ -53,7 +53,8 @@ const ManageMember = () => {
   );
   const [isBulkUploadCompleted, setIsBulkUploadCompleted] = useState(false);
   const [isMemberAdded, setIsMemberAdded] = useState(false);
-
+  const [isOperationInProgress, setIsOperationInProgress] =
+    useState<boolean>(false);
   //fetch member data
   const fetchData = async (): Promise<MemberDetailsSchema[]> => {
     try {
@@ -85,16 +86,15 @@ const ManageMember = () => {
   };
   // Use the useEffect hook to fetch data when the component mounts
   useEffect(() => {
-    fetchData().then((data) => setmemberTableData(data));
-    if (isMemberAdded) {
+    fetchData().then((data) => {
+      setmemberTableData(data);
+      console.log(data);
+    });
+    if (isMemberAdded || isBulkUploadCompleted || isOperationInProgress) {
       fetchData().then((data) => setmemberTableData(data));
-      // Reset the flag
       setIsMemberAdded(false);
-    }
-    if (isBulkUploadCompleted) {
-      fetchData().then((data) => setmemberTableData(data));
-      // Reset the flag
       setIsBulkUploadCompleted(false);
+      setIsOperationInProgress(false);
     }
     console.log("use effect run");
   }, [
@@ -103,6 +103,7 @@ const ManageMember = () => {
     setIsBulkUploadCompleted,
     setIsMemberAdded,
     setmemberTableData,
+    isOperationInProgress,
   ]);
   return (
     <div className="flex flex-col min-h-screen">
@@ -115,7 +116,7 @@ const ManageMember = () => {
           <AddMemberForm setIsMemberAdded={setIsMemberAdded} />
         </div>
         <div>
-          <ManageMemberTable memberTabledata={memberTabledata} />
+          <ManageMemberTable memberTabledata={memberTabledata} setIsOperationInProgress={setIsOperationInProgress} />
         </div>
       </div>
       <Footer />

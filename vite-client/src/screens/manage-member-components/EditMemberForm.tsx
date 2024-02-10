@@ -27,7 +27,7 @@ import {
   Popover,
   PopoverTrigger,
   PopoverContent,
-} from "@radix-ui/react-popover";
+} from "@/components/ui/popover";
 import axios from "axios";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -36,9 +36,13 @@ import { useForm, SubmitHandler } from "react-hook-form";
 
 interface EditMemberFormProps {
   editingMember: MemberDetailsSchema | null;
+  setIsOperationInProgress: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const EditMemberForm: FC<EditMemberFormProps> = ({ editingMember }) => {
+const EditMemberForm: FC<EditMemberFormProps> = ({
+  editingMember,
+  setIsOperationInProgress,
+}) => {
   console.log("EditMemberForm rendering", editingMember);
 
   const editMemberForm = useForm<MemberDetailsSchema>({
@@ -59,32 +63,28 @@ const EditMemberForm: FC<EditMemberFormProps> = ({ editingMember }) => {
     data: MemberDetailsSchema
   ) => {
     console.log("submmiting edit form", data);
-    toast({
-      title: "You edited the following values:",
-      description: <pre>{JSON.stringify(data, null, 2)}</pre>,
-    });
-    // try {
-    //   const response = await axios.post(
-    //     "http://localhost:5000/api/edit/member-details",
-    //     data
-    //   );
-    //   toast({
-    //     title: "You submitted the following values:",
-    //     description: (
-    //       <div>{JSON.stringify(response.data.message, null, 2)}</div>
-    //     ),
-    //   });
-    //   setIsMemberAdded(true);
-    // } catch (error) {
-    //   // Handle errors (e.g., show an error toast)
-    //   console.error("Error submitting form:", error);
-    //   toast({
-    //     title: "Error",
-    //     description:
-    //       "There was an error submitting the form. Please try again.",
-    //     variant: "destructive",
-    //   });
-    // }
+    setIsOperationInProgress(true);
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/update/member/${data.studentId}`,
+        data
+      );
+      toast({
+        title: "You submitted the following values:",
+        description: (
+          <div>{JSON.stringify(response.data.message, null, 2)}</div>
+        ),
+      });
+    } catch (error) {
+      // Handle errors (e.g., show an error toast)
+      console.error("Error submitting form:", error);
+      toast({
+        title: "Error",
+        description:
+          "There was an error submitting the form. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

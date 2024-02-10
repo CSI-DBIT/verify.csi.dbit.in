@@ -211,7 +211,7 @@ app
   )
   .get("/api/get/member-details", async (req, res) => {
     try {
-      const documents = await MemberDetail.find({isDeleted:false});
+      const documents = await MemberDetail.find({ isDeleted: false });
       res.json(documents);
     } catch (error) {
       console.error(error);
@@ -220,6 +220,7 @@ app
   })
   .post("/api/get/member-details/:studentId", async (req, res) => {
     try {
+      // student id pass krke member ke details nikalne hai
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
@@ -250,7 +251,7 @@ app
         studentId: Number(studentId),
         branch: Number(branch),
         duration: Number(duration),
-        startDate: Date(startDate),
+        startDate: Date.parse(startDate),
         dateOfCreation: Date(startDate),
         isDeleted: Boolean(false),
       });
@@ -274,12 +275,33 @@ app
     }
   })
 
-  .put("/api/update/member/:studentId", async (req, res) => {
+  .post("/api/update/member/:studentId", async (req, res) => {
     try {
       const studentId = req.params.studentId;
-      await MemberDetail.findByIdAndUpdate(studentId, req.body);
-
+      const { name, email, branch, duration, startDate } = req.body;
+      await MemberDetail.findOneAndUpdate(
+        { studentId },
+        {
+          name: name,
+          email: email,
+          branch: Number(branch),
+          duration: Number(duration),
+          startDate: Date.parse(startDate),
+        }
+      );
       res.status(200).json({ message: "Member updated successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  })
+
+  .put("/api/delete/member/:_id", async (req, res) => {
+    try {
+      const objectId = req.params._id;
+      await MemberDetail.findByIdAndUpdate(objectId, { isDeleted: true });
+
+      res.status(200).json({ message: "Member deleted successfully" });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
