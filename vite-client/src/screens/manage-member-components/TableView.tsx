@@ -114,6 +114,33 @@ const ManageMemberTableView: FC<ManageMemberTableViewProps> = ({
       cell: ({ row }) => {
         const member = row.original;
 
+        const handleDelete = async (deletingMember: MemberDetailsSchema) => {
+          try {
+            setIsOperationInProgress(true);
+            // Make API call to delete the member
+            await axios.put(
+              `http://localhost:5000/api/member/${deletingMember?._id}/delete`
+            );
+
+            // After successful deletion, reset the deletingMember state
+            setDeletingMember(null);
+            // Show success toast
+            toast({
+              title: "Member deleted successfully",
+              variant: "default",
+            });
+          } catch (error) {
+            // Handle error
+            console.error("Error deleting member:", error);
+            // Show error toast
+            toast({
+              title: "Error deleting member",
+              description: error.message || "An unexpected error occurred",
+              variant: "destructive",
+            });
+          }
+        };
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -201,33 +228,7 @@ const ManageMemberTableView: FC<ManageMemberTableViewProps> = ({
                     <Button
                       variant="outline"
                       className="hover:bg-red-600"
-                      onClick={async () => {
-                        try {
-                          setIsOperationInProgress(true);
-                          // Make API call to delete the member
-                          await axios.put(
-                            `http://localhost:5000/api/delete/member/${deletingMember?._id}`
-                          );
-
-                          // After successful deletion, reset the deletingMember state
-                          setDeletingMember(null);
-                          // Show success toast
-                          toast({
-                            title: "Member deleted successfully",
-                            variant: "default",
-                          });
-                        } catch (error) {
-                          // Handle error
-                          console.error("Error deleting member:", error);
-                          // Show error toast
-                          toast({
-                            title: "Error deleting member",
-                            description:
-                              error.message || "An unexpected error occurred",
-                            variant: "destructive",
-                          });
-                        }
-                      }}
+                      onClick={async () => handleDelete(member)}
                     >
                       Confirm Delete
                     </Button>
@@ -242,7 +243,9 @@ const ManageMemberTableView: FC<ManageMemberTableViewProps> = ({
       enableSorting: true,
     },
   ];
-  return <DataTable columns={columns} data={memberTabledata} />;
+  return (
+    <DataTable columns={columns} data={memberTabledata} rowsPerPage={10} />
+  );
 };
 
 export default ManageMemberTableView;

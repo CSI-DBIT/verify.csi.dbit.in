@@ -29,7 +29,22 @@ const memberSchema = new mongoose.Schema({
   },
   isDeleted: {
     type: mongoose.Schema.Types.Boolean,
-    required: true,
+    default: false,
+  },
+  deleteCount: {
+    type: mongoose.Schema.Types.Number,
+    default: 0,
+  },
+  revokeCount: {
+    type: mongoose.Schema.Types.Number,
+    default: 0,
+  },
+  editCount: {
+    type: mongoose.Schema.Types.Number,
+    default: 0,
+  },
+  dateOfDeletion: {
+    type: mongoose.Schema.Types.Date,
   },
   dateOfCreation: {
     type: mongoose.Schema.Types.Date,

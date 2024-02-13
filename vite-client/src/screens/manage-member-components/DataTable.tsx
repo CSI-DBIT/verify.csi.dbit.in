@@ -40,21 +40,24 @@ import { useState } from "react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  rowsPerPage: number;
 }
 function DataTable<TData, TValue>({
   columns,
   data,
+  rowsPerPage,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-
+  const [rowSelection, setRowSelection] = useState({})
   const table = useReactTable({
     data,
     columns,
     onColumnFiltersChange: setColumnFilters,
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -65,6 +68,12 @@ function DataTable<TData, TValue>({
       sorting,
       columnFilters,
       columnVisibility,
+      rowSelection,
+    },
+    initialState: {
+      pagination: {
+        pageSize: rowsPerPage,
+      },
     },
   });
   const isFiltered = table.getState().columnFilters.length > 0;
@@ -110,7 +119,7 @@ function DataTable<TData, TValue>({
 
   return (
     <div className="flex flex-col gap-4">
-       <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div className="flex gap-4">
           <Input
             placeholder="Filter by name..."

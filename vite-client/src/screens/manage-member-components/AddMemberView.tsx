@@ -1,6 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   FormField,
   FormItem,
   FormLabel,
@@ -9,6 +17,11 @@ import {
   Form,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -23,78 +36,100 @@ import {
   validationMemberDetailSchema,
 } from "@/validationSchemas/MemberDetailSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { FC } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
-interface EditMemberFormProps {
-  editingMember: MemberDetailsSchema | null;
-  setIsOperationInProgress: React.Dispatch<React.SetStateAction<boolean>>;
+interface AddMemberViewProps {
+  setIsMemberAdded: React.Dispatch<React.SetStateAction<boolean>>;
 }
+const AddMemberView: FC<AddMemberViewProps> = ({ setIsMemberAdded }) => {
+  return (
+    <div>
+      <Dialog>
+        <DialogTrigger className="pr-2 pb-2">
+          <Button>Add Member</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add new member</DialogTitle>
+            <DialogDescription>
+              Add single member by providing the required fields
+            </DialogDescription>
+          </DialogHeader>
+          <AddMemberForm setIsMemberAdded={setIsMemberAdded} />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
 
-const EditMemberForm: FC<EditMemberFormProps> = ({
-  editingMember,
-  setIsOperationInProgress,
-}) => {
-  console.log("EditMemberForm rendering", editingMember);
-
-  const editMemberForm = useForm<MemberDetailsSchema>({
+export default AddMemberView;
+interface AddMemberViewProps {
+  setIsMemberAdded: React.Dispatch<React.SetStateAction<boolean>>;
+}
+const AddMemberForm: FC<AddMemberViewProps> = ({ setIsMemberAdded }) => {
+  const add_member_form = useForm<MemberDetailsSchema>({
     resolver: zodResolver(validationMemberDetailSchema),
-    defaultValues: editingMember
-      ? {
-          name: editingMember.name,
-          email: editingMember.email,
-          studentId: editingMember.studentId.toString(),
-          branch: editingMember.branch.toString(),
-          duration: editingMember.duration.toString(),
-          startDate: new Date(editingMember.startDate),
-        }
-      : undefined,
+    defaultValues: {
+      branch: "1",
+      duration: "1",
+      startDate: new Date(),
+    },
   });
 
-  const onEditMemberSubmit: SubmitHandler<MemberDetailsSchema> = async (
+  const onMemberFormSubmit: SubmitHandler<MemberDetailsSchema> = async (
     data: MemberDetailsSchema
   ) => {
-    console.log("submmiting edit form", data);
-    setIsOperationInProgress(true);
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/member/${data.studentId}/update`,
+        "http://localhost:5000/api/member/add",
         data
       );
-      toast({
-        title: "You submitted the following values:",
-        description: (
-          <div>{JSON.stringify(response.data.message, null, 2)}</div>
-        ),
+      add_member_form.reset({
+        name: "",
+        email: "",
+        studentId: "",
+        branch: "1",
+        duration: "1",
+        startDate: new Date(),
       });
+
+      toast({
+        title: `${JSON.stringify(response.data.message, null, 2)}`,
+      });
+      setIsMemberAdded(true);
     } catch (error) {
       // Handle errors (e.g., show an error toast)
       console.error("Error submitting form:", error);
-      toast({
-        title: "Error",
-        description:
-          "There was an error submitting the form. Please try again.",
-        variant: "destructive",
-      });
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError;
+        const errorMessage =
+          axiosError.response?.data?.error || "Unknown error";
+        toast({
+          title: errorMessage,
+          variant: "destructive",
+        });
+      } else {
+        // Handle other types of errors
+        console.error("Unexpected error:", error);
+        toast({
+          title: "Unexpected error:",
+          variant: "destructive",
+        });
+      }
     }
   };
-
   return (
-    <Form {...editMemberForm}>
+    <Form {...add_member_form}>
       <form
-        onSubmit={editMemberForm.handleSubmit(onEditMemberSubmit)}
+        onSubmit={add_member_form.handleSubmit(onMemberFormSubmit)}
         className="space-y-3"
       >
         <FormField
-          control={editMemberForm.control}
+          control={add_member_form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
@@ -107,7 +142,7 @@ const EditMemberForm: FC<EditMemberFormProps> = ({
           )}
         />
         <FormField
-          control={editMemberForm.control}
+          control={add_member_form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
@@ -120,24 +155,20 @@ const EditMemberForm: FC<EditMemberFormProps> = ({
           )}
         />
         <FormField
-          control={editMemberForm.control}
+          control={add_member_form.control}
           name="studentId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Student ID</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Enter member's student ID"
-                  {...field}
-                  disabled
-                />
+                <Input placeholder="Enter member's student ID" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         <FormField
-          control={editMemberForm.control}
+          control={add_member_form.control}
           name="branch"
           render={({ field }) => (
             <FormItem>
@@ -162,7 +193,7 @@ const EditMemberForm: FC<EditMemberFormProps> = ({
           )}
         />
         <FormField
-          control={editMemberForm.control}
+          control={add_member_form.control}
           name="duration"
           render={({ field }) => (
             <FormItem>
@@ -184,7 +215,7 @@ const EditMemberForm: FC<EditMemberFormProps> = ({
           )}
         />
         <FormField
-          control={editMemberForm.control}
+          control={add_member_form.control}
           name="startDate"
           render={({ field }) => (
             <FormItem className="flex flex-col">
@@ -225,9 +256,10 @@ const EditMemberForm: FC<EditMemberFormProps> = ({
             </FormItem>
           )}
         />
-        <Button type="submit">Update</Button>
+        <Button type="submit" disabled={add_member_form.formState.isSubmitting}>
+          Submit
+        </Button>
       </form>
     </Form>
   );
 };
-export default EditMemberForm;

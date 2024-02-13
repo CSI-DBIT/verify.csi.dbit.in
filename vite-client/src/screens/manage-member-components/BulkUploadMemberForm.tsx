@@ -111,7 +111,7 @@ const BulkUploadMemberForm: FC<BulkUploadMemberFormProps> = ({
 
   return (
     <Drawer>
-      <DrawerTrigger>
+      <DrawerTrigger className="pr-2 pb-2">
         <Button>Bulk Upload Members</Button>
       </DrawerTrigger>
       <DrawerContent>

@@ -143,7 +143,14 @@ app
         // Check if fields in the Excel file match the schema (excluding dateOfCreation)
         const memberSchemaPaths = Object.keys(MemberDetail.schema.paths).filter(
           (path) =>
-            path !== "__v" && path !== "_id" && path !== "dateOfCreation"
+            path !== "__v" &&
+            path !== "_id" &&
+            path !== "dateOfCreation" &&
+            path !== "isDeleted" &&
+            path !== "dateOfDeletion" &&
+            path !== "deleteCount" &&
+            path !== "revokeCount" &&
+            path !== "editCount"
         );
         for (const item of data) {
           const itemKeys = Object.keys(item);
@@ -226,7 +233,16 @@ app
       res.status(500).json({ error: "Internal server error" });
     }
   })
-  .post("/api/add/member-details", async (req, res) => {
+  .get("/api/get/deleted-member-details", async (req, res) => {
+    try {
+      const documents = await MemberDetail.find({ isDeleted: true });
+      res.json(documents);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  })
+  .post("/api/member/add", async (req, res) => {
     try {
       const { name, email, studentId, branch, duration, startDate } = req.body;
       console.log(name, email, studentId, branch, duration, startDate);
@@ -252,22 +268,22 @@ app
         branch: Number(branch),
         duration: Number(duration),
         startDate: Date.parse(startDate),
-        dateOfCreation: Date(startDate),
-        isDeleted: Boolean(false),
+        dateOfCreation: Date.parse(startDate),
       });
       // Save the new member to the database
       await newMember.save();
       console.log(newMember);
-
       // Send a success response
       res.status(200).json({ message: "Member added successfully" });
     } catch (error) {
       console.error(error);
       if (error.code === 11000) {
-        // Duplicate key error (e.g., unique index violation)
+        // Extract the duplicated key and its value from the error
+        const duplicatedKey = Object.keys(error.keyPattern)[0];
+        const duplicatedValue = error.keyValue[duplicatedKey];
+
         return res.status(400).json({
-          error:
-            "Duplicate fields error. Ensure unique constraints are not violated.",
+          error: `Duplicate key error. The key "${duplicatedKey}" with value "${duplicatedValue}" already exists.`,
         });
       } else {
         res.status(500).json({ error: "Internal server error" });
@@ -275,18 +291,21 @@ app
     }
   })
 
-  .post("/api/update/member/:studentId", async (req, res) => {
+  .post("/api/member/:studentId/update", async (req, res) => {
     try {
       const studentId = req.params.studentId;
       const { name, email, branch, duration, startDate } = req.body;
       await MemberDetail.findOneAndUpdate(
         { studentId },
         {
-          name: name,
-          email: email,
-          branch: Number(branch),
-          duration: Number(duration),
-          startDate: Date.parse(startDate),
+          $set: {
+            name: name,
+            email: email,
+            branch: Number(branch),
+            duration: Number(duration),
+            startDate: Date.parse(startDate),
+          },
+          $inc: { editCount: 1 },
         }
       );
       res.status(200).json({ message: "Member updated successfully" });
@@ -296,12 +315,32 @@ app
     }
   })
 
-  .put("/api/delete/member/:_id", async (req, res) => {
+  .put("/api/member/:_id/delete", async (req, res) => {
     try {
       const objectId = req.params._id;
-      await MemberDetail.findByIdAndUpdate(objectId, { isDeleted: true });
+
+      // Update isDeleted to true and increment deleteCount by 1
+      await MemberDetail.findByIdAndUpdate(objectId, {
+        $set: { isDeleted: true },
+        $inc: { deleteCount: 1 },
+      });
 
       res.status(200).json({ message: "Member deleted successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  })
+
+  .put("/api/member/:_id/revoke", async (req, res) => {
+    try {
+      const objectId = req.params._id;
+      await MemberDetail.findByIdAndUpdate(objectId, {
+        $set: { isDeleted: false },
+        $inc: { revokeCount: 1 },
+      });
+
+      res.status(200).json({ message: "Member revoked successfully" });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
