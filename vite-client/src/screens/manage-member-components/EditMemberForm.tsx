@@ -35,7 +35,7 @@ import { FC } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
 interface EditMemberFormProps {
-  editingMember: MemberDetailsSchema | null;
+  editingMember: MemberDetailsSchema;
   setIsOperationInProgress: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -60,28 +60,24 @@ const EditMemberForm: FC<EditMemberFormProps> = ({
   });
 
   const onEditMemberSubmit: SubmitHandler<MemberDetailsSchema> = async (
-    data: MemberDetailsSchema
+    editingMember: MemberDetailsSchema
   ) => {
-    console.log("submmiting edit form", data);
-    setIsOperationInProgress(true);
     try {
-      const response = await axios.post(
-        `http://localhost:5000/api/member/${data.studentId}/update`,
-        data
+      setIsOperationInProgress(true);
+      await axios.post(
+        `http://localhost:5000/api/member/${editingMember.studentId}/update`,
+        editingMember
       );
       toast({
-        title: "You submitted the following values:",
-        description: (
-          <div>{JSON.stringify(response.data.message, null, 2)}</div>
-        ),
+        title: "Member Updated Successfully",
+        variant: "default",
       });
     } catch (error) {
       // Handle errors (e.g., show an error toast)
       console.error("Error submitting form:", error);
       toast({
-        title: "Error",
-        description:
-          "There was an error submitting the form. Please try again.",
+        title: "Error editing member",
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
     }

@@ -147,7 +147,9 @@ app
             path !== "_id" &&
             path !== "dateOfCreation" &&
             path !== "isDeleted" &&
-            path !== "dateOfDeletion" &&
+            path !== "lastDeleted" &&
+            path !== "lastEdited" &&
+            path !== "lastRevoked" &&
             path !== "deleteCount" &&
             path !== "revokeCount" &&
             path !== "editCount"
@@ -304,6 +306,7 @@ app
             branch: Number(branch),
             duration: Number(duration),
             startDate: Date.parse(startDate),
+            lastEdited: new Date(Date.now()),
           },
           $inc: { editCount: 1 },
         }
@@ -315,16 +318,18 @@ app
     }
   })
 
-  .put("/api/member/:_id/delete", async (req, res) => {
+  .put("/api/member/:studentId/delete", async (req, res) => {
     try {
-      const objectId = req.params._id;
+      const studentId = req.params.studentId;
 
       // Update isDeleted to true and increment deleteCount by 1
-      await MemberDetail.findByIdAndUpdate(objectId, {
-        $set: { isDeleted: true },
-        $inc: { deleteCount: 1 },
-      });
-
+      await MemberDetail.findOneAndUpdate(
+        { studentId },
+        {
+          $set: { isDeleted: true, lastdDeleted: new Date(Date.now()) },
+          $inc: { deleteCount: 1 },
+        }
+      );
       res.status(200).json({ message: "Member deleted successfully" });
     } catch (error) {
       console.error(error);
@@ -332,13 +337,16 @@ app
     }
   })
 
-  .put("/api/member/:_id/revoke", async (req, res) => {
+  .put("/api/member/:studentId/revoke", async (req, res) => {
     try {
-      const objectId = req.params._id;
-      await MemberDetail.findByIdAndUpdate(objectId, {
-        $set: { isDeleted: false },
-        $inc: { revokeCount: 1 },
-      });
+      const studentId = req.params.studentId;
+      await MemberDetail.findOneAndUpdate(
+        { studentId },
+        {
+          $set: { isDeleted: false, lastRevoked: new Date(Date.now()) },
+          $inc: { revokeCount: 1 },
+        }
+      );
 
       res.status(200).json({ message: "Member revoked successfully" });
     } catch (error) {

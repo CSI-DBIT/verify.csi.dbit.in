@@ -27,6 +27,10 @@ const memberSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.Date,
     required: true,
   },
+  dateOfCreation: {
+    type: mongoose.Schema.Types.Date,
+    required: true,
+  },
   isDeleted: {
     type: mongoose.Schema.Types.Boolean,
     default: false,
@@ -43,12 +47,14 @@ const memberSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.Number,
     default: 0,
   },
-  dateOfDeletion: {
+  lastDeleted: {
     type: mongoose.Schema.Types.Date,
   },
-  dateOfCreation: {
+  lastRevoked: {
     type: mongoose.Schema.Types.Date,
-    required: true,
+  },
+  lastEdited: {
+    type: mongoose.Schema.Types.Date,
   },
 });
 

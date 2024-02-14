@@ -4,9 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import {
-  MemberDetailsSchema,
-} from "@/validationSchemas/MemberDetailSchema";
+import { MemberDetailsSchema } from "@/validationSchemas/MemberDetailSchema";
 import BulkUploadMemberForm from "./manage-member-components/BulkUploadMemberForm";
 import ManageMemberTable from "./manage-member-components/TableView";
 import AddMemberView from "./manage-member-components/AddMemberView";
@@ -16,9 +14,9 @@ const ManageMember = () => {
   const [memberTabledata, setmemberTableData] = useState<MemberDetailsSchema[]>(
     []
   );
-  const [delMemberTabledata, setDelmemberTableData] = useState<MemberDetailsSchema[]>(
-    []
-  );
+  const [delMemberTabledata, setDelmemberTableData] = useState<
+    MemberDetailsSchema[]
+  >([]);
   const [isBulkUploadCompleted, setIsBulkUploadCompleted] = useState(false);
   const [isMemberAdded, setIsMemberAdded] = useState(false);
   const [isOperationInProgress, setIsOperationInProgress] =
@@ -115,7 +113,10 @@ const ManageMember = () => {
             setIsBulkUploadCompleted={setIsBulkUploadCompleted}
           />
           <AddMemberView setIsMemberAdded={setIsMemberAdded} />
-          <ManageDelete delMemberTabledata={delMemberTabledata} />
+          <ManageDelete
+            delMemberTabledata={delMemberTabledata}
+            setIsOperationInProgress={setIsOperationInProgress}
+          />
         </div>
         <div>
           <ManageMemberTable
