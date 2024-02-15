@@ -170,7 +170,7 @@ const DeleteMemberForm: FC<DeleteMemberFormProps> = ({
       <DialogFooter>
         <Button
           variant="outline"
-          className="hover:bg-red-600"
+          className="hover:bg-red-600 w-full"
           onClick={async () => handleDelete(deletingMember)}
         >
           Confirm Delete

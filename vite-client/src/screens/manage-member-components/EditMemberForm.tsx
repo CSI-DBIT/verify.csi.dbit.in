@@ -338,7 +338,7 @@ const EditMemberForm: FC<EditMemberFormProps> = ({
             />
           </div>
         </ScrollArea>
-        <Button type="submit">Update</Button>
+        <Button className="w-full" type="submit">Update</Button>
       </form>
     </Form>
   );

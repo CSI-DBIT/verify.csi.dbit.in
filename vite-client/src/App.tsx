@@ -10,6 +10,7 @@ import PageNotFound from "./screens/PageNotFound";
 import ManageMember from "./screens/ManageMember";
 import Temp from "./screens/Temp";
 import CertificateAllocation from "./screens/CertificateAllocation";
+import ManageEvent from "./screens/ManageEvent";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -41,6 +42,10 @@ const App = () => {
     {
       path: "/certificate-allocation",
       element: <CertificateAllocation />,
+    },
+    {
+      path: "/manage/events",
+      element: <ManageEvent />,
     },
     {
       path: "temp",

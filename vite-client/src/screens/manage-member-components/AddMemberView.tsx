@@ -86,7 +86,6 @@ const AddMemberForm: FC<AddMemberViewProps> = ({ setIsMemberAdded }) => {
     data: MemberDetailsSchema
   ) => {
     try {
-      console.log("btn press");
       const response = await axios.post(
         `${import.meta.env.VITE_SERVER_URL}/api/member/add`,
         data
