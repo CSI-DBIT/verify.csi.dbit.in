@@ -21,7 +21,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EditMemberForm from "./EditMemberForm";
-import { branchText, durationText } from "./constants";
+import { branchText, durationText } from "../constants";
 import DeleteMemberForm from "./DeleteMemberForm";
 
 interface ManageMemberTableViewProps {

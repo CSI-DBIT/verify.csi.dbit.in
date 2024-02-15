@@ -16,7 +16,7 @@ import { FC } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import DataTable from "../DataTable";
-import { branchText, durationText } from "../constants";
+import { branchText, durationText } from "../../constants";
 
 interface ManageDeleteTableViewProps {
   delMemberTabledata: MemberDetailsSchema[];
@@ -29,10 +29,20 @@ const DeleteTableView: FC<ManageDeleteTableViewProps> = ({
   const handleRevoke = async (revokingMember: MemberDetailsSchema) => {
     try {
       setIsOperationInProgress(true);
-      // Make API call to revoke the member
+
+      // Create a new object with lastRevoked
+      const lastRevoked = {
+        lastRevoked: new Date(), // Set lastRevoked to the current date
+      };
+
+      // Make the API call to revoke the member with the modified data
       await axios.put(
-        `http://localhost:5000/api/member/${revokingMember.studentId}/revoke`
+        `${import.meta.env.VITE_SERVER_URL}/api/member/revoke?studentId=${
+          revokingMember.studentId
+        }`,
+        lastRevoked
       );
+
       // Show success toast
       toast({
         title: "Member revoked successfully",
@@ -49,6 +59,7 @@ const DeleteTableView: FC<ManageDeleteTableViewProps> = ({
       });
     }
   };
+
   const columns: ColumnDef<MemberDetailsSchema>[] = [
     {
       accessorKey: "name",

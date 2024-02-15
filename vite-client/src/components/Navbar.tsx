@@ -84,6 +84,16 @@ const Navbar = () => {
                 </Link>
               </SheetTitle>
               <SheetTitle>
+                <Link to="/certificate-allocation">
+                  <Card className="p-2 flex items-center space-x-2">
+                    <CardDescription>
+                      <Home size={22} />
+                    </CardDescription>
+                    <CardDescription>certificate allocation</CardDescription>
+                  </Card>
+                </Link>
+              </SheetTitle>
+              <SheetTitle>
                 <Link to="/temp">
                   <Card className="p-2 flex items-center space-x-2">
                     <CardDescription>

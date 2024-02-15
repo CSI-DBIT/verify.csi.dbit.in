@@ -34,13 +34,16 @@ const HomeScreen = () => {
   const handleClick = (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setflipped(!flipped);
+    console.log(import.meta.env.VITE_DEV_SERVER_URL);
   };
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <div className="lg:p-12 p-4 lg:flex flex-grow justify-center items-center">
         <div className="flex flex-col lg:space-y-8 space-y-3 p-4 lg:w-6/12">
-          <div className="lg:text-3xl text-xl">/ Verify & Authenticate easily through</div>
+          <div className="lg:text-3xl text-xl">
+            / Verify & Authenticate easily through
+          </div>
           <div className="flex lg:text-6xl text-3xl font-bold">
             <span>csi@</span>
             <TextTransition springConfig={presets.wobbly}>
@@ -78,7 +81,7 @@ const HomeScreen = () => {
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="space-y-1">
-                    <Label htmlFor="current">Certificate code:</Label>
+                      <Label htmlFor="current">Certificate code:</Label>
                       <Input id="code" placeholder="eg : xhdgrw" />
                     </div>
                   </CardContent>
@@ -92,7 +95,8 @@ const HomeScreen = () => {
                   <CardHeader>
                     <CardTitle>Verify Membership</CardTitle>
                     <CardDescription>
-                      Verify your membership status below. Click "Verify" for member verification.
+                      Verify your membership status below. Click "Verify" for
+                      member verification.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
@@ -218,7 +222,7 @@ const HomeScreen = () => {
           </Card>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

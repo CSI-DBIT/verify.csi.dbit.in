@@ -50,7 +50,7 @@ const BulkUploadMemberForm: FC<BulkUploadMemberFormProps> = ({
 
       try {
         const response = await axios.post(
-          "http://localhost:5000/api/bulk-upload/member-details",
+          `${import.meta.env.VITE_SERVER_URL}/api/bulk-upload/member-details`,
           formData,
           {
             headers: {

@@ -8,6 +8,7 @@ const shortid = require("shortid");
 const { v4: uuidv4 } = require("uuid");
 const xlsx = require("xlsx");
 require("dotenv").config();
+const cron = require("node-cron");
 
 // importing files
 const db = require("./db");
@@ -31,6 +32,7 @@ const memberExcel = multer.memoryStorage();
 const memberExcelupload = multer({ storage: memberExcel });
 
 const certificateStorageupload = multer({ storage: certificateStorage });
+
 app
   .use(cors())
   .use(express.json())
@@ -140,7 +142,7 @@ app
             .json({ error: "Invalid data format or empty data array" });
         }
 
-        // Check if fields in the Excel file match the schema (excluding dateOfCreation)
+        // Check if fields in the Excel file match the schema (excluding these fields)
         const memberSchemaPaths = Object.keys(MemberDetail.schema.paths).filter(
           (path) =>
             path !== "__v" &&
@@ -156,24 +158,23 @@ app
         );
         for (const item of data) {
           const itemKeys = Object.keys(item);
-
-          const unknownFields = itemKeys.filter(
+          const unknownColumns = itemKeys.filter(
             (key) => !memberSchemaPaths.includes(key)
           );
-          if (unknownFields.length > 0) {
+          if (unknownColumns.length > 0) {
             return res.status(400).json({
-              error: `Unknown fields in Excel data: ${unknownFields.join(
+              error: `Unknown Columns in Excel data: ${unknownColumns.join(
                 ", "
               )}`,
             });
           }
 
-          const missingFields = memberSchemaPaths.filter(
+          const missingColumns = memberSchemaPaths.filter(
             (path) => !itemKeys.includes(path)
           );
-          if (missingFields.length > 0) {
+          if (missingColumns.length > 0) {
             return res.status(400).json({
-              error: `Missing fields in Excel data: ${missingFields.join(
+              error: `Missing Columns or Cells in Excel data: ${missingColumns.join(
                 ", "
               )}`,
             });
@@ -207,10 +208,12 @@ app
       } catch (error) {
         console.error(error);
         if (error.code === 11000) {
-          // Duplicate key error (e.g., unique index violation)
+          // Extract the duplicated key and its value from the error
+          const duplicatedKey = Object.keys(error.keyPattern)[0];
+          const duplicatedValue = error.keyValue[duplicatedKey];
+
           return res.status(400).json({
-            error:
-              "Duplicate fields error. Ensure unique constraints are not violated.",
+            error: `Duplicate key error. The key "${duplicatedKey}" with value "${duplicatedValue}" already exists.`,
           });
         } else {
           res.status(500).json({ error: "Internal server error" });
@@ -218,7 +221,8 @@ app
       }
     }
   )
-  .get("/api/get/member-details", async (req, res) => {
+
+  .get("/api/get/all-members", async (req, res) => {
     try {
       const documents = await MemberDetail.find({ isDeleted: false });
       res.json(documents);
@@ -227,15 +231,21 @@ app
       res.status(500).json({ error: "Internal server error" });
     }
   })
-  .post("/api/get/member-details/:studentId", async (req, res) => {
+  .get("/api/get/single-member", async (req, res) => {
     try {
-      // student id pass krke member ke details nikalne hai
+      // Get studentId from query parameters
+      const studentId = req.query.studentId;
+      if (!studentId) {
+        return res.status(400).json({ error: "Student ID is required" });
+      }
+      const documents = await MemberDetail.find({ studentId: studentId });
+      res.json(documents);
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
     }
   })
-  .get("/api/get/deleted-member-details", async (req, res) => {
+  .get("/api/get/deleted-members", async (req, res) => {
     try {
       const documents = await MemberDetail.find({ isDeleted: true });
       res.json(documents);
@@ -246,17 +256,53 @@ app
   })
   .post("/api/member/add", async (req, res) => {
     try {
-      const { name, email, studentId, branch, duration, startDate } = req.body;
-      console.log(name, email, studentId, branch, duration, startDate);
+      const {
+        name,
+        email,
+        mobileNumber,
+        gender,
+        studentId,
+        branch,
+        currentAcademicYear,
+        currentSemester,
+        duration,
+        startDate,
+      } = req.body;
+      console.log(
+        name,
+        email,
+        mobileNumber,
+        gender,
+        studentId,
+        branch,
+        currentAcademicYear,
+        currentSemester,
+        duration,
+        startDate
+      );
       // Validate required fields
-      if (!name || !email || !studentId || !branch || !duration || !startDate) {
+      if (
+        !name ||
+        !email ||
+        !mobileNumber ||
+        !gender ||
+        !studentId ||
+        !branch ||
+        !currentAcademicYear ||
+        !currentSemester ||
+        !duration ||
+        !startDate
+      ) {
         return res.status(400).json({ error: "All fields are required" });
       }
-
       // Check for invalid numeric values
       if (
+        isNaN(Number(mobileNumber)) ||
+        isNaN(Number(gender)) ||
         isNaN(Number(studentId)) ||
         isNaN(Number(branch)) ||
+        isNaN(Number(currentAcademicYear)) ||
+        isNaN(Number(currentSemester)) ||
         isNaN(Number(duration))
       ) {
         return res.status(400).json({ error: "Invalid numeric values" });
@@ -266,8 +312,12 @@ app
       const newMember = new MemberDetail({
         name: String(name),
         email: String(email),
+        mobileNumber: Number(mobileNumber),
+        gender: Number(gender),
         studentId: Number(studentId),
         branch: Number(branch),
+        currentAcademicYear: Number(currentAcademicYear),
+        currentSemester: Number(currentSemester),
         duration: Number(duration),
         startDate: Date.parse(startDate),
         dateOfCreation: Date.parse(startDate),
@@ -293,20 +343,44 @@ app
     }
   })
 
-  .post("/api/member/:studentId/update", async (req, res) => {
+  .post("/api/member/edit", async (req, res) => {
     try {
-      const studentId = req.params.studentId;
-      const { name, email, branch, duration, startDate } = req.body;
+      // Get studentId from query parameters
+      const studentId = req.query.studentId;
+      if (!studentId) {
+        return res.status(400).json({ error: "Student ID is required" });
+      }
+      // Check if the member exists
+      const existingMember = await MemberDetail.findOne({ studentId });
+      if (!existingMember) {
+        return res.status(404).json({ error: "Member not found" });
+      }
+      const {
+        name,
+        email,
+        mobileNumber,
+        gender,
+        branch,
+        currentAcademicYear,
+        currentSemester,
+        duration,
+        startDate,
+        lastEdited,
+      } = req.body;
       await MemberDetail.findOneAndUpdate(
         { studentId },
         {
           $set: {
-            name: name,
-            email: email,
+            name: String(name),
+            email: String(email),
+            mobileNumber: Number(mobileNumber),
+            gender: Number(gender),
             branch: Number(branch),
+            currentAcademicYear: Number(currentAcademicYear),
+            currentSemester: Number(currentSemester),
             duration: Number(duration),
-            startDate: Date.parse(startDate),
-            lastEdited: new Date(Date.now()),
+            startDate: new Date(startDate),
+            lastEdited: new Date(lastEdited),
           },
           $inc: { editCount: 1 },
         }
@@ -318,15 +392,25 @@ app
     }
   })
 
-  .put("/api/member/:studentId/delete", async (req, res) => {
+  .put("/api/member/delete", async (req, res) => {
     try {
-      const studentId = req.params.studentId;
+      // Get studentId from query parameters
+      const studentId = req.query.studentId;
+      if (!studentId) {
+        return res.status(400).json({ error: "Student ID is required" });
+      }
+
+      // Extract lastDeleted from request body
+      const { lastDeleted } = req.body;
+      if (!lastDeleted) {
+        return res.status(400).json({ error: "Last Deleted date is required" });
+      }
 
       // Update isDeleted to true and increment deleteCount by 1
       await MemberDetail.findOneAndUpdate(
         { studentId },
         {
-          $set: { isDeleted: true, lastdDeleted: new Date(Date.now()) },
+          $set: { isDeleted: true, lastDeleted: new Date(lastDeleted) },
           $inc: { deleteCount: 1 },
         }
       );
@@ -337,13 +421,25 @@ app
     }
   })
 
-  .put("/api/member/:studentId/revoke", async (req, res) => {
+  .put("/api/member/revoke", async (req, res) => {
     try {
-      const studentId = req.params.studentId;
+      // Get studentId from query parameters
+      const studentId = req.query.studentId;
+      if (!studentId) {
+        return res.status(400).json({ error: "Student ID is required" });
+      }
+
+      // Extract lastRevoked from request body
+      const { lastRevoked } = req.body;
+      if (!lastRevoked) {
+        return res.status(400).json({ error: "Last Revoked date is required" });
+      }
+
+      // Update isDeleted to false, set lastRevoked, and increment revokeCount by 1
       await MemberDetail.findOneAndUpdate(
         { studentId },
         {
-          $set: { isDeleted: false, lastRevoked: new Date(Date.now()) },
+          $set: { isDeleted: false, lastRevoked: new Date(lastRevoked) },
           $inc: { revokeCount: 1 },
         }
       );
@@ -355,13 +451,36 @@ app
     }
   });
 
+// Define a cron job to run every June
+cron.schedule("0 0 1 6 *", async () => {
+  try {
+    // Increment current academic year for all members
+    await MemberDetail.updateMany({}, { $inc: { currentAcademicYear: 1 } });
+    console.log("Current academic year incremented for all members");
+  } catch (error) {
+    console.error("Error incrementing academic year:", error);
+  }
+});
+// Define a cron job to run every June and December
+cron.schedule("0 0 1 6,12 *", async () => {
+  try {
+    // Increment current academic year for all members
+    await MemberDetail.updateMany({}, { $inc: { currentSemester: 1 } });
+    console.log("Current semester incremented for all members");
+  } catch (error) {
+    console.error("Error incrementing semester:", error);
+  }
+});
+
 // Connect to the MongoDB database using the `db` object
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 db.once("open", () => {
   console.log("Connected to the database");
   // Start the server after successfully connecting to the database
-  app.listen(PORT, () => {
-    console.log(`Server is running on port http://localhost:${PORT}`);
+  app.listen(process.env.PORT, () => {
+    console.log(
+      `Server is running on port http://localhost:${process.env.PORT}`
+    );
   });
 });
 

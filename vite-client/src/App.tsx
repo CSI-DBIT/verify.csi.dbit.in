@@ -9,6 +9,7 @@ import HomeScreen from "./screens/HomeScreen";
 import PageNotFound from "./screens/PageNotFound";
 import ManageMember from "./screens/ManageMember";
 import Temp from "./screens/Temp";
+import CertificateAllocation from "./screens/CertificateAllocation";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -36,6 +37,10 @@ const App = () => {
     {
       path: "/manage/members",
       element: <ManageMember />,
+    },
+    {
+      path: "/certificate-allocation",
+      element: <CertificateAllocation />,
     },
     {
       path: "temp",

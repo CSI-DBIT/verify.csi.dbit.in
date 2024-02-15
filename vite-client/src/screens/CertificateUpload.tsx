@@ -143,7 +143,7 @@ const CertificateUpload = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/upload-certificates",
+        `${import.meta.env.VITE_SERVER_URL}/api/upload-certificates`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

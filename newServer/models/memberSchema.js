@@ -10,12 +10,28 @@ const memberSchema = new mongoose.Schema({
     unique: true,
     required: true,
   },
+  mobileNumber: {
+    type: mongoose.Schema.Types.Number,
+    required: true,
+  },
+  gender: {
+    type: mongoose.Schema.Types.Number,
+    required: true,
+  },
   studentId: {
     type: mongoose.Schema.Types.Number,
     unique: true,
     required: true,
   },
   branch: {
+    type: mongoose.Schema.Types.Number,
+    required: true,
+  },
+  currentAcademicYear: {
+    type: mongoose.Schema.Types.Number,
+    required: true,
+  },
+  currentSemester: {
     type: mongoose.Schema.Types.Number,
     required: true,
   },

@@ -25,7 +25,7 @@ const ManageMember = () => {
   const fetchMembers = async (): Promise<MemberDetailsSchema[]> => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/get/member-details"
+        `${import.meta.env.VITE_SERVER_URL}/api/get/all-members`
       );
       return response.data as MemberDetailsSchema[];
     } catch (error) {
@@ -53,7 +53,7 @@ const ManageMember = () => {
   const fetchDeleted = async (): Promise<MemberDetailsSchema[]> => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/get/deleted-member-details"
+        `${import.meta.env.VITE_SERVER_URL}/api/get/deleted-members`
       );
       return response.data as MemberDetailsSchema[];
     } catch (error) {

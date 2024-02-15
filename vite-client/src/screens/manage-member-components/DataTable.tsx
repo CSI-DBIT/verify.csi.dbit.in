@@ -50,7 +50,7 @@ function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({})
+  const [rowSelection, setRowSelection] = useState({});
   const table = useReactTable({
     data,
     columns,
@@ -62,8 +62,8 @@ function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
     state: {
       sorting,
       columnFilters,
@@ -79,40 +79,40 @@ function DataTable<TData, TValue>({
   const isFiltered = table.getState().columnFilters.length > 0;
   const branch = [
     {
-      label: "Information Technology",
-      value: "1",
+      label: "IT",
+      value: 1,
       icon: Diameter,
     },
     {
-      label: "Computer Science",
-      value: "2",
+      label: "CS",
+      value: 2,
       icon: ComponentIcon,
     },
     {
-      label: "Electronics & Telecommunication",
-      value: "3",
+      label: "EXTC",
+      value: 3,
       icon: Cpu,
     },
     {
-      label: "Mechanical Engineering",
-      value: "4",
+      label: "MECH",
+      value: 4,
       icon: Cog,
     },
   ];
   const duration = [
     {
       label: "One Year",
-      value: "1",
+      value: 1,
       icon: Tally1,
     },
     {
       label: "Two Year",
-      value: "2",
+      value: 2,
       icon: Tally2,
     },
     {
       label: "Three Year",
-      value: "3",
+      value: 3,
       icon: Tally3,
     },
   ];
