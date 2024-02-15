@@ -34,6 +34,13 @@ import {
   Tally2,
   Tally3,
   X,
+  UserPlus,
+  Dice1,
+  Dice2,
+  Dice3,
+  Dice4,
+  UserCog,
+  UserMinus,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -116,11 +123,84 @@ function DataTable<TData, TValue>({
       icon: Tally3,
     },
   ];
+  const gender = [
+    {
+      label: "Male",
+      value: 1,
+      icon: UserPlus,
+    },
+    {
+      label: "Female",
+      value: 2,
+      icon: UserMinus,
+    },
+    {
+      label: "Others",
+      value: 3,
+      icon: UserCog,
+    },
+  ];
+  const currentAcademicYear = [
+    {
+      label: "FE",
+      value: 1,
+      icon: Dice1,
+    },
+    {
+      label: "SE",
+      value: 2,
+      icon: Dice2,
+    },
+    {
+      label: "TE",
+      value: 3,
+      icon: Dice3,
+    },
+    {
+      label: "BE",
+      value: 4,
+      icon: Dice4,
+    },
+  ];
+  const currentSemester = [
+    {
+      label: "Sem 1",
+      value: 1,
+    },
+    {
+      label: "Sem 2",
+      value: 2,
+    },
+    {
+      label: "Sem 3",
+      value: 3,
+    },
+    {
+      label: "Sem 4",
+      value: 4,
+    },
+    {
+      label: "Sem 5",
+      value: 5,
+    },
+    {
+      label: "Sem 6",
+      value: 6,
+    },
+    {
+      label: "Sem 7",
+      value: 7,
+    },
+    {
+      label: "Sem 8",
+      value: 8,
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div className="flex gap-4">
+      <div className="space-y-2">
+        <div className="flex flex-wrap gap-2">
           <Input
             placeholder="Filter by name..."
             value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
@@ -129,20 +209,6 @@ function DataTable<TData, TValue>({
             }
             className="max-w-sm"
           />
-          {table.getColumn("duration") && (
-            <DataTableFacetedFilter
-              column={table.getColumn("duration")}
-              title="Duration"
-              options={duration}
-            />
-          )}
-          {table.getColumn("branch") && (
-            <DataTableFacetedFilter
-              column={table.getColumn("branch")}
-              title="Branch"
-              options={branch}
-            />
-          )}
           {isFiltered && (
             <Button
               variant="ghost"
@@ -154,7 +220,46 @@ function DataTable<TData, TValue>({
             </Button>
           )}
         </div>
-        <DataTableViewOptions table={table} />
+        <div className="flex gap-2 flex-wrap items-center justify-between">
+          <div>
+            {table.getColumn("duration") && (
+              <DataTableFacetedFilter
+                column={table.getColumn("duration")}
+                title="Duration"
+                options={duration}
+              />
+            )}
+            {table.getColumn("branch") && (
+              <DataTableFacetedFilter
+                column={table.getColumn("branch")}
+                title="Branch"
+                options={branch}
+              />
+            )}
+            {table.getColumn("gender") && (
+              <DataTableFacetedFilter
+                column={table.getColumn("gender")}
+                title="Gender"
+                options={gender}
+              />
+            )}
+            {table.getColumn("currentAcademicYear") && (
+              <DataTableFacetedFilter
+                column={table.getColumn("currentAcademicYear")}
+                title="Academic Year"
+                options={currentAcademicYear}
+              />
+            )}
+            {table.getColumn("currentSemester") && (
+              <DataTableFacetedFilter
+                column={table.getColumn("currentSemester")}
+                title="Semester"
+                options={currentSemester}
+              />
+            )}
+          </div>
+          <DataTableViewOptions table={table} />
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>

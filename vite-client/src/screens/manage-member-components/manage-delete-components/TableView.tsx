@@ -16,7 +16,7 @@ import { FC } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import DataTable from "../DataTable";
-import { branchText, durationText } from "../../constants";
+import { branchText, currentAcademicYearText, currentSemesterText, durationText, genderText } from "../../constants";
 
 interface ManageDeleteTableViewProps {
   delMemberTabledata: MemberDetailsSchema[];
@@ -78,6 +78,26 @@ const DeleteTableView: FC<ManageDeleteTableViewProps> = ({
       enableSorting: true,
     },
     {
+      accessorKey: "mobileNumber",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={"Mobile No"} />
+      ),
+      enableHiding: true,
+      enableSorting: true,
+    },
+    {
+      accessorKey: "gender",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={"Gender"} />
+      ),
+      cell: ({ row }) => {
+        const genderNumber = parseInt(row.getValue("gender"), 10);
+        return <div>{genderText[genderNumber]}</div>;
+      },
+      enableHiding: true,
+      enableSorting: true,
+    },
+    {
       accessorKey: "studentId",
       header: "Student Id",
       enableHiding: true,
@@ -91,6 +111,33 @@ const DeleteTableView: FC<ManageDeleteTableViewProps> = ({
       cell: ({ row }) => {
         const branchNumber = parseInt(row.getValue("branch"), 10);
         return <div>{branchText[branchNumber]}</div>;
+      },
+      enableHiding: true,
+      enableSorting: true,
+    },
+    {
+      accessorKey: "currentAcademicYear",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={"Academic Year"} />
+      ),
+      cell: ({ row }) => {
+        const academicYearNumber = parseInt(
+          row.getValue("currentAcademicYear"),
+          10
+        );
+        return <div>{currentAcademicYearText[academicYearNumber]}</div>;
+      },
+      enableHiding: true,
+      enableSorting: true,
+    },
+    {
+      accessorKey: "currentSemester",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={"Semester"} />
+      ),
+      cell: ({ row }) => {
+        const SemesterNumber = parseInt(row.getValue("currentSemester"), 10);
+        return <div>{currentSemesterText[SemesterNumber]}</div>;
       },
       enableHiding: true,
       enableSorting: true,

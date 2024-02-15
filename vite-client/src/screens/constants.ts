@@ -1,4 +1,14 @@
-// Map numeric values to corresponding text for branch
+interface GenderText {
+  [key: number]: string;
+}
+
+// Use the defined type
+export const genderText: GenderText = {
+  1: "Male",
+  2: "Female",
+  3: "Others",
+};
+
 interface BranchText {
   [key: number]: string;
 }
@@ -11,15 +21,41 @@ export const branchText: BranchText = {
   4: "Mechanical Engineering",
 };
 
-// Map numeric values to corresponding text for duration
+interface CurrentAcademicYearText {
+  [key: number]: string;
+}
+
+// Use the defined type
+export const currentAcademicYearText: CurrentAcademicYearText = {
+  1: "FE",
+  2: "SE",
+  3: "TE",
+  4: "BE",
+};
+interface CurrentSemesterText {
+  [key: number]: string;
+}
+
+// Use the defined type
+export const currentSemesterText: CurrentSemesterText = {
+  1: "Sem 1",
+  2: "Sem 2",
+  3: "Sem 3",
+  4: "Sem 4",
+  5: "Sem 5",
+  6: "Sem 6",
+  7: "Sem 7",
+  8: "Sem 8",
+};
+
 interface DurationText {
-    [key: number]: string;
+  [key: number]: string;
 }
 
 // Use the defined type
 export const durationText: DurationText = {
-    1: "One Year",
-    2: "Two Years",
-    3: "Three Years",
+  1: "One Year",
+  2: "Two Years",
+  3: "Three Years",
 };
 
