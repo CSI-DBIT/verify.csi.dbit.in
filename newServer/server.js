@@ -14,9 +14,10 @@ const cron = require("node-cron");
 const db = require("./db");
 const MemberDetail = require("./models/memberSchema");
 const CertificateDetail = require("./models/certificateSchema");
+const EventDetail = require("./models/eventSchema");
+const { generateUniqueCode } = require("./utils");
 
 const app = express();
-const PORT = process.env.PORT;
 
 // Multer configuration
 const certificateStorage = multer.diskStorage({
@@ -445,6 +446,132 @@ app
       );
 
       res.status(200).json({ message: "Member revoked successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  })
+
+  .get("/api/get/all-events", async (req, res) => {
+    try {
+      // Find all events
+      const events = await EventDetail.find({ isDeleted: false });
+      // Send all events as response
+      res.status(200).json({ events });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  })
+
+  .post("/api/event/add", async (req, res) => {
+    try {
+      const {
+        name,
+        category,
+        typeOfEvent,
+        branchesAllowed,
+        isBranchSpecific,
+        academicYearAllowed,
+        isAcademicYearSpecific,
+        isMemberOnly,
+        dateOfCompletion,
+        dateOfCreation,
+      } = req.body;
+
+      // Validate required fields
+      if (
+        !name ||
+        !category ||
+        !typeOfEvent ||
+        !branchesAllowed ||
+        !isBranchSpecific ||
+        !academicYearAllowed ||
+        !isAcademicYearSpecific ||
+        !isMemberOnly ||
+        !dateOfCompletion ||
+        !dateOfCreation
+      ) {
+        return res.status(400).json({ error: "All fields are required" });
+      }
+
+      // Check for invalid numeric values
+      if (
+        isNaN(Number(category)) ||
+        isNaN(Number(typeOfEvent)) ||
+        isNaN(Number(branchesAllowed)) ||
+        isNaN(Number(academicYearAllowed))
+      ) {
+        return res.status(400).json({ error: "Invalid numeric values" });
+      }
+
+      let uniqueEventCode = generateUniqueCode();
+
+      // Check if the generated event code already exists in the database
+      let retries = 0;
+      const maxRetries = 5; // Maximum number of retries
+
+      // Check if the generated event code already exists in the database
+      let existingEvent = await EventDetail.findOne({
+        eventCode: uniqueEventCode,
+      });
+      console.log(existingEvent);
+      while (existingEvent) {
+        retries++;
+        if (retries > maxRetries) {
+          return res
+            .status(500)
+            .json({ error: "Failed to generate a unique event code" });
+        }
+        uniqueEventCode = generateUniqueCode(); // Generate a new code
+        existingEvent = await EventDetail.findOne({
+          eventCode: uniqueEventCode,
+        }); // Check again
+      }
+
+      // Create a new EventDetail instance with the generated unique code
+      const newEvent = new EventDetail({
+        eventCode: uniqueEventCode,
+        name: String(name),
+        category: Number(category),
+        typeOfEvent: Number(typeOfEvent),
+        branchesAllowed: Number(branchesAllowed),
+        isBranchSpecific: Boolean(isBranchSpecific),
+        academicYearAllowed: Number(academicYearAllowed),
+        isAcademicYearSpecific: Boolean(isAcademicYearSpecific),
+        isMemberOnly: Boolean(isMemberOnly),
+        dateOfCompletion: new Date(dateOfCompletion),
+        dateOfCreation: new Date(dateOfCreation),
+      });
+
+      // Save the new event to the database
+      console.log(newEvent);
+      await newEvent.save();
+
+      // Send a success response
+      res
+        .status(200)
+        .json({ message: "Event added successfully", event: newEvent });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  })
+
+  .get("/api/event/details", async (req, res) => {
+    try {
+      const { eventCode } = req.query;
+      // Validate event code
+      if (!eventCode) {
+        return res.status(400).json({ error: "Event code is required" });
+      }
+      // Find event details based on event code
+      const event = await EventDetail.findOne({ eventCode: eventCode });
+      if (!event) {
+        return res.status(404).json({ error: "Event not found" });
+      }
+      // Send event details as response
+      res.status(200).json({ event });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });

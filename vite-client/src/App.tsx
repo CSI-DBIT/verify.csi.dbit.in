@@ -11,6 +11,7 @@ import ManageMember from "./screens/ManageMember";
 import Temp from "./screens/Temp";
 import CertificateAllocation from "./screens/CertificateAllocation";
 import ManageEvent from "./screens/ManageEvent";
+import EventDetails from "./screens/manage-events-components/EventDetails";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -46,6 +47,10 @@ const App = () => {
     {
       path: "/manage/events",
       element: <ManageEvent />,
+    },
+    {
+      path: "/manage/events/:eventId",
+      element: <EventDetails />,
     },
     {
       path: "temp",

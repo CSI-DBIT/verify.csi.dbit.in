@@ -113,17 +113,12 @@ const DeleteMemberForm: FC<DeleteMemberFormProps> = ({
     try {
       setIsOperationInProgress(true);
 
-      // Create a new object with the lastDeleted property set to the current date
-      const dataWithLastDeleted = {
-        lastDeleted: new Date(),
-      };
-
       // Make the API call with the modified data
       await axios.put(
         `${import.meta.env.VITE_SERVER_URL}/api/member/delete?studentId=${
           deletingMember.studentId
         }`,
-        dataWithLastDeleted
+        { lastDeleted: new Date() }
       );
 
       // Show success toast

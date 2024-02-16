@@ -33,32 +33,65 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosError } from "axios";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
-interface AddEventFormProps {}
-const AddEventForm: FC<AddEventFormProps> = () => {
+interface AddEventFormProps {
+  setIsEventAdded: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const AddEventForm: FC<AddEventFormProps> = ({ setIsEventAdded }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const addEventForm = useForm<EventSchema>({
     resolver: zodResolver(validationEventSchema),
-    defaultValues: {},
+    defaultValues: {
+      category: "1",
+      typeOfEvent: "1",
+      branchesAllowed: "0",
+      academicYearAllowed: "0",
+      dateOfCompletion: new Date(),
+      isMemberOnly: false,
+    },
   });
   const onAddEventFormSubmit: SubmitHandler<EventSchema> = async (
     data: EventSchema
   ) => {
+    setIsSubmitting(true);
     try {
+      const eventData = {
+        name: String(data.name),
+        category: String(data.category),
+        typeOfEvent: String(data.typeOfEvent),
+        branchesAllowed: String(data.branchesAllowed),
+        academicYearAllowed: String(data.academicYearAllowed),
+        isMemberOnly: String(data.isMemberOnly),
+        dateOfCompletion: String(data.dateOfCompletion),
+        isBranchSpecific: String(data.branchesAllowed !== "0"),
+        isAcademicYearSpecific: String(data.academicYearAllowed !== "0"),
+        dateOfCreation: String(new Date()),
+      };
+      console.log(eventData);
+
+      // Now you can submit the form data to your server
       const response = await axios.post(
         `${import.meta.env.VITE_SERVER_URL}/api/event/add`,
-        data
+        eventData
       );
+      // Reset the form after successful submission
       addEventForm.reset({
         name: "",
+        category: "1",
+        typeOfEvent: "1",
+        branchesAllowed: "0",
+        academicYearAllowed: "0",
+        dateOfCompletion: new Date(),
       });
-
       toast({
         title: `${JSON.stringify(response.data.message, null, 2)}`,
       });
+      setIsEventAdded(true);
     } catch (error) {
-      // Handle errors (e.g., show an error toast)
+      //  Handle errors (e.g., show an error toast)
       console.error("Error submitting form:", error);
       if (axios.isAxiosError(error)) {
         const axiosError = error as AxiosError;
@@ -77,7 +110,9 @@ const AddEventForm: FC<AddEventFormProps> = () => {
         });
       }
     }
+    setIsSubmitting(false);
   };
+
   return (
     <Form {...addEventForm}>
       <form
@@ -96,6 +131,21 @@ const AddEventForm: FC<AddEventFormProps> = () => {
                     <Input placeholder="Enter Event Name" {...field} />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={addEventForm.control}
+              name="isMemberOnly"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-2 space-y-0 py-2">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel>Is Member Only</FormLabel>
                 </FormItem>
               )}
             />
@@ -147,21 +197,6 @@ const AddEventForm: FC<AddEventFormProps> = () => {
                     </SelectContent>
                   </Select>
                   <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={addEventForm.control}
-              name="isMemberOnly"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel>Is Member Only</FormLabel>
                 </FormItem>
               )}
             />
@@ -263,7 +298,11 @@ const AddEventForm: FC<AddEventFormProps> = () => {
             />
           </div>
         </ScrollArea>
-        <Button type="submit" disabled={addEventForm.formState.isSubmitting} className="w-full">
+        <Button
+          type="submit"
+          disabled={addEventForm.formState.isSubmitting || isSubmitting}
+          className="w-full"
+        >
           create event
         </Button>
       </form>

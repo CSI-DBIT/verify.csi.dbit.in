@@ -64,20 +64,15 @@ const EditMemberForm: FC<EditMemberFormProps> = ({
       : undefined,
   });
 
-  const addLastEditedToMemberDetails = (
-    memberDetails: MemberDetailsSchema
-  ): MemberDetailsSchema & { lastEdited: Date } => {
-    const currentDate = new Date();
-    return { ...memberDetails, lastEdited: currentDate };
-  };
-
   const onEditMemberSubmit: SubmitHandler<MemberDetailsSchema> = async (
     editingMember: MemberDetailsSchema
   ) => {
     try {
       setIsOperationInProgress(true);
-      const editingMemberWithLastEdited =
-        addLastEditedToMemberDetails(editingMember);
+      const editingMemberWithLastEdited = {
+        ...editingMember,
+        lastEdited: new Date(),
+      };
       await axios.post(
         `${import.meta.env.VITE_SERVER_URL}/api/member/edit?studentId=${
           editingMember.studentId
@@ -338,7 +333,9 @@ const EditMemberForm: FC<EditMemberFormProps> = ({
             />
           </div>
         </ScrollArea>
-        <Button className="w-full" type="submit">Update</Button>
+        <Button className="w-full" type="submit">
+          Update
+        </Button>
       </form>
     </Form>
   );
