@@ -18,13 +18,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
+import { boolean } from "zod";
 
 interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
   title?: string;
   options: {
     label: string;
-    value: number; 
+    value: number | boolean;
     icon?: React.ComponentType<{ className?: string }>;
   }[];
 }

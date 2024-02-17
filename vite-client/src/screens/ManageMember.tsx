@@ -96,14 +96,7 @@ const ManageMember = () => {
       setIsOperationInProgress(false);
     }
     console.log("use effect run");
-  }, [
-    isBulkUploadCompleted,
-    isMemberAdded,
-    setIsBulkUploadCompleted,
-    setIsMemberAdded,
-    setmemberTableData,
-    isOperationInProgress,
-  ]);
+  }, [isBulkUploadCompleted, isMemberAdded, isOperationInProgress]);
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />

@@ -25,26 +25,20 @@ import {
   getFacetedRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import {
-  branch,
-  duration,
-  gender,
-  currentAcademicYear,
-  currentSemester,
-} from "./manageMemberConstants";
+import { branch, currentAcademicYear, isMember } from "./manageEventConstants";
 import { useState } from "react";
 import { X } from "lucide-react";
 
-interface DataTableProps<TData, TValue> {
+interface EligibleCandidatesDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   rowsPerPage: number;
 }
-function DataTable<TData, TValue>({
+function EligibleCandidatesDataTable<TData, TValue>({
   columns,
   data,
   rowsPerPage,
-}: DataTableProps<TData, TValue>) {
+}: EligibleCandidatesDataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -101,13 +95,6 @@ function DataTable<TData, TValue>({
         </div>
         <div className="flex gap-2 flex-wrap items-center justify-between">
           <div className="flex gap-2 flex-wrap">
-            {table.getColumn("duration") && (
-              <DataTableFacetedFilter
-                column={table.getColumn("duration")}
-                title="Duration"
-                options={duration}
-              />
-            )}
             {table.getColumn("branch") && (
               <DataTableFacetedFilter
                 column={table.getColumn("branch")}
@@ -115,25 +102,11 @@ function DataTable<TData, TValue>({
                 options={branch}
               />
             )}
-            {table.getColumn("gender") && (
-              <DataTableFacetedFilter
-                column={table.getColumn("gender")}
-                title="Gender"
-                options={gender}
-              />
-            )}
             {table.getColumn("currentAcademicYear") && (
               <DataTableFacetedFilter
                 column={table.getColumn("currentAcademicYear")}
                 title="Academic Year"
                 options={currentAcademicYear}
-              />
-            )}
-            {table.getColumn("currentSemester") && (
-              <DataTableFacetedFilter
-                column={table.getColumn("currentSemester")}
-                title="Semester"
-                options={currentSemester}
               />
             )}
           </div>
@@ -195,4 +168,4 @@ function DataTable<TData, TValue>({
   );
 }
 
-export default DataTable;
+export default EligibleCandidatesDataTable;

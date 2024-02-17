@@ -9,6 +9,7 @@ import BulkUploadEligibleCandidates from "./BulkUploadEligibleCandidates";
 import AddEligibleCandidatesView from "./AddEligibleCandidatesView";
 import { EventSchema } from "@/validationSchemas/EventSchema";
 import { EligibleCandidatesSchema } from "@/validationSchemas/EligibleCadidatesSchema";
+import ManageEligibleCandidatesTableView from "./ManageEligibleCandidatesTableView";
 const fetchEventDetails = async (eventId: string): Promise<EventSchema> => {
   try {
     const response = await axios.get(
@@ -40,15 +41,15 @@ const fetchEventDetails = async (eventId: string): Promise<EventSchema> => {
 };
 const fetchEligibleCandidatesDetails = async (
   eventId: string
-): Promise<EligibleCandidatesSchema> => {
+): Promise<EligibleCandidatesSchema[]> => {
   try {
     const response = await axios.get(
       `${
         import.meta.env.VITE_SERVER_URL
-      }/api/get/eligible-candidates=${eventId}`
+      }/api/get/eligible-candidates?eventCode=${eventId}`
     );
     return response.data.eventinfo
-      .eligibleCandidates as EligibleCandidatesSchema;
+      .eligibleCandidates as EligibleCandidatesSchema[];
   } catch (error) {
     console.error("Error fetching data:", error);
     if (axios.isAxiosError(error)) {
@@ -73,11 +74,14 @@ const fetchEligibleCandidatesDetails = async (
 const EventDetails = () => {
   const { eventId } = useParams();
   const [eventDetails, setEventDetails] = useState<EventSchema>();
-  const [eligibleCandidates, setEligibleCandidates] =
-    useState<EligibleCandidatesSchema>();
+  const [eligibleCandidates, setEligibleCandidates] = useState<
+    EligibleCandidatesSchema[]
+  >([]);
   const [isBulkUploadCompleted, setIsBulkUploadCompleted] = useState(false);
   const [isEligibleCandidateAdded, setIsEligibleCandidateAdded] =
     useState(false);
+  const [isOperationInProgress, setIsOperationInProgress] =
+    useState<boolean>(false);
 
   useEffect(() => {
     fetchEventDetails(String(eventId)).then((data) => {
@@ -85,16 +89,26 @@ const EventDetails = () => {
       console.log(data);
     });
     fetchEligibleCandidatesDetails(String(eventId)).then((data) => {
-      setEventDetails(data);
+      setEligibleCandidates(data);
       console.log(data);
     });
-    if (isEligibleCandidateAdded || isBulkUploadCompleted) {
+    if (
+      isEligibleCandidateAdded ||
+      isBulkUploadCompleted ||
+      isOperationInProgress
+    ) {
       fetchEventDetails(String(eventId)).then((data) => setEventDetails(data));
       setIsEligibleCandidateAdded(false);
       setIsBulkUploadCompleted(false);
+      setIsOperationInProgress(false);
     }
     console.log("use effect run");
-  }, [eventId, isBulkUploadCompleted, isEligibleCandidateAdded]);
+  }, [
+    eventId,
+    isBulkUploadCompleted,
+    isEligibleCandidateAdded,
+    isOperationInProgress,
+  ]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -114,10 +128,10 @@ const EventDetails = () => {
           />
         </div>
         <div>
-          {/* <ManageEligibleCadidatesTable
-            memberTabledata={memberTabledata}
+          <ManageEligibleCandidatesTableView
             setIsOperationInProgress={setIsOperationInProgress}
-          /> */}
+            eligibleCandidatesData={eligibleCandidates}
+          />
         </div>
       </div>
       <Footer />

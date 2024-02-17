@@ -1,6 +1,4 @@
-import { MemberDetailsSchema } from "@/validationSchemas/MemberDetailSchema";
 import { FC } from "react";
-import DataTable from "@/screens/manage-member-components/DataTable";
 import { DataTableColumnHeader } from "@/components/reusableComponents/DataTableColumnHeader";
 import { DialogHeader } from "@/components/ui/dialog";
 import {
@@ -20,26 +18,24 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import EditMemberForm from "./EditMemberForm";
-import {
-  branchText,
-  currentAcademicYearText,
-  currentSemesterText,
-  durationText,
-  genderText,
-} from "../constants";
-import DeleteMemberForm from "./DeleteMemberForm";
+// import EditMemberForm from "./EditMemberForm";
+import { branchText, currentAcademicYearText } from "../constants";
+// import DeleteMemberForm from "./DeleteMemberForm";
+import { EligibleCandidatesSchema } from "@/validationSchemas/EligibleCadidatesSchema";
+import EligibleCandidatesDataTable from "./EligibleCandidatesDataTable";
+import { stringify } from "querystring";
+import EditEligibleCandidateForm from "./EditEligibleCandidateForm";
+import DeleteEligibleCandidateForm from "./DeleteEligibleCandidateForm";
 
-interface ManageMemberTableViewProps {
-  memberTabledata: MemberDetailsSchema[];
+interface ManageEligibleCandidateTableViewProps {
+  eligibleCandidatesData: EligibleCandidatesSchema[];
   setIsOperationInProgress: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ManageMemberTableView: FC<ManageMemberTableViewProps> = ({
-  memberTabledata,
-  setIsOperationInProgress,
-}) => {
-  const columns: ColumnDef<MemberDetailsSchema>[] = [
+const ManageEligibleCandidatesTableView: FC<
+  ManageEligibleCandidateTableViewProps
+> = ({ eligibleCandidatesData, setIsOperationInProgress }) => {
+  const columns: ColumnDef<EligibleCandidatesSchema>[] = [
     {
       accessorKey: "name",
       header: ({ column }) => (
@@ -61,24 +57,6 @@ const ManageMemberTableView: FC<ManageMemberTableViewProps> = ({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={"Mobile No"} />
       ),
-      enableHiding: true,
-      enableSorting: true,
-    },
-    {
-      accessorKey: "gender",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={"Gender"} />
-      ),
-      cell: ({ row }) => {
-        const genderNumber = parseInt(row.getValue("gender"), 10);
-        return <div>{genderText[genderNumber]}</div>;
-      },
-      enableHiding: true,
-      enableSorting: true,
-    },
-    {
-      accessorKey: "studentId",
-      header: "Student Id",
       enableHiding: true,
       enableSorting: true,
     },
@@ -110,55 +88,10 @@ const ManageMemberTableView: FC<ManageMemberTableViewProps> = ({
       enableSorting: true,
     },
     {
-      accessorKey: "currentSemester",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={"Semester"} />
-      ),
-      cell: ({ row }) => {
-        const SemesterNumber = parseInt(row.getValue("currentSemester"), 10);
-        return <div>{currentSemesterText[SemesterNumber]}</div>;
-      },
-      enableHiding: true,
-      enableSorting: true,
-    },
-    {
-      accessorKey: "duration",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={"Duration"} />
-      ),
-      cell: ({ row }) => {
-        const durationNumber = parseInt(row.getValue("duration"), 10);
-        return <div>{durationText[durationNumber]}</div>;
-      },
-      enableHiding: true,
-      enableSorting: true,
-    },
-    {
-      accessorKey: "startDate",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={"Start Date"} />
-      ),
-      cell: ({ row }) => {
-        const startDateString = row.getValue("startDate") as string;
-        // Parse the ISO date string into a Date object
-        const startDate = new Date(startDateString);
-        // Format the date in a desired format
-        const formattedStartDate = startDate.toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        });
-
-        return <div>{formattedStartDate}</div>;
-      },
-      enableHiding: true,
-      enableSorting: true,
-    },
-    {
       id: "actions",
       header: () => <div>Actions</div>,
       cell: ({ row }) => {
-        const member = row.original;
+        const eligibleCandidate = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -181,13 +114,13 @@ const ManageMemberTableView: FC<ManageMemberTableViewProps> = ({
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Edit Member Details</DialogTitle>
+                    <DialogTitle>Edit Eligible Candidates</DialogTitle>
                     <DialogDescription>
-                      Edit member details and submit the form
+                      Edit eligible candidates details
                     </DialogDescription>
                   </DialogHeader>
-                  <EditMemberForm
-                    editingMember={member}
+                  <EditEligibleCandidateForm
+                    editingEligibleCandidate={eligibleCandidate}
                     setIsOperationInProgress={setIsOperationInProgress}
                   />
                 </DialogContent>
@@ -202,8 +135,8 @@ const ManageMemberTableView: FC<ManageMemberTableViewProps> = ({
                     delete
                   </DropdownMenuItem>
                 </DialogTrigger>
-                <DeleteMemberForm
-                  deletingMember={member}
+                <DeleteEligibleCandidateForm
+                  deletingEligibleCandidate={eligibleCandidate}
                   setIsOperationInProgress={setIsOperationInProgress}
                 />
               </Dialog>
@@ -216,8 +149,12 @@ const ManageMemberTableView: FC<ManageMemberTableViewProps> = ({
     },
   ];
   return (
-    <DataTable columns={columns} data={memberTabledata} rowsPerPage={10} />
+    <EligibleCandidatesDataTable
+      columns={columns}
+      data={eligibleCandidatesData}
+      rowsPerPage={10}
+    />
   );
 };
 
-export default ManageMemberTableView;
+export default ManageEligibleCandidatesTableView;

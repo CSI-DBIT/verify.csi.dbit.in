@@ -789,7 +789,7 @@ app
         eventCode: eventCode,
       });
       if (!eventinfo) {
-        return res.status(404).json({ error: "Event not found" });
+        return res.status(404).json({ error: "No Eligible Candidates Added" });
       }
       // Send event details as response
       res.status(200).json({ eventinfo });

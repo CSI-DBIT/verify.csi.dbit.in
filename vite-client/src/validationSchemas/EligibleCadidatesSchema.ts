@@ -6,7 +6,8 @@ export const validationEligibleCandidateSchema = z.object({
   mobileNumber: z.string().length(10),
   branch: z.string(),
   currentAcademicYear: z.string(),
-  isMember:z.boolean().optional()
+  isMember:z.boolean().optional(),
+  uniqueCertificateCode:z.string().optional()
 });
 
 export type EligibleCandidatesSchema = z.infer<typeof validationEligibleCandidateSchema>;
