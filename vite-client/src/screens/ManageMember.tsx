@@ -6,7 +6,7 @@ import { toast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { MemberDetailsSchema } from "@/validationSchemas/MemberDetailSchema";
 import BulkUploadMemberForm from "./manage-member-components/BulkUploadMemberForm";
-import ManageMemberTable from "./manage-member-components/TableView";
+import ManageMemberTableView from "./manage-member-components/ManageMemberTableView";
 import AddMemberView from "./manage-member-components/AddMemberView";
 import ManageDelete from "./manage-member-components/ManageDelete";
 
@@ -119,7 +119,7 @@ const ManageMember = () => {
           />
         </div>
         <div>
-          <ManageMemberTable
+          <ManageMemberTableView
             memberTabledata={memberTabledata}
             setIsOperationInProgress={setIsOperationInProgress}
           />

@@ -15,11 +15,12 @@ const db = require("./db");
 const MemberDetail = require("./models/memberSchema");
 const CertificateDetail = require("./models/certificateSchema");
 const EventDetail = require("./models/eventSchema");
-const { generateUniqueCode } = require("./utils");
+const { generateCertificateCode, generateEventCode } = require("./utils");
+const EligibleCandidates = require("./models/certificateEligibleCandidates");
 
 const app = express();
 
-// Multer configuration
+// Multer storages
 const certificateStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./certificates");
@@ -28,10 +29,14 @@ const certificateStorage = multer.diskStorage({
     cb(null, file.originalname);
   },
 });
-
 const memberExcel = multer.memoryStorage();
-const memberExcelupload = multer({ storage: memberExcel });
+const eligibleCandidatesExcel = multer.memoryStorage();
 
+// Multer milldewares
+const memberExcelupload = multer({ storage: memberExcel });
+const eligibleCandidatesExcelupload = multer({
+  storage: eligibleCandidatesExcel,
+});
 const certificateStorageupload = multer({ storage: certificateStorage });
 
 app
@@ -479,6 +484,19 @@ app
         dateOfCreation,
       } = req.body;
 
+      console.log(
+        name,
+        category,
+        typeOfEvent,
+        branchesAllowed,
+        isBranchSpecific,
+        academicYearAllowed,
+        isAcademicYearSpecific,
+        isMemberOnly,
+        dateOfCompletion,
+        dateOfCreation
+      );
+
       // Validate required fields
       if (
         !name ||
@@ -505,7 +523,7 @@ app
         return res.status(400).json({ error: "Invalid numeric values" });
       }
 
-      let uniqueEventCode = generateUniqueCode();
+      let uniqueEventCode = generateEventCode();
 
       // Check if the generated event code already exists in the database
       let retries = 0;
@@ -523,7 +541,7 @@ app
             .status(500)
             .json({ error: "Failed to generate a unique event code" });
         }
-        uniqueEventCode = generateUniqueCode(); // Generate a new code
+        uniqueEventCode = generateEventCode(); // Generate a new code
         existingEvent = await EventDetail.findOne({
           eventCode: uniqueEventCode,
         }); // Check again
@@ -536,10 +554,10 @@ app
         category: Number(category),
         typeOfEvent: Number(typeOfEvent),
         branchesAllowed: Number(branchesAllowed),
-        isBranchSpecific: Boolean(isBranchSpecific),
+        isBranchSpecific: isBranchSpecific,
         academicYearAllowed: Number(academicYearAllowed),
-        isAcademicYearSpecific: Boolean(isAcademicYearSpecific),
-        isMemberOnly: Boolean(isMemberOnly),
+        isAcademicYearSpecific: isAcademicYearSpecific,
+        isMemberOnly: isMemberOnly,
         dateOfCompletion: new Date(dateOfCompletion),
         dateOfCreation: new Date(dateOfCreation),
       });
@@ -559,6 +577,7 @@ app
   })
 
   .get("/api/event/details", async (req, res) => {
+    // get event details using event code passed in query
     try {
       const { eventCode } = req.query;
       // Validate event code
@@ -572,6 +591,208 @@ app
       }
       // Send event details as response
       res.status(200).json({ event });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  })
+
+  .post("/api/eligible-candidates/add", async (req, res) => {
+    try {
+      const {
+        eventCode,
+        name,
+        email,
+        mobileNumber,
+        branch,
+        currentAcademicYear,
+        lastEdited,
+      } = req.body;
+
+      // Check if the candidate already exists in the memberDetails database
+      const existingMember = await MemberDetail.findOne({
+        email: email,
+        mobileNumber: mobileNumber,
+      });
+      const uniqueCertificateCode = generateCertificateCode();
+      let isMember = false;
+      if (existingMember) {
+        // If member exists, set isMember to true and generate a unique certificate code
+        console.log("existing member");
+        isMember = true;
+      }
+
+      // Check if a document with the specified event code already exists
+      const existingEvent = await EligibleCandidates.findOne({ eventCode });
+
+      const newCandidate = {
+        name,
+        email,
+        mobileNumber,
+        branch,
+        currentAcademicYear,
+        isMember,
+        uniqueCertificateCode,
+      };
+
+      if (existingEvent) {
+        // If document exists, update it by adding the new candidate
+        existingEvent.eligibleCandidates.push(newCandidate);
+        console.log("pushed new candidate", newCandidate);
+        existingEvent.lastEdited = new Date(lastEdited);
+        await existingEvent.save();
+        res.status(201).json({
+          message: "Candidate added to existing Event",
+          result: existingEvent,
+        });
+      } else {
+        // If document doesn't exist, create a new one
+        const newEvent = await EligibleCandidates.create({
+          eventCode: eventCode,
+          eligibleCandidates: [newCandidate],
+          lastEdited: new Date(lastEdited),
+        });
+        res.status(201).json({
+          message: "New event created with the candidate",
+          result: newEvent,
+        });
+      }
+    } catch (error) {
+      console.error("Error adding eligible candidates:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  })
+
+  .post(
+    "/api/bulk-upload/eligible-candidates",
+    eligibleCandidatesExcelupload.single(
+      "bulk_upload_eligible_candidates_excel"
+    ),
+    async (req, res) => {
+      try {
+        const { eventCode, lastEdited } = req.body;
+        const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
+        const sheetName = workbook.SheetNames[0];
+        let data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+        // Validate data before insertion
+        if (!Array.isArray(data) || data.length === 0) {
+          return res
+            .status(400)
+            .json({ error: "Invalid data format or empty data array" });
+        }
+        // Check if fields in the Excel file match the schema (excluding these fields)
+        const eligibleCandidatesSchemaPaths = Object.keys(
+          EligibleCandidates.schema.paths.eligibleCandidates.schema.paths
+        ).filter(
+          (path) =>
+            path !== "__v" &&
+            path !== "_id" &&
+            path !== "isMember" &&
+            path !== "uniqueCertificateCode"
+        );
+        console.log(eligibleCandidatesSchemaPaths);
+
+        for (const item of data) {
+          const itemKeys = Object.keys(item);
+          const unknownColumns = itemKeys.filter(
+            (key) => !eligibleCandidatesSchemaPaths.includes(key)
+          );
+          if (unknownColumns.length > 0) {
+            return res.status(400).json({
+              error: `Unknown Columns in Excel data: ${unknownColumns.join(
+                ", "
+              )}`,
+            });
+          }
+
+          const missingColumns = eligibleCandidatesSchemaPaths.filter(
+            (path) => !itemKeys.includes(path)
+          );
+          if (missingColumns.length > 0) {
+            return res.status(400).json({
+              error: `Missing Columns or Cells in Excel data: ${missingColumns.join(
+                ", "
+              )}`,
+            });
+          }
+        }
+        // Transform data to match the EligibleCandidates schema
+        const transformedData = await Promise.all(
+          data.map(async (item) => {
+            const existingMember = await MemberDetail.findOne({
+              email: item.email,
+              mobileNumber: item.mobileNumber,
+            });
+
+            return {
+              name: item.name,
+              email: item.email,
+              mobileNumber: item.mobileNumber,
+              branch: item.branch,
+              currentAcademicYear: item.currentAcademicYear,
+              isMember: !!existingMember, // Set to true if member exists, otherwise false
+              uniqueCertificateCode: generateCertificateCode(),
+            };
+          })
+        );
+        console.log(transformedData);
+        // Check if a document with the specified event code already exists
+        const existingEvent = await EligibleCandidates.findOne({ eventCode });
+        if (existingEvent) {
+          // If document exists, update it by adding the new eligible candidates
+          existingEvent.eligibleCandidates.push(...transformedData);
+          existingEvent.lastEdited = new Date(lastEdited);
+          await existingEvent.save();
+          res.status(200).json({
+            message: "Eligible candidates added to existing event",
+            result: existingEvent,
+          });
+        } else {
+          // If document doesn't exist, create a new one
+          const newEvent = await EligibleCandidates.create({
+            eventCode: eventCode,
+            eligibleCandidates: transformedData,
+            lastEdited: new Date(lastEdited),
+          });
+          res.status(200).json({
+            message: "New event created with eligible candidates",
+            result: newEvent,
+          });
+        }
+      } catch (error) {
+        console.error(error);
+        if (error.code === 11000) {
+          // Extract the duplicated key and its value from the error
+          const duplicatedKey = Object.keys(error.keyPattern)[0];
+          const duplicatedValue = error.keyValue[duplicatedKey];
+
+          return res.status(400).json({
+            error: `Duplicate key error. The key "${duplicatedKey}" with value "${duplicatedValue}" already exists.`,
+          });
+        } else {
+          res.status(500).json({ error: "Internal server error" });
+        }
+      }
+    }
+  )
+  .get("/api/get/eligible-candidates", async (req, res) => {
+    // get eligible candidates using event code passed in query
+    try {
+      const { eventCode } = req.query;
+      // Validate event code
+      if (!eventCode) {
+        return res.status(400).json({ error: "Event code is required" });
+      }
+      // Find event details based on event code
+      const eventinfo = await EligibleCandidates.findOne({
+        eventCode: eventCode,
+      });
+      if (!eventinfo) {
+        return res.status(404).json({ error: "Event not found" });
+      }
+      // Send event details as response
+      res.status(200).json({ eventinfo });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });

@@ -67,10 +67,10 @@ const AddMemberView: FC<AddMemberViewProps> = ({ setIsMemberAdded }) => {
 };
 
 export default AddMemberView;
-interface AddMemberViewProps {
+interface AddMemberFormProps {
   setIsMemberAdded: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const AddMemberForm: FC<AddMemberViewProps> = ({ setIsMemberAdded }) => {
+const AddMemberForm: FC<AddMemberFormProps> = ({ setIsMemberAdded }) => {
   const add_member_form = useForm<MemberDetailsSchema>({
     resolver: zodResolver(validationMemberDetailSchema),
     defaultValues: {

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/drawer";
 import { MemberDetailsSchema } from "@/validationSchemas/MemberDetailSchema";
 import { FC } from "react";
-import DeleteTableView from "./manage-delete-components/TableView";
+import ManageDeleteTableView from "./ManageDeleteTableView";
 interface ManageDeleteProps {
   delMemberTabledata: MemberDetailsSchema[];
   setIsOperationInProgress: React.Dispatch<React.SetStateAction<boolean>>;
@@ -30,7 +30,7 @@ const ManageDelete: FC<ManageDeleteProps> = ({
           <DrawerTitle>Are you absolutely sure?</DrawerTitle>
           <DrawerDescription>This action cannot be undone.</DrawerDescription>
         </DrawerHeader>
-        <DeleteTableView
+        <ManageDeleteTableView
           delMemberTabledata={delMemberTabledata}
           setIsOperationInProgress={setIsOperationInProgress}
         />

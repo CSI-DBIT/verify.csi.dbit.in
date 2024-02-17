@@ -16,7 +16,6 @@ import { EventSchema } from "@/validationSchemas/EventSchema";
 import axios, { AxiosError } from "axios";
 import { toast } from "@/components/ui/use-toast";
 import EventCard from "./manage-events-components/EventCard";
-import { Link } from "react-router-dom";
 
 const ManageEvent = () => {
   const [events, setEvents] = useState<EventSchema[]>([]);
@@ -83,9 +82,7 @@ const ManageEvent = () => {
           </Dialog>
           {events.length > 0 ? (
             events.map((event, index) => (
-              <Link to={`/manage/events/${event.eventCode}`}>
-                <EventCard event={event} index={index} />
-              </Link>
+              <EventCard event={event} index={index} />
             ))
           ) : (
             <div></div>

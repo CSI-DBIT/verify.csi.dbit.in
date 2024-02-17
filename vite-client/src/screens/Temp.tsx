@@ -8,7 +8,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 import { MemberDetailsSchema } from "@/validationSchemas/MemberDetailSchema";
 import BulkUploadMemberForm from "./manage-member-components/BulkUploadMemberForm";
-import ManageMemberTable from "./manage-member-components/TableView";
+import ManageMemberTable from "./manage-member-components/ManageMemberTableView";
 import ManageDelete from "./manage-member-components/ManageDelete";
 import AddMemberView from "./manage-member-components/AddMemberView";
 const Temp = () => {

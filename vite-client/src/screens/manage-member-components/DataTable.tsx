@@ -26,23 +26,14 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import {
-  Diameter,
-  ComponentIcon,
-  Cpu,
-  Cog,
-  Tally1,
-  Tally2,
-  Tally3,
-  X,
-  UserPlus,
-  Dice1,
-  Dice2,
-  Dice3,
-  Dice4,
-  UserCog,
-  UserMinus,
-} from "lucide-react";
+  branch,
+  duration,
+  gender,
+  currentAcademicYear,
+  currentSemester,
+} from "./manageMemberConstants";
 import { useState } from "react";
+import { X } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -84,118 +75,6 @@ function DataTable<TData, TValue>({
     },
   });
   const isFiltered = table.getState().columnFilters.length > 0;
-  const branch = [
-    {
-      label: "IT",
-      value: 1,
-      icon: Diameter,
-    },
-    {
-      label: "CS",
-      value: 2,
-      icon: ComponentIcon,
-    },
-    {
-      label: "EXTC",
-      value: 3,
-      icon: Cpu,
-    },
-    {
-      label: "MECH",
-      value: 4,
-      icon: Cog,
-    },
-  ];
-  const duration = [
-    {
-      label: "One Year",
-      value: 1,
-      icon: Tally1,
-    },
-    {
-      label: "Two Year",
-      value: 2,
-      icon: Tally2,
-    },
-    {
-      label: "Three Year",
-      value: 3,
-      icon: Tally3,
-    },
-  ];
-  const gender = [
-    {
-      label: "Male",
-      value: 1,
-      icon: UserPlus,
-    },
-    {
-      label: "Female",
-      value: 2,
-      icon: UserMinus,
-    },
-    {
-      label: "Others",
-      value: 3,
-      icon: UserCog,
-    },
-  ];
-  const currentAcademicYear = [
-    {
-      label: "FE",
-      value: 1,
-      icon: Dice1,
-    },
-    {
-      label: "SE",
-      value: 2,
-      icon: Dice2,
-    },
-    {
-      label: "TE",
-      value: 3,
-      icon: Dice3,
-    },
-    {
-      label: "BE",
-      value: 4,
-      icon: Dice4,
-    },
-  ];
-  const currentSemester = [
-    {
-      label: "Sem 1",
-      value: 1,
-    },
-    {
-      label: "Sem 2",
-      value: 2,
-    },
-    {
-      label: "Sem 3",
-      value: 3,
-    },
-    {
-      label: "Sem 4",
-      value: 4,
-    },
-    {
-      label: "Sem 5",
-      value: 5,
-    },
-    {
-      label: "Sem 6",
-      value: 6,
-    },
-    {
-      label: "Sem 7",
-      value: 7,
-    },
-    {
-      label: "Sem 8",
-      value: 8,
-    },
-  ];
 
   return (
     <div className="flex flex-col gap-4">

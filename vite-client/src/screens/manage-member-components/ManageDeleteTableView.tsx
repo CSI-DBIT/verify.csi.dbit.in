@@ -15,20 +15,20 @@ import axios from "axios";
 import { FC } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
-import DataTable from "../DataTable";
+import DataTable from "./DataTable";
 import {
   branchText,
   currentAcademicYearText,
   currentSemesterText,
   durationText,
   genderText,
-} from "../../constants";
+} from "../constants";
 
 interface ManageDeleteTableViewProps {
   delMemberTabledata: MemberDetailsSchema[];
   setIsOperationInProgress: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const DeleteTableView: FC<ManageDeleteTableViewProps> = ({
+const ManageDeleteTableView: FC<ManageDeleteTableViewProps> = ({
   delMemberTabledata,
   setIsOperationInProgress,
 }) => {
@@ -222,7 +222,7 @@ const DeleteTableView: FC<ManageDeleteTableViewProps> = ({
               <DialogFooter>
                 <Button
                   variant="outline"
-                  className="hover:bg-green-600"
+                  className="hover:bg-green-600 w-full"
                   onClick={async () => handleRevoke(revokingMember)}
                 >
                   Confirm Revoke
@@ -243,4 +243,4 @@ const DeleteTableView: FC<ManageDeleteTableViewProps> = ({
   );
 };
 
-export default DeleteTableView;
+export default ManageDeleteTableView;

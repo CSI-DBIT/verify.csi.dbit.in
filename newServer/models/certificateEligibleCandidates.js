@@ -1,42 +1,52 @@
 const mongoose = require("mongoose");
-// CertificateEligibleMember schema
-const CertificateEligibleMemberSchema = new mongoose.Schema({
+// certificate eligible Candidate schema
+const eligibleCandidateSchema = new mongoose.Schema({
   eventCode: {
     type: mongoose.Schema.Types.String,
     unique: true,
     required: true,
   },
-  eligibleMembers: [
+  eligibleCandidates: [
     {
       name: {
         type: mongoose.Schema.Types.String,
+        required: true,
       },
       email: {
         type: mongoose.Schema.Types.String,
+        required: true,
+      },
+      mobileNumber: {
+        type: mongoose.Schema.Types.Number,
+        required: true,
       },
       branch: {
         type: mongoose.Schema.Types.Number,
+        required: true,
       },
-      academicYear: {
+      currentAcademicYear: {
         type: mongoose.Schema.Types.Number,
-      },
-      semester: {
-        type: mongoose.Schema.Types.Number,
+        required: true,
       },
       isMember: {
-        type: mongoose.Schema.Types.Number,
+        type: mongoose.Schema.Types.Boolean,
+        required: true,
       },
       uniqueCertificateCode: {
         type: mongoose.Schema.Types.String,
+        required: true,
         unique: true,
       },
     },
   ],
-  dateOfCreation: {
+  lastEdited: {
     type: mongoose.Schema.Types.Date,
     required: true,
   },
 });
 
-const CertificateEligibleMembers = mongoose.model("certificateEligibleMembers", eventSchema);
-module.exports = CertificateEligibleMembers;
+const EligibleCandidates = mongoose.model(
+  "eligible-candidates",
+  eligibleCandidateSchema
+);
+module.exports = EligibleCandidates;
