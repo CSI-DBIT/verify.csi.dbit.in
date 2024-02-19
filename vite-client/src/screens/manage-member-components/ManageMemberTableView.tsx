@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, UserRoundCheck, UserRoundMinus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EditMemberForm from "./EditMemberForm";
 import {
@@ -150,6 +150,39 @@ const ManageMemberTableView: FC<ManageMemberTableViewProps> = ({
         });
 
         return <div>{formattedStartDate}</div>;
+      },
+      enableHiding: true,
+      enableSorting: true,
+    },
+    {
+      id: "isMember",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={"Is Member"} />
+      ),
+      cell: ({ row }) => {
+        const startDate = new Date(row.getValue("startDate"));
+        const duration = Number(row.getValue("duration"));
+
+        console.log(startDate, duration);
+        const endDate = new Date(
+          startDate.getTime() + duration * 365 * 24 * 60 * 60 * 1000
+        );
+        const isMember = new Date() < endDate;
+        if (isMember) {
+          return (
+            <div className="flex flex-wrap gap-2">
+              <UserRoundCheck color="#07e704" />
+              <span>Member</span>
+            </div>
+          );
+        } else {
+          return (
+            <div className="flex flex-wrap gap-2">
+              <UserRoundMinus color="#e70404" />
+              <span>Non Member</span>
+            </div>
+          );
+        }
       },
       enableHiding: true,
       enableSorting: true,

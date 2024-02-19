@@ -41,16 +41,9 @@ const eligibleCandidateSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.Boolean,
         default: false,
       },
-      deleteCount: {
-        type: mongoose.Schema.Types.Number,
-        default: 0,
-      },
       editCount: {
         type: mongoose.Schema.Types.Number,
         default: 0,
-      },
-      lastDeleted: {
-        type: mongoose.Schema.Types.Date,
       },
       lastEdited: {
         type: mongoose.Schema.Types.Date,
@@ -60,6 +53,15 @@ const eligibleCandidateSchema = new mongoose.Schema({
   lastEdited: {
     type: mongoose.Schema.Types.Date,
     required: true,
+  },
+  editCount: {
+    type: mongoose.Schema.Types.Number,
+  },
+  isDelete: {
+    type: mongoose.Schema.Types.Boolean,
+  },
+  lastDeleted: {
+    type: mongoose.Schema.Types.Date,
   },
 });
 

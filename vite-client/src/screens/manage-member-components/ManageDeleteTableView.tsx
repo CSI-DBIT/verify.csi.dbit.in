@@ -23,6 +23,7 @@ import {
   durationText,
   genderText,
 } from "../constants";
+import { UserRoundCheck, UserRoundMinus } from "lucide-react";
 
 interface ManageDeleteTableViewProps {
   delMemberTabledata: MemberDetailsSchema[];
@@ -174,6 +175,39 @@ const ManageDeleteTableView: FC<ManageDeleteTableViewProps> = ({
         });
 
         return <div>{formattedStartDate}</div>;
+      },
+      enableHiding: true,
+      enableSorting: true,
+    },
+    {
+      id: "isMember",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={"Is Member"} />
+      ),
+      cell: ({ row }) => {
+        const startDate = new Date(row.getValue("startDate"));
+        const duration = Number(row.getValue("duration"));
+
+        console.log(startDate, duration);
+        const endDate = new Date(
+          startDate.getTime() + duration * 365 * 24 * 60 * 60 * 1000
+        );
+        const isMember = new Date() < endDate;
+        if (isMember) {
+          return (
+            <div className="flex flex-wrap gap-2">
+              <UserRoundCheck color="#07e704" />
+              <span>Member</span>
+            </div>
+          );
+        } else {
+          return (
+            <div className="flex flex-wrap gap-2">
+              <UserRoundMinus color="#e70404" />
+              <span>Non Member</span>
+            </div>
+          );
+        }
       },
       enableHiding: true,
       enableSorting: true,

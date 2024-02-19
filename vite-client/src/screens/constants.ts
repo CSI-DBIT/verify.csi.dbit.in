@@ -15,6 +15,7 @@ interface BranchText {
 
 // Use the defined type
 export const branchText: BranchText = {
+  0: "All Branches",
   1: "Information Technology",
   2: "Computer Science",
   3: "Electronics & Telecommunication",
@@ -27,6 +28,7 @@ interface CurrentAcademicYearText {
 
 // Use the defined type
 export const currentAcademicYearText: CurrentAcademicYearText = {
+  0: "All",
   1: "FE",
   2: "SE",
   3: "TE",
@@ -38,6 +40,7 @@ interface CurrentSemesterText {
 
 // Use the defined type
 export const currentSemesterText: CurrentSemesterText = {
+  0: "All",
   1: "Sem 1",
   2: "Sem 2",
   3: "Sem 3",
@@ -58,4 +61,3 @@ export const durationText: DurationText = {
   2: "Two Years",
   3: "Three Years",
 };
-

@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { DataTableColumnHeader } from "@/components/reusableComponents/DataTableColumnHeader";
 import { DialogHeader } from "@/components/ui/dialog";
 import {
@@ -14,19 +14,27 @@ import {
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuItem,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
+import {
+  Copy,
+  MoreHorizontal,
+  UserRoundCheck,
+  UserRoundMinus,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 // import EditMemberForm from "./EditMemberForm";
 import { branchText, currentAcademicYearText } from "../constants";
 // import DeleteMemberForm from "./DeleteMemberForm";
 import { EligibleCandidatesSchema } from "@/validationSchemas/EligibleCadidatesSchema";
 import EligibleCandidatesDataTable from "./EligibleCandidatesDataTable";
-import { stringify } from "querystring";
 import EditEligibleCandidateForm from "./EditEligibleCandidateForm";
 import DeleteEligibleCandidateForm from "./DeleteEligibleCandidateForm";
-
+import { toast } from "@/components/ui/use-toast";
+import QRCode from "qrcode";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 interface ManageEligibleCandidateTableViewProps {
   eligibleCandidatesData: EligibleCandidatesSchema[];
   setIsOperationInProgress: React.Dispatch<React.SetStateAction<boolean>>;
@@ -88,10 +96,70 @@ const ManageEligibleCandidatesTableView: FC<
       enableSorting: true,
     },
     {
+      accessorKey: "isMember",
+      header: () => <div>Membership</div>,
+      cell: ({ row }) => {
+        const isMember = row.getValue("isMember");
+        if (isMember) {
+          return (
+            <div className="flex flex-wrap gap-2">
+              <UserRoundCheck color="#07e704" />
+              <span>Member</span>
+            </div>
+          );
+        } else {
+          return (
+            <div className="flex flex-wrap gap-2">
+              <UserRoundMinus color="#e70404" />
+              <span>Non Member</span>
+            </div>
+          );
+        }
+      },
+      enableHiding: true,
+      enableSorting: true,
+    },
+    {
+      accessorKey: "uniqueCertificateCode",
+      header: () => <div>Certificate Code</div>,
+      cell: ({ row }) => {
+        const uniqueCertificateCode = row.getValue("uniqueCertificateCode");
+
+        return uniqueCertificateCode;
+      },
+      enableHiding: true,
+      enableSorting: true,
+    },
+    {
+      accessorKey: "certificateFileUrl",
+      header: () => <div>Certificate</div>,
+      cell: ({ row }) => {
+        const uniqueCertificateCode = row.getValue("certificateFileUrl");
+        return uniqueCertificateCode;
+      },
+      enableHiding: true,
+      enableSorting: true,
+    },
+    {
       id: "actions",
       header: () => <div>Actions</div>,
       cell: ({ row }) => {
         const eligibleCandidate = row.original;
+        const [qrCodeData, setQRCodeData] = useState<string>("");
+
+        const generateQRCode = (data: string) => {
+          QRCode.toDataURL(`https://localhost/${data}`).then(setQRCodeData);
+        };
+
+        const downloadQRCode = () => {
+          const downloadLink = document.createElement("a");
+          downloadLink.href = qrCodeData;
+          downloadLink.download = `${eligibleCandidate.name}-${eligibleCandidate.uniqueCertificateCode}.png`;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+        };
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -139,6 +207,78 @@ const ManageEligibleCandidatesTableView: FC<
                   deletingEligibleCandidate={eligibleCandidate}
                   setIsOperationInProgress={setIsOperationInProgress}
                 />
+              </Dialog>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    eligibleCandidate.uniqueCertificateCode as string
+                  );
+                  toast({
+                    title: `Copied : ${
+                      eligibleCandidate.uniqueCertificateCode as string
+                    }`,
+                  });
+                }}
+              >
+                Copy Unique Code
+              </DropdownMenuItem>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      generateQRCode(
+                        eligibleCandidate.uniqueCertificateCode as string
+                      );
+                    }}
+                  >
+                    Generate Qr Code
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Generate Qr Code</DialogTitle>
+                    <DialogDescription>
+                      Download or Copy Qr Code
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="flex justify-center items-center">
+                    <img
+                      src={qrCodeData}
+                      alt={qrCodeData}
+                      className="rounded"
+                    />
+                  </div>
+                  <Label htmlFor="link" className="sr-only">
+                    Qr Code Link
+                  </Label>
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      id="link"
+                      defaultValue={`https://localhost/${eligibleCandidate.uniqueCertificateCode}`}
+                      readOnly
+                    />
+                    <Button
+                      size="sm"
+                      className="px-3"
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          `https://localhost/${eligibleCandidate.uniqueCertificateCode}`
+                        );
+                        toast({
+                          title: `Copied : https://localhost/${eligibleCandidate.uniqueCertificateCode}`,
+                        });
+                      }}
+                    >
+                      <span className="sr-only">Copy</span>
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <Button onClick={downloadQRCode} className="w-full">
+                    Download QR Code
+                  </Button>
+                </DialogContent>
               </Dialog>
             </DropdownMenuContent>
           </DropdownMenu>

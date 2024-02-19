@@ -3,13 +3,59 @@ import axios, { AxiosError } from "axios";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/toaster";
-import { useParams } from "react-router-dom";
+import { Link, redirect, useParams } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import BulkUploadEligibleCandidates from "./BulkUploadEligibleCandidates";
 import AddEligibleCandidatesView from "./AddEligibleCandidatesView";
-import { EventSchema } from "@/validationSchemas/EventSchema";
+import {
+  EventSchema,
+  validationEventSchema,
+} from "@/validationSchemas/EventSchema";
 import { EligibleCandidatesSchema } from "@/validationSchemas/EligibleCadidatesSchema";
 import ManageEligibleCandidatesTableView from "./ManageEligibleCandidatesTableView";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { CardDescription } from "@/components/ui/card";
+import { branchText, currentAcademicYearText } from "../constants";
+import { useNavigate } from "react-router-dom";
+import PageNotFound from "../PageNotFound";
 const fetchEventDetails = async (eventId: string): Promise<EventSchema> => {
   try {
     const response = await axios.get(
@@ -48,8 +94,7 @@ const fetchEligibleCandidatesDetails = async (
         import.meta.env.VITE_SERVER_URL
       }/api/get/eligible-candidates?eventCode=${eventId}`
     );
-    return response.data.eventinfo
-      .eligibleCandidates as EligibleCandidatesSchema[];
+    return response.data.eligibleCandidates as EligibleCandidatesSchema[];
   } catch (error) {
     console.error("Error fetching data:", error);
     if (axios.isAxiosError(error)) {
@@ -72,6 +117,7 @@ const fetchEligibleCandidatesDetails = async (
   }
 };
 const EventDetails = () => {
+  const navigateTo = useNavigate();
   const { eventId } = useParams();
   const [eventDetails, setEventDetails] = useState<EventSchema>();
   const [eligibleCandidates, setEligibleCandidates] = useState<
@@ -80,12 +126,23 @@ const EventDetails = () => {
   const [isBulkUploadCompleted, setIsBulkUploadCompleted] = useState(false);
   const [isEligibleCandidateAdded, setIsEligibleCandidateAdded] =
     useState(false);
+  const [isEventDetailsEdited, setIsEventDetailsEdited] = useState(false);
+  const [isEventDetailsDeleted, setIsEventDetailsDeleted] = useState(false);
   const [isOperationInProgress, setIsOperationInProgress] =
     useState<boolean>(false);
 
   useEffect(() => {
     fetchEventDetails(String(eventId)).then((data) => {
       setEventDetails(data);
+      edit_event_details_form.reset({
+        name: data.name,
+        category: data.category.toString(),
+        typeOfEvent: data.typeOfEvent.toString(),
+        branchesAllowed: data.branchesAllowed.toString(),
+        academicYearAllowed: data.academicYearAllowed.toString(),
+        dateOfCompletion: new Date(data.dateOfCompletion),
+        isMemberOnly: data.isMemberOnly,
+      });
       console.log(data);
     });
     fetchEligibleCandidatesDetails(String(eventId)).then((data) => {
@@ -94,11 +151,15 @@ const EventDetails = () => {
     });
     if (
       isEligibleCandidateAdded ||
+      isEventDetailsEdited ||
+      isEventDetailsDeleted ||
       isBulkUploadCompleted ||
       isOperationInProgress
     ) {
       fetchEventDetails(String(eventId)).then((data) => setEventDetails(data));
       setIsEligibleCandidateAdded(false);
+      setIsEventDetailsEdited(false);
+      setIsEventDetailsDeleted(false);
       setIsBulkUploadCompleted(false);
       setIsOperationInProgress(false);
     }
@@ -108,34 +169,407 @@ const EventDetails = () => {
     isBulkUploadCompleted,
     isEligibleCandidateAdded,
     isOperationInProgress,
+    isEventDetailsEdited,
   ]);
 
+  const edit_event_details_form = useForm<EventSchema>({
+    resolver: zodResolver(validationEventSchema),
+  });
+  const onEditEventDetailsFormSubmit: SubmitHandler<EventSchema> = async (
+    editingEventDetail: EventSchema
+  ) => {
+    try {
+      setIsEventDetailsEdited(true);
+      const editingMemberWithLastEdited = {
+        ...editingEventDetail,
+        lastEdited: new Date(),
+      };
+      await axios.post(
+        `${
+          import.meta.env.VITE_SERVER_URL
+        }/api/event/edit?eventCode=${eventId}`,
+        editingMemberWithLastEdited
+      );
+      toast({
+        title: "Event Updated Successfully",
+        variant: "default",
+      });
+      setEditEventDialogOpen(false);
+    } catch (error) {
+      // Handle errors (e.g., show an error toast)
+      console.error("Error submitting form:", error);
+      toast({
+        title: "Error editing Event",
+        description: error.message || "An unexpected error occurred",
+        variant: "destructive",
+      });
+      setEditEventDialogOpen(false);
+    }
+  };
+  const handleDeleteEventDetails = async () => {
+    try {
+      setIsEventDetailsDeleted(true);
+
+      // Make the API call with the modified data
+      await axios.put(
+        `${
+          import.meta.env.VITE_SERVER_URL
+        }/api/event/delete?eventCode=${eventId}`,
+        { lastDeleted: new Date() }
+      );
+
+      // Show success toast
+      toast({
+        title: "Event deleted successfully",
+        variant: "default",
+      });
+      setDeleteEventDialogOpen(false);
+      navigateTo("/manage/events");
+    } catch (error) {
+      // Handle error
+      console.error("Error deleting Event:", error);
+      // Show error toast
+      toast({
+        title: "Error deleting Event",
+        description: error.message || "An unexpected error occurred",
+        variant: "destructive",
+      });
+      setDeleteEventDialogOpen(false);
+    }
+  };
+  const [editEventDialogOpen, setEditEventDialogOpen] = useState(false);
+  const [deleteEventDialogOpen, setDeleteEventDialogOpen] = useState(false);
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <div className="p-4 flex flex-grow flex-col gap-2">
-        <h2 className="scroll-m-20 pb-2 text-3xl font-bold tracking-tight first:mt-0 capitalize">
-          {eventDetails ? eventDetails.name : "Event Details"}
-        </h2>
-        <div className="flex flex-wrap lg:gap-2">
-          <BulkUploadEligibleCandidates
-            eventDetails={eventDetails}
-            setIsBulkUploadCompleted={setIsBulkUploadCompleted}
-          />
-          <AddEligibleCandidatesView
-            setIsEligibleCandidateAdded={setIsEligibleCandidateAdded}
-            eventDetails={eventDetails}
-          />
+    <div>
+      {eventDetails ? (
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <div className="p-4 flex flex-grow flex-col gap-2">
+            <div className="flex flex-wrap justify-between">
+              <div>
+                <Link to={"/manage/events"}>
+                  <Button variant={"default"}>Back</Button>
+                </Link>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <div>
+                  <Dialog
+                    open={editEventDialogOpen}
+                    onOpenChange={setEditEventDialogOpen}
+                  >
+                    <DialogTrigger asChild>
+                      <Button variant="outline">Edit Event</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Edit Event Details</DialogTitle>
+                        <DialogDescription>
+                          Make changes to your profile here. Click save when
+                          you're done.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Form {...edit_event_details_form}>
+                        <form
+                          onSubmit={edit_event_details_form.handleSubmit(
+                            onEditEventDetailsFormSubmit
+                          )}
+                          className="space-y-2"
+                        >
+                          <ScrollArea className="h-[500px] p-4">
+                            <div className="space-y-2">
+                              <FormField
+                                control={edit_event_details_form.control}
+                                name="name"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Name</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="Enter Event Name"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={edit_event_details_form.control}
+                                name="isMemberOnly"
+                                render={({ field }) => (
+                                  <FormItem className="flex items-center space-x-2 space-y-0 py-2">
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                      />
+                                    </FormControl>
+                                    <FormLabel>Is Member Only</FormLabel>
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={edit_event_details_form.control}
+                                name="category"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Category</FormLabel>
+                                    <Select
+                                      onValueChange={field.onChange}
+                                      defaultValue={field.value}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select Category..." />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="1">Talks</SelectItem>
+                                        <SelectItem value="2">
+                                          Competitions
+                                        </SelectItem>
+                                        <SelectItem value="3">
+                                          Workshops
+                                        </SelectItem>
+                                        <SelectItem value="4">
+                                          Others
+                                        </SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={edit_event_details_form.control}
+                                name="typeOfEvent"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Event Type</FormLabel>
+                                    <Select
+                                      onValueChange={field.onChange}
+                                      defaultValue={field.value}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select Event Type..." />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="1">
+                                          Technical
+                                        </SelectItem>
+                                        <SelectItem value="2">
+                                          Non Technical
+                                        </SelectItem>
+                                        <SelectItem value="3">
+                                          Others
+                                        </SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={edit_event_details_form.control}
+                                name="academicYearAllowed"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Academic Year Allowed</FormLabel>
+                                    <Select
+                                      onValueChange={field.onChange}
+                                      defaultValue={field.value}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select Academic Year..." />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="0">All</SelectItem>
+                                        <SelectItem value="1">FE</SelectItem>
+                                        <SelectItem value="2">SE</SelectItem>
+                                        <SelectItem value="3">TE</SelectItem>
+                                        <SelectItem value="4">BE</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={edit_event_details_form.control}
+                                name="branchesAllowed"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Branches Allowed</FormLabel>
+                                    <Select
+                                      onValueChange={field.onChange}
+                                      defaultValue={field.value}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select Branches..." />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="0">All</SelectItem>
+                                        <SelectItem value="1">IT</SelectItem>
+                                        <SelectItem value="2">CS</SelectItem>
+                                        <SelectItem value="3">EXTC</SelectItem>
+                                        <SelectItem value="4">MECH</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={edit_event_details_form.control}
+                                name="dateOfCompletion"
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-col">
+                                    <FormLabel>Date of Completion</FormLabel>
+                                    <Popover>
+                                      <PopoverTrigger asChild>
+                                        <FormControl>
+                                          <Button
+                                            type="button"
+                                            variant={"outline"}
+                                            className={cn(
+                                              "w-[240px] pl-3 text-left font-normal",
+                                              !field.value &&
+                                                "text-muted-foreground"
+                                            )}
+                                          >
+                                            {field.value ? (
+                                              format(field.value, "PPP")
+                                            ) : (
+                                              <span>Pick a date</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                          </Button>
+                                        </FormControl>
+                                      </PopoverTrigger>
+                                      <PopoverContent
+                                        className="w-auto p-0"
+                                        align="start"
+                                      >
+                                        <Calendar
+                                          mode="single"
+                                          selected={field.value}
+                                          onSelect={field.onChange}
+                                          disabled={(date) =>
+                                            date > new Date() ||
+                                            date < new Date("1900-01-01")
+                                          }
+                                          initialFocus
+                                        />
+                                      </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </ScrollArea>
+                          <Button
+                            type="submit"
+                            disabled={
+                              edit_event_details_form.formState.isSubmitting
+                            }
+                            className="w-full"
+                          >
+                            Submit
+                          </Button>
+                        </form>
+                      </Form>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+                <div>
+                  <Dialog
+                    open={deleteEventDialogOpen}
+                    onOpenChange={setDeleteEventDialogOpen}
+                  >
+                    <DialogTrigger asChild>
+                      <Button variant="outline">Delete Event</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Delete Event Details</DialogTitle>
+                        <DialogDescription>
+                          Are you sure you want to delete this event?
+                        </DialogDescription>
+                      </DialogHeader>
+                      <ScrollArea className="h-[100px] rounded-md border p-3">
+                        <CardDescription>
+                          Name: {eventDetails?.name}
+                        </CardDescription>
+                        <CardDescription>
+                          Category: {eventDetails?.category}
+                        </CardDescription>
+                        <CardDescription>
+                          Branch:{" "}
+                          {branchText[Number(eventDetails?.branchesAllowed)]}
+                        </CardDescription>
+                        <CardDescription>
+                          Academic Year Allowed :{" "}
+                          {
+                            currentAcademicYearText[
+                              Number(eventDetails?.academicYearAllowed)
+                            ]
+                          }
+                        </CardDescription>
+                        <CardDescription>
+                          Is Member Only : {String(eventDetails?.isMemberOnly)}
+                        </CardDescription>
+                      </ScrollArea>
+                      {eventDetails ? (
+                        <DialogFooter>
+                          <Button
+                            variant="outline"
+                            className="hover:bg-red-600 w-full"
+                            onClick={async () =>
+                              handleDeleteEventDetails(eventDetails)
+                            }
+                          >
+                            Permanant Delete
+                          </Button>
+                        </DialogFooter>
+                      ) : null}
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
+            </div>
+            <h2 className="scroll-m-20 pb-2 text-3xl font-bold tracking-tight first:mt-0 capitalize">
+              {eventDetails ? eventDetails.name : "Event Details"}
+            </h2>
+            <div className="flex flex-wrap lg:gap-2">
+              <BulkUploadEligibleCandidates
+                eventDetails={eventDetails}
+                setIsBulkUploadCompleted={setIsBulkUploadCompleted}
+              />
+              <AddEligibleCandidatesView
+                setIsEligibleCandidateAdded={setIsEligibleCandidateAdded}
+                eventDetails={eventDetails}
+              />
+            </div>
+            <div>
+              <ManageEligibleCandidatesTableView
+                setIsOperationInProgress={setIsOperationInProgress}
+                eligibleCandidatesData={eligibleCandidates}
+              />
+            </div>
+          </div>
+          <Footer />
+          <Toaster />
         </div>
-        <div>
-          <ManageEligibleCandidatesTableView
-            setIsOperationInProgress={setIsOperationInProgress}
-            eligibleCandidatesData={eligibleCandidates}
-          />
-        </div>
-      </div>
-      <Footer />
-      <Toaster />
+      ) : (
+        <PageNotFound />
+      )}
     </div>
   );
 };

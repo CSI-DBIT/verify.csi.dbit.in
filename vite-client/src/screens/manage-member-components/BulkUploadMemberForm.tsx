@@ -78,7 +78,26 @@ const BulkUploadMemberForm: FC<BulkUploadMemberFormProps> = ({
             title: errorMessage,
             variant: "destructive",
           });
+          const duplicates = axiosError.response?.data.duplicates as Object;
+          const duplicateFields = Object.keys(duplicates);
+          toast({
+            title: "You submitted the following values:",
+            description: (
+              <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+                <code className="text-white">
+                  {JSON.stringify(duplicateFields, null, 2)}
+                </code>
+              </pre>
+            ),
+          });
         } else {
+          toast({
+            title: "Unexpected error:",
+            variant: "destructive",
+          });
+          console.error("Unexpected error:", error);
+        }
+        {
           toast({
             title: "Unexpected error:",
             variant: "destructive",

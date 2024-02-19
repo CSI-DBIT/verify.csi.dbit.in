@@ -36,7 +36,7 @@ const DeleteEligibleCandidateForm: FC<DeleteEligibleCandidateFormProps> = ({
         }/api/eligible-candidate/delete?uniqueCertCode=${
           deletingEligibleCandidate.uniqueCertificateCode
         }`,
-        { lastDeleted: new Date() }
+        { lastEdited: new Date() }
       );
 
       // Show success toast
@@ -59,9 +59,9 @@ const DeleteEligibleCandidateForm: FC<DeleteEligibleCandidateFormProps> = ({
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Delete Eligible Candidate</DialogTitle>
+        <DialogTitle>Permanant Delete Candidate</DialogTitle>
         <DialogDescription>
-          Are you sure you want to delete this Candidate?
+          Are you sure you want to permanantly delete this Candidate?
         </DialogDescription>
       </DialogHeader>
       <ScrollArea className="h-[100px] rounded-md border p-3">
@@ -81,7 +81,7 @@ const DeleteEligibleCandidateForm: FC<DeleteEligibleCandidateFormProps> = ({
           className="hover:bg-red-600 w-full"
           onClick={async () => handleDelete(deletingEligibleCandidate)}
         >
-          Confirm Delete
+          Permanant Delete
         </Button>
       </DialogFooter>
     </DialogContent>
