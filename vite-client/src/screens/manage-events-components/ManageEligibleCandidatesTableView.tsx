@@ -19,14 +19,16 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Copy,
+  Eye,
+  FileX2,
   MoreHorizontal,
+  Trash2,
+  Upload,
   UserRoundCheck,
   UserRoundMinus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-// import EditMemberForm from "./EditMemberForm";
 import { branchText, currentAcademicYearText } from "../constants";
-// import DeleteMemberForm from "./DeleteMemberForm";
 import { EligibleCandidatesSchema } from "@/validationSchemas/EligibleCadidatesSchema";
 import EligibleCandidatesDataTable from "./EligibleCandidatesDataTable";
 import EditEligibleCandidateForm from "./EditEligibleCandidateForm";
@@ -35,14 +37,103 @@ import { toast } from "@/components/ui/use-toast";
 import QRCode from "qrcode";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import axios, { AxiosError } from "axios";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 interface ManageEligibleCandidateTableViewProps {
   eligibleCandidatesData: EligibleCandidatesSchema[];
   setIsOperationInProgress: React.Dispatch<React.SetStateAction<boolean>>;
+  eventId: string;
 }
 
 const ManageEligibleCandidatesTableView: FC<
   ManageEligibleCandidateTableViewProps
-> = ({ eligibleCandidatesData, setIsOperationInProgress }) => {
+> = ({ eligibleCandidatesData, setIsOperationInProgress, eventId }) => {
+  const [qrCodeData, setQRCodeData] = useState<string>("");
+  const [uploadCertificateProgress, setUploadCertificateProgress] =
+    useState<number>(0);
+  const [selectedCertificateFile, setSelectedCertificateFile] =
+    useState<File | null>(null);
+
+  const viewCertificate = (
+    certificateFileUrl: string,
+    uniqueCertificateCode: string
+  ) => {
+    toast({
+      title: `preview certificate ${certificateFileUrl} ${uniqueCertificateCode}`,
+    });
+  };
+  const deleteCertificate = () => {
+    toast({
+      title: "delete certificate",
+    });
+  };
+  const uploadCertificate = async (
+    _email: string,
+    _isMember: string,
+    _eventCode: string,
+    _uniqueCertificateCode: string
+  ) => {
+    if (selectedCertificateFile) {
+      const formData = new FormData();
+      formData.append("candidate_certificate", selectedCertificateFile);
+      formData.append("email", _email);
+      formData.append("isMember", String(_isMember));
+      formData.append("eventCode", String(_eventCode));
+      formData.append("uniqueCertificateCode", String(_uniqueCertificateCode));
+      try {
+        const response = await axios.post(
+          `${
+            import.meta.env.VITE_SERVER_URL
+          }/api/eligible-candidate/certificate/upload`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            onUploadProgress: (progressEvent) => {
+              const percentCompleted = Math.round(
+                (progressEvent.loaded * 100) / (progressEvent.total || 1)
+              );
+              setUploadCertificateProgress(percentCompleted);
+            },
+          }
+        );
+        toast({
+          title: response.data.message,
+        });
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        if (axios.isAxiosError(error)) {
+          const axiosError = error as AxiosError;
+          const errorMessage =
+            axiosError.response?.data?.error || "Unknown error";
+          toast({
+            title: errorMessage,
+            variant: "destructive",
+          });
+        }
+
+        toast({
+          title: "Unexpected error:",
+          variant: "destructive",
+        });
+        console.error("Unexpected error:", error);
+      } finally {
+        setSelectedCertificateFile(null);
+      }
+    } else {
+      toast({
+        title: "No file selected",
+        variant: "destructive",
+      });
+    }
+  };
   const columns: ColumnDef<EligibleCandidatesSchema>[] = [
     {
       accessorKey: "name",
@@ -102,14 +193,14 @@ const ManageEligibleCandidatesTableView: FC<
         const isMember = row.getValue("isMember");
         if (isMember) {
           return (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex items-center gap-2">
               <UserRoundCheck color="#07e704" />
               <span>Member</span>
             </div>
           );
         } else {
           return (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex items-center gap-2">
               <UserRoundMinus color="#e70404" />
               <span>Non Member</span>
             </div>
@@ -134,8 +225,164 @@ const ManageEligibleCandidatesTableView: FC<
       accessorKey: "certificateFileUrl",
       header: () => <div>Certificate</div>,
       cell: ({ row }) => {
-        const uniqueCertificateCode = row.getValue("certificateFileUrl");
-        return uniqueCertificateCode;
+        const certificateFileUrl = row.getValue("certificateFileUrl");
+        const uniqueCertificateCode = row.getValue("uniqueCertificateCode");
+        const email = row.getValue("email");
+        const isMember = row.getValue("isMember");
+        if (!certificateFileUrl) {
+          return (
+            <div>
+              {!selectedCertificateFile && (
+                <Input
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) =>
+                    setSelectedCertificateFile(e.target.files?.[0] || null)
+                  }
+                />
+              )}
+              {selectedCertificateFile && (
+                <div className="flex items-center justify-between gap-2">
+                  <Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          {selectedCertificateFile.name.length > 20
+                            ? `${selectedCertificateFile.name.substring(
+                                0,
+                                20
+                              )}...`
+                            : selectedCertificateFile.name}
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {selectedCertificateFile.name}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </Label>
+                  <div className="flex gap-1">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Dialog>
+                            <DialogTrigger>
+                              <Button
+                                size={"icon"}
+                                // onClick={previewUploadedCertificate}
+                                variant={"ghost"}
+                                className="bg-blue-800 hover:bg-blue-900"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Preview Certificate</DialogTitle>
+                                <DialogDescription>
+                                  {selectedCertificateFile.name.length > 20
+                                    ? `${selectedCertificateFile.name.substring(
+                                        0,
+                                        20
+                                      )}...`
+                                    : selectedCertificateFile.name}
+                                </DialogDescription>
+                                <embed
+                                  src={URL.createObjectURL(
+                                    selectedCertificateFile
+                                  )}
+                                  type="application/pdf"
+                                  width="100%"
+                                  height="600px"
+                                />
+                              </DialogHeader>
+                            </DialogContent>
+                          </Dialog>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Preview Document</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Button
+                            size={"icon"}
+                            onClick={() => setSelectedCertificateFile(null)}
+                            variant={"ghost"}
+                            className="bg-red-800 hover:bg-red-900"
+                          >
+                            <FileX2 className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Remove Document</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Button
+                            size={"icon"}
+                            onClick={() =>
+                              uploadCertificate(
+                                email as string,
+                                isMember as string,
+                                eventId as string,
+                                uniqueCertificateCode as string
+                              )
+                            }
+                            variant={"ghost"}
+                            className="bg-green-800 hover:bg-green-900"
+                          >
+                            <Upload className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Upload Document</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        } else {
+          return (
+            <div className="flex gap-2 items-center justify-between">
+              <Button
+                onClick={() =>
+                  viewCertificate(
+                    certificateFileUrl as string,
+                    uniqueCertificateCode as string
+                  )
+                }
+                className="w-5/6"
+                variant={"secondary"}
+              >
+                View Certificate
+              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button
+                      onClick={deleteCertificate}
+                      size={"icon"}
+                      variant={"destructive"}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Delete Certificate</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          );
+        }
       },
       enableHiding: true,
       enableSorting: true,
@@ -145,7 +392,6 @@ const ManageEligibleCandidatesTableView: FC<
       header: () => <div>Actions</div>,
       cell: ({ row }) => {
         const eligibleCandidate = row.original;
-        const [qrCodeData, setQRCodeData] = useState<string>("");
 
         const generateQRCode = (data: string) => {
           QRCode.toDataURL(`https://localhost/${data}`).then(setQRCodeData);
@@ -228,9 +474,9 @@ const ManageEligibleCandidatesTableView: FC<
                   <DropdownMenuItem
                     onSelect={(e) => {
                       e.preventDefault();
-                      generateQRCode(
-                        eligibleCandidate.uniqueCertificateCode as string
-                      );
+                      QRCode.toDataURL(
+                        `https://localhost/${eligibleCandidate.uniqueCertificateCode}`
+                      ).then(setQRCodeData);
                     }}
                   >
                     Generate Qr Code

@@ -3,7 +3,7 @@ import axios, { AxiosError } from "axios";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/toaster";
-import { Link, redirect, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import BulkUploadEligibleCandidates from "./BulkUploadEligibleCandidates";
 import AddEligibleCandidatesView from "./AddEligibleCandidatesView";
@@ -130,51 +130,58 @@ const EventDetails = () => {
   const [isEventDetailsDeleted, setIsEventDetailsDeleted] = useState(false);
   const [isOperationInProgress, setIsOperationInProgress] =
     useState<boolean>(false);
-
+  const edit_event_details_form = useForm<EventSchema>({
+    resolver: zodResolver(validationEventSchema),
+  });
   useEffect(() => {
-    fetchEventDetails(String(eventId)).then((data) => {
-      setEventDetails(data);
-      edit_event_details_form.reset({
-        name: data.name,
-        category: data.category.toString(),
-        typeOfEvent: data.typeOfEvent.toString(),
-        branchesAllowed: data.branchesAllowed.toString(),
-        academicYearAllowed: data.academicYearAllowed.toString(),
-        dateOfCompletion: new Date(data.dateOfCompletion),
-        isMemberOnly: data.isMemberOnly,
+    try {
+      fetchEventDetails(String(eventId)).then((data) => {
+        setEventDetails(data);
+        edit_event_details_form.reset({
+          name: data.name,
+          category: data.category.toString(),
+          typeOfEvent: data.typeOfEvent.toString(),
+          branchesAllowed: data.branchesAllowed.toString(),
+          academicYearAllowed: data.academicYearAllowed.toString(),
+          dateOfCompletion: new Date(data.dateOfCompletion),
+          isMemberOnly: data.isMemberOnly,
+        });
+        console.log(data);
       });
-      console.log(data);
-    });
-    fetchEligibleCandidatesDetails(String(eventId)).then((data) => {
-      setEligibleCandidates(data);
-      console.log(data);
-    });
-    if (
-      isEligibleCandidateAdded ||
-      isEventDetailsEdited ||
-      isEventDetailsDeleted ||
-      isBulkUploadCompleted ||
-      isOperationInProgress
-    ) {
-      fetchEventDetails(String(eventId)).then((data) => setEventDetails(data));
-      setIsEligibleCandidateAdded(false);
-      setIsEventDetailsEdited(false);
-      setIsEventDetailsDeleted(false);
-      setIsBulkUploadCompleted(false);
-      setIsOperationInProgress(false);
+      fetchEligibleCandidatesDetails(String(eventId)).then((data) => {
+        setEligibleCandidates(data);
+        console.log(data);
+      });
+      if (
+        isEligibleCandidateAdded ||
+        isEventDetailsEdited ||
+        isEventDetailsDeleted ||
+        isBulkUploadCompleted ||
+        isOperationInProgress
+      ) {
+        fetchEventDetails(String(eventId)).then((data) =>
+          setEventDetails(data)
+        );
+        setIsEligibleCandidateAdded(false);
+        setIsEventDetailsEdited(false);
+        setIsEventDetailsDeleted(false);
+        setIsBulkUploadCompleted(false);
+        setIsOperationInProgress(false);
+      }
+      console.log("use effect run");
+    } catch (error) {
+      console.log("Error fetching data");
     }
-    console.log("use effect run");
   }, [
     eventId,
     isBulkUploadCompleted,
     isEligibleCandidateAdded,
     isOperationInProgress,
     isEventDetailsEdited,
+    isEventDetailsDeleted,
+    edit_event_details_form,
   ]);
 
-  const edit_event_details_form = useForm<EventSchema>({
-    resolver: zodResolver(validationEventSchema),
-  });
   const onEditEventDetailsFormSubmit: SubmitHandler<EventSchema> = async (
     editingEventDetail: EventSchema
   ) => {
@@ -241,7 +248,7 @@ const EventDetails = () => {
   const [deleteEventDialogOpen, setDeleteEventDialogOpen] = useState(false);
   return (
     <div>
-      {eventDetails ? (
+      {eventDetails && eventId ? (
         <div className="flex flex-col min-h-screen">
           <Navbar />
           <div className="p-4 flex flex-grow flex-col gap-2">
@@ -531,9 +538,7 @@ const EventDetails = () => {
                           <Button
                             variant="outline"
                             className="hover:bg-red-600 w-full"
-                            onClick={async () =>
-                              handleDeleteEventDetails(eventDetails)
-                            }
+                            onClick={async () => handleDeleteEventDetails()}
                           >
                             Permanant Delete
                           </Button>
@@ -561,6 +566,7 @@ const EventDetails = () => {
               <ManageEligibleCandidatesTableView
                 setIsOperationInProgress={setIsOperationInProgress}
                 eligibleCandidatesData={eligibleCandidates}
+                eventId={eventId}
               />
             </div>
           </div>

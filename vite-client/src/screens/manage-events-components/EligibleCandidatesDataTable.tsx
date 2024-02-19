@@ -25,7 +25,7 @@ import {
   getFacetedRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import { branch, currentAcademicYear, isMember } from "./manageEventConstants";
+import { branch, currentAcademicYear } from "./manageEventConstants";
 import { useState } from "react";
 import { X } from "lucide-react";
 

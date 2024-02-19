@@ -43,7 +43,9 @@ const ManageDeleteTableView: FC<ManageDeleteTableViewProps> = ({
           revokingMember.studentId
         }`,
         {
-          lastRevoked: new Date(), // Set lastRevoked to the current date
+          currentDate: new Date(), // Set lastRevoked to the current date
+          email: revokingMember.email,
+          mobileNumber: revokingMember.mobileNumber,
         }
       );
 
@@ -237,20 +239,36 @@ const ManageDeleteTableView: FC<ManageDeleteTableViewProps> = ({
               </DialogHeader>
               <ScrollArea className="h-[100px] rounded-md border p-3">
                 <CardDescription>Name: {revokingMember.name}</CardDescription>
+                <CardDescription>Email: {revokingMember.email}</CardDescription>
                 <CardDescription>
-                  Email: {revokingMember?.email}
+                  Mobile Number: {revokingMember.mobileNumber}
                 </CardDescription>
                 <CardDescription>
-                  Student id: {revokingMember?.studentId}
+                  Gender: {genderText[Number(revokingMember.gender)]}
                 </CardDescription>
                 <CardDescription>
-                  Branch: {branchText[Number(revokingMember?.branch)]}
+                  Student id: {revokingMember.studentId}
                 </CardDescription>
                 <CardDescription>
-                  Duration: {durationText[Number(revokingMember?.duration)]}
+                  Branch: {branchText[Number(revokingMember.branch)]}
                 </CardDescription>
                 <CardDescription>
-                  Start Date: {revokingMember?.startDate.toString()}
+                  Current Academic Year:{" "}
+                  {
+                    currentAcademicYearText[
+                      Number(revokingMember.currentAcademicYear)
+                    ]
+                  }
+                </CardDescription>
+                <CardDescription>
+                  Current Semester:{" "}
+                  {currentSemesterText[Number(revokingMember.currentSemester)]}
+                </CardDescription>
+                <CardDescription>
+                  Duration: {durationText[Number(revokingMember.duration)]}
+                </CardDescription>
+                <CardDescription>
+                  Start Date: {revokingMember.startDate.toString()}
                 </CardDescription>
               </ScrollArea>
               <DialogFooter>

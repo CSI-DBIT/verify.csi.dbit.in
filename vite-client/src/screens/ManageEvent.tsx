@@ -63,23 +63,7 @@ const ManageEvent = () => {
           Completed Events
         </h2>
         <div className="lg:grid flex flex-col grid-cols-5 gap-3">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                className="min-h-[120px] h-full w-full flex gap-2 border-dashed border-4"
-              >
-                <PlusCircle />
-                Create Event
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create Event</DialogTitle>
-              </DialogHeader>
-              <AddEventForm setIsEventAdded={setIsEventAdded} />
-            </DialogContent>
-          </Dialog>
+          <AddEventForm setIsEventAdded={setIsEventAdded} />
           {events.length > 0 ? (
             events.map((event, index) => (
               <EventCard event={event} index={index} />

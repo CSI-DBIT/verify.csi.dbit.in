@@ -202,44 +202,14 @@ const ManageMemberTableView: FC<ManageMemberTableViewProps> = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <DropdownMenuItem
-                    onSelect={(e) => {
-                      e.preventDefault();
-                    }}
-                  >
-                    edit
-                  </DropdownMenuItem>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Edit Member Details</DialogTitle>
-                    <DialogDescription>
-                      Edit member details and submit the form
-                    </DialogDescription>
-                  </DialogHeader>
-                  <EditMemberForm
-                    editingMember={member}
-                    setIsOperationInProgress={setIsOperationInProgress}
-                  />
-                </DialogContent>
-              </Dialog>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <DropdownMenuItem
-                    onSelect={(e) => {
-                      e.preventDefault();
-                    }}
-                  >
-                    delete
-                  </DropdownMenuItem>
-                </DialogTrigger>
-                <DeleteMemberForm
-                  deletingMember={member}
-                  setIsOperationInProgress={setIsOperationInProgress}
-                />
-              </Dialog>
+              <EditMemberForm
+                editingMember={member}
+                setIsOperationInProgress={setIsOperationInProgress}
+              />
+              <DeleteMemberForm
+                deletingMember={member}
+                setIsOperationInProgress={setIsOperationInProgress}
+              />
             </DropdownMenuContent>
           </DropdownMenu>
         );

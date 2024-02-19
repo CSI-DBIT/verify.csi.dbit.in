@@ -29,6 +29,14 @@ const certificateStorage = multer.diskStorage({
     cb(null, file.originalname);
   },
 });
+const candidate_certificateStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./candidate_certificates");
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
 const memberExcel = multer.memoryStorage();
 const eligibleCandidatesExcel = multer.memoryStorage();
 
@@ -38,6 +46,9 @@ const eligibleCandidatesExcelupload = multer({
   storage: eligibleCandidatesExcel,
 });
 const certificateStorageupload = multer({ storage: certificateStorage });
+const candidate_certificateStorageupload = multer({
+  storage: candidate_certificateStorage,
+});
 
 app
   .use(cors())
@@ -53,6 +64,28 @@ app
     res.send("hello server");
   })
 
+  .post(
+    "/api/eligible-candidate/certificate/upload",
+    candidate_certificateStorageupload.array("candidate_certificate"),
+    async (req, res) => {
+      try {
+        const candidate_certificate = req.files;
+        const { email, isMember, eventCode, uniqueCertificateCode } = req.body;
+        console.log(
+          candidate_certificate,
+          email,
+          isMember,
+          eventCode,
+          uniqueCertificateCode
+        );
+        res
+          .status(200)
+          .json({ message: "Certificates uploaded successfully👍" });
+      } catch (error) {
+        res.status(500).json({ message: "Internal Server Error" });
+      }
+    }
+  )
   .post(
     "/api/bulk-upload/certificates",
     certificateStorageupload.array("certificate_files"),
@@ -520,8 +553,8 @@ app
       }
 
       // Extract lastDeleted from request body
-      const { lastDeleted } = req.body;
-      if (!lastDeleted) {
+      const { currentDate, email, mobileNumber } = req.body;
+      if (!currentDate) {
         return res.status(400).json({ error: "Last Deleted date is required" });
       }
 
@@ -529,8 +562,22 @@ app
       await MemberDetail.findOneAndUpdate(
         { studentId },
         {
-          $set: { isDeleted: true, lastDeleted: new Date(lastDeleted) },
+          $set: { isDeleted: true, lastDeleted: new Date(currentDate) },
           $inc: { deleteCount: 1 },
+        }
+      );
+      await EligibleCandidates.updateMany(
+        {
+          "eligibleCandidates.email": email,
+          "eligibleCandidates.mobileNumber": mobileNumber,
+        },
+        {
+          $set: {
+            "eligibleCandidates.$.isMember": false,
+            "eligibleCandidates.$.lastEdited": new Date(currentDate),
+            lastEdited: new Date(currentDate),
+          },
+          $inc: { "eligibleCandidates.$.editCount": 1, editCount: 1 },
         }
       );
       res.status(200).json({ message: "Member deleted successfully" });
@@ -549,8 +596,8 @@ app
       }
 
       // Extract lastRevoked from request body
-      const { lastRevoked } = req.body;
-      if (!lastRevoked) {
+      const { currentDate, email, mobileNumber } = req.body;
+      if (!currentDate) {
         return res.status(400).json({ error: "Last Revoked date is required" });
       }
 
@@ -558,8 +605,22 @@ app
       await MemberDetail.findOneAndUpdate(
         { studentId },
         {
-          $set: { isDeleted: false, lastRevoked: new Date(lastRevoked) },
+          $set: { isDeleted: false, lastRevoked: new Date(currentDate) },
           $inc: { revokeCount: 1 },
+        }
+      );
+      await EligibleCandidates.updateMany(
+        {
+          "eligibleCandidates.email": email,
+          "eligibleCandidates.mobileNumber": mobileNumber,
+        },
+        {
+          $set: {
+            "eligibleCandidates.$.isMember": true,
+            "eligibleCandidates.$.lastEdited": new Date(currentDate),
+            lastEdited: new Date(currentDate),
+          },
+          $inc: { "eligibleCandidates.$.editCount": 1, editCount: 1 },
         }
       );
 
