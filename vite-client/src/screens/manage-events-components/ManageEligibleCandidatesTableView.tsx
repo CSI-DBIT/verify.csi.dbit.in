@@ -57,8 +57,8 @@ const ManageEligibleCandidatesTableView: FC<
   const [qrCodeData, setQRCodeData] = useState<string>("");
   const [uploadCertificateProgress, setUploadCertificateProgress] =
     useState<number>(0);
-  const [selectedCertificateFile, setSelectedCertificateFile] =
-    useState<File | null>(null);
+  // const [selectedCertificateFile, setSelectedCertificateFile] =
+  //   useState<File | null>(null);
 
   const viewCertificate = (
     certificateFileUrl: string,
@@ -229,6 +229,72 @@ const ManageEligibleCandidatesTableView: FC<
         const uniqueCertificateCode = row.getValue("uniqueCertificateCode");
         const email = row.getValue("email");
         const isMember = row.getValue("isMember");
+        const [selectedCertificateFile, setSelectedCertificateFile] =
+          useState<File | null>(null);
+        const uploadCertificate = async (
+          _email: string,
+          _isMember: string,
+          _eventCode: string,
+          _uniqueCertificateCode: string
+        ) => {
+          if (selectedCertificateFile) {
+            const formData = new FormData();
+            formData.append("candidate_certificate", selectedCertificateFile);
+            formData.append("email", _email);
+            formData.append("isMember", String(_isMember));
+            formData.append("eventCode", String(_eventCode));
+            formData.append(
+              "uniqueCertificateCode",
+              String(_uniqueCertificateCode)
+            );
+            try {
+              const response = await axios.post(
+                `${
+                  import.meta.env.VITE_SERVER_URL
+                }/api/eligible-candidate/certificate/upload`,
+                formData,
+                {
+                  headers: {
+                    "Content-Type": "multipart/form-data",
+                  },
+                  onUploadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round(
+                      (progressEvent.loaded * 100) / (progressEvent.total || 1)
+                    );
+                    setUploadCertificateProgress(percentCompleted);
+                  },
+                }
+              );
+              toast({
+                title: response.data.message,
+              });
+            } catch (error) {
+              console.error("Error uploading file:", error);
+              if (axios.isAxiosError(error)) {
+                const axiosError = error as AxiosError;
+                const errorMessage =
+                  axiosError.response?.data?.error || "Unknown error";
+                toast({
+                  title: errorMessage,
+                  variant: "destructive",
+                });
+              }
+
+              toast({
+                title: "Unexpected error:",
+                variant: "destructive",
+              });
+              console.error("Unexpected error:", error);
+            } finally {
+              setSelectedCertificateFile(null);
+            }
+          } else {
+            toast({
+              title: "No file selected",
+              variant: "destructive",
+            });
+          }
+        };
         if (!certificateFileUrl) {
           return (
             <div>
@@ -392,10 +458,6 @@ const ManageEligibleCandidatesTableView: FC<
       header: () => <div>Actions</div>,
       cell: ({ row }) => {
         const eligibleCandidate = row.original;
-
-        const generateQRCode = (data: string) => {
-          QRCode.toDataURL(`https://localhost/${data}`).then(setQRCodeData);
-        };
 
         const downloadQRCode = () => {
           const downloadLink = document.createElement("a");
