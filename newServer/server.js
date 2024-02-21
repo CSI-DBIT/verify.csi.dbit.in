@@ -17,6 +17,7 @@ const CertificateDetail = require("./models/certificateSchema");
 const EventDetail = require("./models/eventSchema");
 const { generateCertificateCode, generateEventCode } = require("./utils");
 const EligibleCandidates = require("./models/certificateEligibleCandidates");
+const MemberCertificateDetail = require("./models/memberCertificateDetails");
 
 const app = express();
 
@@ -34,7 +35,9 @@ const candidate_certificateStorage = multer.diskStorage({
     cb(null, "./candidate_certificates");
   },
   filename: (req, file, cb) => {
-    cb(null, file.originalname);
+    const { eventCode, uniqueCertificateCode } = req.body;
+    const fileName = `${uniqueCertificateCode}_${file.originalname}`;
+    cb(null, fileName);
   },
 });
 const memberExcel = multer.memoryStorage();
@@ -54,6 +57,10 @@ app
   .use(cors())
   .use(express.json())
   .use("/certificates", express.static(path.join(__dirname, "certificates")))
+  .use(
+    "/candidate_certificates",
+    express.static(path.join(__dirname, "candidate_certificates"))
+  )
   .use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ error: "Internal Server Error❌" });
@@ -66,17 +73,59 @@ app
 
   .post(
     "/api/eligible-candidate/certificate/upload",
-    candidate_certificateStorageupload.array("candidate_certificate"),
+    candidate_certificateStorageupload.single("candidate_certificate"),
     async (req, res) => {
       try {
-        const candidate_certificate = req.files;
-        const { email, isMember, eventCode, uniqueCertificateCode } = req.body;
+        const candidate_certificate = req.file;
+        const {
+          email,
+          isMember,
+          eventCode,
+          uniqueCertificateCode,
+          currentDate,
+        } = req.body;
+
         console.log(
           candidate_certificate,
           email,
           isMember,
           eventCode,
-          uniqueCertificateCode
+          uniqueCertificateCode,
+          currentDate
+        );
+        if (isMember == true) {
+          const existingMember = await MemberDetail.findOne({ email: email });
+          const memberCertificateDetails = new MemberCertificateDetail({
+            uniqueCertificateCode: uniqueCertificateCode,
+            eventCode: eventCode,
+            studentId: existingMember.studentId,
+            email: existingMember.email,
+            uniqueCertificateUrl: candidate_certificate.path,
+            certificate_name: candidate_certificate.originalname,
+            dateOfIssuing: new Date(currentDate),
+          });
+          await memberCertificateDetails.save();
+          console.log(memberCertificateDetails, existingMember);
+        }
+        await EligibleCandidates.findOneAndUpdate(
+          {
+            eventCode: eventCode,
+            "eligibleCandidates.uniqueCertificateCode": uniqueCertificateCode,
+          },
+          {
+            $set: {
+              "eligibleCandidates.$[elem].uniqueCertificateUrl":
+                candidate_certificate.path,
+              lastEdited: new Date(currentDate),
+            },
+            $inc: { "eligibleCandidates.$[elem].editCount": 1, editCount: 1 },
+          },
+          {
+            new: true,
+            arrayFilters: [
+              { "elem.uniqueCertificateCode": uniqueCertificateCode },
+            ],
+          }
         );
         res
           .status(200)
@@ -86,6 +135,53 @@ app
       }
     }
   )
+  .put("/api/eligible-candidate/certificate/delete", async (req, res) => {
+    try {
+      const {
+        eventCode,
+        uniqueCertificateCode,
+        uniqueCertificateUrl,
+        currentDate,
+        isMember,
+      } = req.body;
+
+      console.log(
+        eventCode,
+        uniqueCertificateCode,
+        uniqueCertificateUrl,
+        currentDate,
+        isMember
+      );
+      if (isMember == true) {
+        await MemberCertificateDetail.deleteOne({
+          uniqueCertificateCode: uniqueCertificateCode,
+          uniqueCertificateUrl: uniqueCertificateUrl,
+        });
+      }
+      await EligibleCandidates.findOneAndUpdate(
+        {
+          eventCode: eventCode,
+          "eligibleCandidates.uniqueCertificateCode": uniqueCertificateCode,
+        },
+        {
+          $set: {
+            "eligibleCandidates.$[elem].uniqueCertificateUrl": "",
+            lastEdited: new Date(currentDate),
+          },
+          $inc: { "eligibleCandidates.$[elem].editCount": 1, editCount: 1 },
+        },
+        {
+          new: true,
+          arrayFilters: [
+            { "elem.uniqueCertificateCode": uniqueCertificateCode },
+          ],
+        }
+      );
+      res.status(200).json({ message: "Certificate deleted successfully👍" });
+    } catch (error) {
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  })
   .post(
     "/api/bulk-upload/certificates",
     certificateStorageupload.array("certificate_files"),
@@ -419,6 +515,7 @@ app
         currentSemester,
         duration,
         startDate,
+        currentDate,
       } = req.body;
       console.log(
         name,
@@ -430,7 +527,8 @@ app
         currentAcademicYear,
         currentSemester,
         duration,
-        startDate
+        startDate,
+        currentDate
       );
       // Validate required fields
       if (
@@ -443,6 +541,7 @@ app
         !currentAcademicYear ||
         !currentSemester ||
         !duration ||
+        !currentDate ||
         !startDate
       ) {
         return res.status(400).json({ error: "All fields are required" });
@@ -471,11 +570,25 @@ app
         currentAcademicYear: Number(currentAcademicYear),
         currentSemester: Number(currentSemester),
         duration: Number(duration),
-        startDate: Date.parse(startDate),
-        dateOfCreation: Date.parse(startDate),
+        startDate: new Date(startDate),
+        dateOfCreation: new Date(currentDate),
       });
       // Save the new member to the database
       await newMember.save();
+      await EligibleCandidates.updateMany(
+        {
+          "eligibleCandidates.email": email,
+          "eligibleCandidates.mobileNumber": mobileNumber,
+        },
+        {
+          $set: {
+            "eligibleCandidates.$.isMember": true,
+            "eligibleCandidates.$.lastEdited": new Date(currentDate),
+            lastEdited: new Date(currentDate),
+          },
+          $inc: { "eligibleCandidates.$.editCount": 1, editCount: 1 },
+        }
+      );
       console.log(newMember);
       // Send a success response
       res.status(200).json({ message: "Member added successfully" });
@@ -655,7 +768,8 @@ app
         academicYearAllowed,
         isAcademicYearSpecific,
         isMemberOnly,
-        dateOfCompletion,
+        startDate,
+        endDate,
         dateOfCreation,
       } = req.body;
 
@@ -668,7 +782,8 @@ app
         academicYearAllowed,
         isAcademicYearSpecific,
         isMemberOnly,
-        dateOfCompletion,
+        startDate,
+        endDate,
         dateOfCreation
       );
 
@@ -682,7 +797,8 @@ app
         !academicYearAllowed ||
         !isAcademicYearSpecific ||
         !isMemberOnly ||
-        !dateOfCompletion ||
+        !startDate ||
+        !endDate ||
         !dateOfCreation
       ) {
         return res.status(400).json({ error: "All fields are required" });
@@ -733,14 +849,14 @@ app
         academicYearAllowed: Number(academicYearAllowed),
         isAcademicYearSpecific: isAcademicYearSpecific,
         isMemberOnly: isMemberOnly,
-        dateOfCompletion: new Date(dateOfCompletion),
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
         dateOfCreation: new Date(dateOfCreation),
       });
 
       // Save the new event to the database
       console.log(newEvent);
       await newEvent.save();
-
       // Send a success response
       res
         .status(200)
@@ -770,7 +886,7 @@ app
         branchesAllowed,
         academicYearAllowed,
         isMemberOnly,
-        dateOfCompletion,
+        endDate,
         lastEdited,
       } = req.body;
       await EventDetail.findOneAndUpdate(
@@ -783,7 +899,7 @@ app
             branchesAllowed: Number(branchesAllowed),
             academicYearAllowed: Number(academicYearAllowed),
             isMemberOnly: Boolean(isMemberOnly),
-            dateOfCompletion: new Date(dateOfCompletion),
+            endDate: new Date(endDate),
             lastEdited: new Date(lastEdited),
           },
           $inc: { editCount: 1 },

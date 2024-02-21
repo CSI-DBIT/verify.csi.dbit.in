@@ -37,6 +37,10 @@ const eligibleCandidateSchema = new mongoose.Schema({
         required: true,
         unique: true,
       },
+      uniqueCertificateUrl: {
+        type: mongoose.Schema.Types.String,
+        unique: true,
+      },
       isDeleted: {
         type: mongoose.Schema.Types.Boolean,
         default: false,

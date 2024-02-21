@@ -48,92 +48,13 @@ import {
 interface ManageEligibleCandidateTableViewProps {
   eligibleCandidatesData: EligibleCandidatesSchema[];
   setIsOperationInProgress: React.Dispatch<React.SetStateAction<boolean>>;
-  eventId: string;
+  eventCode: string;
 }
 
 const ManageEligibleCandidatesTableView: FC<
   ManageEligibleCandidateTableViewProps
-> = ({ eligibleCandidatesData, setIsOperationInProgress, eventId }) => {
+> = ({ eligibleCandidatesData, setIsOperationInProgress, eventCode }) => {
   const [qrCodeData, setQRCodeData] = useState<string>("");
-  const [uploadCertificateProgress, setUploadCertificateProgress] =
-    useState<number>(0);
-  // const [selectedCertificateFile, setSelectedCertificateFile] =
-  //   useState<File | null>(null);
-
-  const viewCertificate = (
-    certificateFileUrl: string,
-    uniqueCertificateCode: string
-  ) => {
-    toast({
-      title: `preview certificate ${certificateFileUrl} ${uniqueCertificateCode}`,
-    });
-  };
-  const deleteCertificate = () => {
-    toast({
-      title: "delete certificate",
-    });
-  };
-  const uploadCertificate = async (
-    _email: string,
-    _isMember: string,
-    _eventCode: string,
-    _uniqueCertificateCode: string
-  ) => {
-    if (selectedCertificateFile) {
-      const formData = new FormData();
-      formData.append("candidate_certificate", selectedCertificateFile);
-      formData.append("email", _email);
-      formData.append("isMember", String(_isMember));
-      formData.append("eventCode", String(_eventCode));
-      formData.append("uniqueCertificateCode", String(_uniqueCertificateCode));
-      try {
-        const response = await axios.post(
-          `${
-            import.meta.env.VITE_SERVER_URL
-          }/api/eligible-candidate/certificate/upload`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-            onUploadProgress: (progressEvent) => {
-              const percentCompleted = Math.round(
-                (progressEvent.loaded * 100) / (progressEvent.total || 1)
-              );
-              setUploadCertificateProgress(percentCompleted);
-            },
-          }
-        );
-        toast({
-          title: response.data.message,
-        });
-      } catch (error) {
-        console.error("Error uploading file:", error);
-        if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          const errorMessage =
-            axiosError.response?.data?.error || "Unknown error";
-          toast({
-            title: errorMessage,
-            variant: "destructive",
-          });
-        }
-
-        toast({
-          title: "Unexpected error:",
-          variant: "destructive",
-        });
-        console.error("Unexpected error:", error);
-      } finally {
-        setSelectedCertificateFile(null);
-      }
-    } else {
-      toast({
-        title: "No file selected",
-        variant: "destructive",
-      });
-    }
-  };
   const columns: ColumnDef<EligibleCandidatesSchema>[] = [
     {
       accessorKey: "name",
@@ -222,32 +143,76 @@ const ManageEligibleCandidatesTableView: FC<
       enableSorting: true,
     },
     {
-      accessorKey: "certificateFileUrl",
+      accessorKey: "uniqueCertificateUrl",
       header: () => <div>Certificate</div>,
       cell: ({ row }) => {
-        const certificateFileUrl = row.getValue("certificateFileUrl");
+        const certificateFileUrl = row.getValue(
+          "uniqueCertificateUrl"
+        ) as string;
         const uniqueCertificateCode = row.getValue("uniqueCertificateCode");
         const email = row.getValue("email");
         const isMember = row.getValue("isMember");
         const [selectedCertificateFile, setSelectedCertificateFile] =
           useState<File | null>(null);
+        const [uploadCertificateProgress, setUploadCertificateProgress] =
+          useState<number>(0);
+        const deleteCertificate = async () => {
+          try {
+            setIsOperationInProgress(true);
+            const response = await axios.put(
+              `${
+                import.meta.env.VITE_SERVER_URL
+              }/api/eligible-candidate/certificate/delete`,
+              {
+                eventCode: eventCode,
+                uniqueCertificateCode: uniqueCertificateCode,
+                uniqueCertificateUrl: certificateFileUrl,
+                isMember: isMember,
+                currentDate: new Date(),
+              }
+            );
+            toast({
+              title: response.data.message,
+            });
+          } catch (error) {
+            console.error("Error deleting file:", error);
+            if (axios.isAxiosError(error)) {
+              const axiosError = error as AxiosError;
+              const errorMessage =
+                axiosError.response?.data?.error || "Unknown error";
+              toast({
+                title: errorMessage,
+                variant: "destructive",
+              });
+            }
+            toast({
+              title: "Unexpected error:",
+              variant: "destructive",
+            });
+            console.error("Unexpected error:", error);
+          } finally {
+            setSelectedCertificateFile(null);
+          }
+        };
         const uploadCertificate = async (
-          _email: string,
-          _isMember: string,
-          _eventCode: string,
-          _uniqueCertificateCode: string
+          email: string,
+          isMember: string,
+          eventCode: string,
+          uniqueCertificateCode: string
         ) => {
           if (selectedCertificateFile) {
             const formData = new FormData();
-            formData.append("candidate_certificate", selectedCertificateFile);
-            formData.append("email", _email);
-            formData.append("isMember", String(_isMember));
-            formData.append("eventCode", String(_eventCode));
+            formData.append("email", email);
+            formData.append("isMember", String(isMember));
+            formData.append("eventCode", String(eventCode));
             formData.append(
               "uniqueCertificateCode",
-              String(_uniqueCertificateCode)
+              String(uniqueCertificateCode)
             );
+            formData.append("currentDate", String(new Date()));
+            formData.append("candidate_certificate", selectedCertificateFile);
             try {
+              setIsOperationInProgress(true);
               const response = await axios.post(
                 `${
                   import.meta.env.VITE_SERVER_URL
@@ -395,7 +360,7 @@ const ManageEligibleCandidatesTableView: FC<
                               uploadCertificate(
                                 email as string,
                                 isMember as string,
-                                eventId as string,
+                                eventCode as string,
                                 uniqueCertificateCode as string
                               )
                             }
@@ -418,18 +383,35 @@ const ManageEligibleCandidatesTableView: FC<
         } else {
           return (
             <div className="flex gap-2 items-center justify-between">
-              <Button
-                onClick={() =>
-                  viewCertificate(
-                    certificateFileUrl as string,
-                    uniqueCertificateCode as string
-                  )
-                }
-                className="w-5/6"
-                variant={"secondary"}
-              >
-                View Certificate
-              </Button>
+              <Dialog>
+                <DialogTrigger className="w-full">
+                  <Button
+                    // onClick={previewUploadedCertificate}
+                    variant={"secondary"}
+                    className="bg-blue-800 hover:bg-blue-900 w-full flex gap-2 items-center"
+                  >
+                    <Eye className="h-4 w-4" />
+                    <div>Preview Certificate</div>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Preview Certificate</DialogTitle>
+                    <DialogDescription>
+                      {certificateFileUrl.length > 20
+                        ? `${certificateFileUrl.substring(0, 20)}...`
+                        : certificateFileUrl}
+                    </DialogDescription>
+                    <embed
+                      className="w-full h-[600px]"
+                      src={`${
+                        import.meta.env.VITE_SERVER_URL
+                      }/${certificateFileUrl}`}
+                      type="application/pdf"
+                    />
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>

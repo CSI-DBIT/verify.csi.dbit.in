@@ -7,7 +7,8 @@ export const validationEventSchema = z.object({
   typeOfEvent: z.string(),
   branchesAllowed: z.string(),
   academicYearAllowed: z.string(),
-  dateOfCompletion: z.date(),
+  startDate: z.date(),
+  endDate: z.date(),
   isMemberOnly: z.boolean(),
 });
 

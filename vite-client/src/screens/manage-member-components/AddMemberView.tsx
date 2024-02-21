@@ -64,7 +64,10 @@ const AddMemberView: FC<AddMemberViewProps> = ({ setIsMemberAdded }) => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_SERVER_URL}/api/member/add`,
-        data
+        {
+          ...data,
+          currentDate: new Date(),
+        }
       );
       add_member_form.reset({
         name: "",

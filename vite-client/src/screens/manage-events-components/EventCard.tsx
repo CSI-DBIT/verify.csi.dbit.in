@@ -91,7 +91,7 @@ const EventCard: FC<EventCardProps> = ({ event, index }) => {
         </div>
         <div className="flex items-center gap-2 text-gray-500">
           <CalendarCheck className="text-muted-foreground/70" />
-          {new Date(event.dateOfCompletion).toLocaleDateString("en-US", {
+          {new Date(event.endDate).toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",
             day: "numeric",

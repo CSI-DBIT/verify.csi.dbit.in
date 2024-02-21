@@ -143,7 +143,8 @@ const EventDetails = () => {
           typeOfEvent: data.typeOfEvent.toString(),
           branchesAllowed: data.branchesAllowed.toString(),
           academicYearAllowed: data.academicYearAllowed.toString(),
-          dateOfCompletion: new Date(data.dateOfCompletion),
+          startDate: new Date(data.startDate),
+          endDate: new Date(data.endDate),
           isMemberOnly: data.isMemberOnly,
         });
         console.log(data);
@@ -255,7 +256,7 @@ const EventDetails = () => {
             <div className="flex flex-wrap justify-between">
               <div>
                 <Link to={"/manage/events"}>
-                  <Button variant={"default"}>Back</Button>
+                  <Button variant={"outline"}>Back</Button>
                 </Link>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -432,53 +433,106 @@ const EventDetails = () => {
                                   </FormItem>
                                 )}
                               />
-                              <FormField
-                                control={edit_event_details_form.control}
-                                name="dateOfCompletion"
-                                render={({ field }) => (
-                                  <FormItem className="flex flex-col">
-                                    <FormLabel>Date of Completion</FormLabel>
-                                    <Popover>
-                                      <PopoverTrigger asChild>
-                                        <FormControl>
-                                          <Button
-                                            type="button"
-                                            variant={"outline"}
-                                            className={cn(
-                                              "w-[240px] pl-3 text-left font-normal",
-                                              !field.value &&
-                                                "text-muted-foreground"
-                                            )}
-                                          >
-                                            {field.value ? (
-                                              format(field.value, "PPP")
-                                            ) : (
-                                              <span>Pick a date</span>
-                                            )}
-                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                          </Button>
-                                        </FormControl>
-                                      </PopoverTrigger>
-                                      <PopoverContent
-                                        className="w-auto p-0"
-                                        align="start"
-                                      >
-                                        <Calendar
-                                          mode="single"
-                                          selected={field.value}
-                                          onSelect={field.onChange}
-                                          disabled={(date) =>
-                                            date > new Date() ||
-                                            date < new Date("1900-01-01")
-                                          }
-                                          initialFocus
-                                        />
-                                      </PopoverContent>
-                                    </Popover>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
+                              <div className="flex gap-4 items-center">
+                                <FormField
+                                  control={edit_event_details_form.control}
+                                  name="startDate"
+                                  render={({ field }) => (
+                                    <FormItem className="flex flex-col w-full">
+                                      <FormLabel>Start Date</FormLabel>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                          <FormControl>
+                                            <Button
+                                              type="button"
+                                              variant={"outline"}
+                                              className={cn(
+                                                "pl-3 text-left font-normal",
+                                                !field.value &&
+                                                  "text-muted-foreground"
+                                              )}
+                                            >
+                                              {field.value ? (
+                                                format(field.value, "PPP")
+                                              ) : (
+                                                <span>Pick a date</span>
+                                              )}
+                                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                            </Button>
+                                          </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent
+                                          className="w-auto p-0"
+                                          align="start"
+                                        >
+                                          <Calendar
+                                            mode="single"
+                                            selected={field.value}
+                                            onSelect={field.onChange}
+                                            disabled={(date) =>
+                                              date > new Date() ||
+                                              date < new Date("1900-01-01")
+                                            }
+                                            initialFocus
+                                          />
+                                        </PopoverContent>
+                                      </Popover>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={edit_event_details_form.control}
+                                  name="endDate"
+                                  render={({ field }) => (
+                                    <FormItem className="flex flex-col w-full">
+                                      <FormLabel>End Date</FormLabel>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                          <FormControl>
+                                            <Button
+                                              type="button"
+                                              variant={"outline"}
+                                              className={cn(
+                                                "pl-3 text-left font-normal",
+                                                !field.value &&
+                                                  "text-muted-foreground"
+                                              )}
+                                            >
+                                              {field.value ? (
+                                                format(field.value, "PPP")
+                                              ) : (
+                                                <span>Pick a date</span>
+                                              )}
+                                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                            </Button>
+                                          </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent
+                                          className="w-auto p-0"
+                                          align="start"
+                                        >
+                                          <Calendar
+                                            mode="single"
+                                            selected={field.value}
+                                            onSelect={field.onChange}
+                                            disabled={(date) =>
+                                              date > new Date() ||
+                                              date < new Date("1900-01-01") ||
+                                              date <
+                                                edit_event_details_form.watch(
+                                                  "startDate"
+                                                )
+                                            }
+                                            initialFocus
+                                          />
+                                        </PopoverContent>
+                                      </Popover>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
                             </div>
                           </ScrollArea>
                           <Button
@@ -530,6 +584,33 @@ const EventDetails = () => {
                           }
                         </CardDescription>
                         <CardDescription>
+                          Start Date:{" "}
+                          {eventDetails?.startDate
+                            ? new Date(
+                                eventDetails.startDate
+                              ).toLocaleDateString("en-US", {
+                                weekday: "long",
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })
+                            : ""}
+                        </CardDescription>
+                        <CardDescription>
+                          <span className="font-bold">End Date:</span>{" "}
+                          {eventDetails?.endDate
+                            ? new Date(eventDetails.endDate).toLocaleDateString(
+                                "en-US",
+                                {
+                                  weekday: "long",
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                }
+                              )
+                            : ""}
+                        </CardDescription>
+                        <CardDescription>
                           Is Member Only : {String(eventDetails?.isMemberOnly)}
                         </CardDescription>
                       </ScrollArea>
@@ -566,7 +647,7 @@ const EventDetails = () => {
               <ManageEligibleCandidatesTableView
                 setIsOperationInProgress={setIsOperationInProgress}
                 eligibleCandidatesData={eligibleCandidates}
-                eventId={eventId}
+                eventCode={eventId}
               />
             </div>
           </div>

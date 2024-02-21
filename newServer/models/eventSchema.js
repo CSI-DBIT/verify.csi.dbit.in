@@ -39,7 +39,11 @@ const eventSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.Boolean,
     required: true,
   },
-  dateOfCompletion: {
+  startDate: {
+    type: mongoose.Schema.Types.Date,
+    required: true,
+  },
+  endDate: {
     type: mongoose.Schema.Types.Date,
     required: true,
   },
