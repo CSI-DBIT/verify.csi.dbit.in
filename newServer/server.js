@@ -93,20 +93,6 @@ app
           uniqueCertificateCode,
           currentDate
         );
-        if (isMember == true) {
-          const existingMember = await MemberDetail.findOne({ email: email });
-          const memberCertificateDetails = new MemberCertificateDetail({
-            uniqueCertificateCode: uniqueCertificateCode,
-            eventCode: eventCode,
-            studentId: existingMember.studentId,
-            email: existingMember.email,
-            uniqueCertificateUrl: candidate_certificate.path,
-            certificate_name: candidate_certificate.originalname,
-            dateOfIssuing: new Date(currentDate),
-          });
-          await memberCertificateDetails.save();
-          console.log(memberCertificateDetails, existingMember);
-        }
         await EligibleCandidates.findOneAndUpdate(
           {
             eventCode: eventCode,
@@ -152,12 +138,6 @@ app
         currentDate,
         isMember
       );
-      if (isMember == true) {
-        await MemberCertificateDetail.deleteOne({
-          uniqueCertificateCode: uniqueCertificateCode,
-          uniqueCertificateUrl: uniqueCertificateUrl,
-        });
-      }
       await EligibleCandidates.findOneAndUpdate(
         {
           eventCode: eventCode,

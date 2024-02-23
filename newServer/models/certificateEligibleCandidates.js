@@ -41,6 +41,9 @@ const eligibleCandidateSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.String,
         unique: true,
       },
+      dateOfIssuing: {
+        type: mongoose.Schema.Types.Date,
+      },
       isDeleted: {
         type: mongoose.Schema.Types.Boolean,
         default: false,

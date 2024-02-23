@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, SetStateAction, useCallback, useState } from "react";
 import { DataTableColumnHeader } from "@/components/reusableComponents/DataTableColumnHeader";
 import { DialogHeader } from "@/components/ui/dialog";
 import {
@@ -20,6 +20,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import {
   Copy,
   Eye,
+  FileDown,
   FileX2,
   MoreHorizontal,
   Trash2,
@@ -44,6 +45,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useDropzone } from "react-dropzone";
+import { Progress } from "@/components/ui/progress";
 
 interface ManageEligibleCandidateTableViewProps {
   eligibleCandidatesData: EligibleCandidatesSchema[];
@@ -154,10 +157,14 @@ const ManageEligibleCandidatesTableView: FC<
         const isMember = row.getValue("isMember");
         const [selectedCertificateFile, setSelectedCertificateFile] =
           useState<File | null>(null);
-        const [uploadCertificateProgress, setUploadCertificateProgress] =
-          useState<number>(0);
+        const [isCertificateDragActive, setIsCertificateDragActive] =
+          useState(false);
+        const [isCertificateUploading, setIsCertificateUploading] =
+          useState(false);
+
         const deleteCertificate = async () => {
           try {
+            setIsCertificateUploading(true);
             setIsOperationInProgress(true);
             const response = await axios.put(
               `${
@@ -191,6 +198,7 @@ const ManageEligibleCandidatesTableView: FC<
             });
             console.error("Unexpected error:", error);
           } finally {
+            setIsCertificateUploading(false);
             setSelectedCertificateFile(null);
           }
         };
@@ -221,12 +229,6 @@ const ManageEligibleCandidatesTableView: FC<
                 {
                   headers: {
                     "Content-Type": "multipart/form-data",
-                  },
-                  onUploadProgress: (progressEvent) => {
-                    const percentCompleted = Math.round(
-                      (progressEvent.loaded * 100) / (progressEvent.total || 1)
-                    );
-                    setUploadCertificateProgress(percentCompleted);
                   },
                 }
               );
@@ -260,17 +262,38 @@ const ManageEligibleCandidatesTableView: FC<
             });
           }
         };
+        const onDrop = async (acceptedFiles: File[]) => {
+          setIsCertificateDragActive(false);
+          const file = acceptedFiles[0];
+          setSelectedCertificateFile(file);
+        };
+
+        const { getRootProps, getInputProps } = useDropzone({
+          onDrop,
+          accept: {
+            "application/pdf": [".pdf"],
+          },
+          onDragEnter: () => {
+            setIsCertificateDragActive(true);
+          },
+          onDragLeave: () => {
+            setIsCertificateDragActive(false);
+          },
+        });
         if (!certificateFileUrl) {
           return (
             <div>
               {!selectedCertificateFile && (
-                <Input
-                  type="file"
-                  accept=".pdf"
-                  onChange={(e) =>
-                    setSelectedCertificateFile(e.target.files?.[0] || null)
-                  }
-                />
+                <div
+                  className={`flex gap-2 items-center py-2 px-4 border-dashed hover:border-green-600 border-2 rounded-3xl text-center cursor-pointer ${
+                    isCertificateDragActive ? "border-green-600" : ""
+                  } `}
+                  {...getRootProps()}
+                >
+                  <input {...getInputProps()} />
+                  <FileDown />
+                  <p className="text-gray-400">Drop your PDF file here</p>
+                </div>
               )}
               {selectedCertificateFile && (
                 <div className="flex items-center justify-between gap-2">
@@ -278,12 +301,14 @@ const ManageEligibleCandidatesTableView: FC<
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
-                          {selectedCertificateFile.name.length > 20
-                            ? `${selectedCertificateFile.name.substring(
-                                0,
-                                20
-                              )}...`
-                            : selectedCertificateFile.name}
+                          <div>
+                            {selectedCertificateFile.name.length > 20
+                              ? `${selectedCertificateFile.name.substring(
+                                  0,
+                                  20
+                                )}...`
+                              : selectedCertificateFile.name}
+                          </div>
                         </TooltipTrigger>
                         <TooltipContent>
                           {selectedCertificateFile.name}
@@ -364,6 +389,7 @@ const ManageEligibleCandidatesTableView: FC<
                                 uniqueCertificateCode as string
                               )
                             }
+                            disabled={isCertificateUploading}
                             variant={"ghost"}
                             className="bg-green-800 hover:bg-green-900"
                           >
@@ -412,22 +438,36 @@ const ManageEligibleCandidatesTableView: FC<
                   </DialogHeader>
                 </DialogContent>
               </Dialog>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Button
-                      onClick={deleteCertificate}
-                      size={"icon"}
-                      variant={"destructive"}
-                    >
-                      <Trash2 className="h-4 w-4" />
+              <Dialog>
+                <DialogTrigger>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Button size={"icon"} variant={"destructive"}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Permanently Delete Certificate</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Permanantly Delete Certificate</DialogTitle>
+                    <DialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      certificates and remove your data from our servers.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div>
+                    <Button variant={"destructive"} onClick={deleteCertificate}>
+                      Confirm Delete
                     </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Delete Certificate</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           );
         }
