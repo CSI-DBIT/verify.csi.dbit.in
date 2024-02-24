@@ -46,7 +46,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useDropzone } from "react-dropzone";
-import { Progress } from "@/components/ui/progress";
 
 interface ManageEligibleCandidateTableViewProps {
   eligibleCandidatesData: EligibleCandidatesSchema[];
@@ -265,7 +264,7 @@ const ManageEligibleCandidatesTableView: FC<
         const onDrop = async (acceptedFiles: File[]) => {
           setIsCertificateDragActive(false);
           const file = acceptedFiles[0];
-          if(!file){
+          if (!file) {
             toast({
               title: "Wrong file type",
               variant: "destructive",
@@ -477,6 +476,16 @@ const ManageEligibleCandidatesTableView: FC<
             </div>
           );
         }
+      },
+      enableHiding: true,
+      enableSorting: true,
+    },
+    {
+      accessorKey: "Email Sent",
+      header: () => <div>Certificate Code</div>,
+      cell: ({ row }) => {
+        const emailSentCount = row.getValue("emailSentCount");
+        return emailSentCount;
       },
       enableHiding: true,
       enableSorting: true,

@@ -118,7 +118,10 @@ const fetchEligibleCandidatesDetails = async (
 };
 const sendCertificateReceivedMail = async (): Promise<void> => {
   try {
-  } catch (error) {}
+    console.log("inside try");
+  } catch (error) {
+    console.log("inside catch");
+  }
 };
 const EventDetails = () => {
   const navigateTo = useNavigate();

@@ -42,6 +42,10 @@ const eligibleCandidateSchema = new mongoose.Schema({
         default: "",
         unique: true,
       },
+      emailSentCount: {
+        type: mongoose.Schema.Types.Number,
+        default: 0,
+      },
       dateOfIssuing: {
         type: mongoose.Schema.Types.Date,
       },
