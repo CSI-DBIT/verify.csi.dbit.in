@@ -39,6 +39,7 @@ const eligibleCandidateSchema = new mongoose.Schema({
       },
       uniqueCertificateUrl: {
         type: mongoose.Schema.Types.String,
+        default: "",
         unique: true,
       },
       dateOfIssuing: {

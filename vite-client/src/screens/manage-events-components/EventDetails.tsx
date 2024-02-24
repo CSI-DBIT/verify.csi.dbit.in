@@ -116,6 +116,10 @@ const fetchEligibleCandidatesDetails = async (
     }
   }
 };
+const sendCertificateReceivedMail = async (): Promise<void> => {
+  try {
+  } catch (error) {}
+};
 const EventDetails = () => {
   const navigateTo = useNavigate();
   const { eventId } = useParams();
@@ -133,6 +137,9 @@ const EventDetails = () => {
   const edit_event_details_form = useForm<EventSchema>({
     resolver: zodResolver(validationEventSchema),
   });
+  const [candidatesWithCertificates, setCandidatesWithCertificates] = useState<
+    EligibleCandidatesSchema[]
+  >([]);
   useEffect(() => {
     try {
       fetchEventDetails(String(eventId)).then((data) => {
@@ -151,7 +158,19 @@ const EventDetails = () => {
       });
       fetchEligibleCandidatesDetails(String(eventId)).then((data) => {
         setEligibleCandidates(data);
-        console.log(data);
+        console.log("eligible candidates ", data);
+        const filteredCandidates = data.filter((candidate) => {
+          if (!candidate.uniqueCertificateUrl) {
+            return;
+          }
+          return candidate.uniqueCertificateUrl !== "";
+        });
+        const candidateEmails = filteredCandidates.map(
+          (candidate) => candidate.email
+        );
+        console.log("candidates with certificates : ", filteredCandidates);
+        console.log(candidateEmails);
+        setCandidatesWithCertificates(filteredCandidates);
       });
       if (
         isEligibleCandidateAdded ||
@@ -247,6 +266,7 @@ const EventDetails = () => {
   };
   const [editEventDialogOpen, setEditEventDialogOpen] = useState(false);
   const [deleteEventDialogOpen, setDeleteEventDialogOpen] = useState(false);
+
   return (
     <div>
       {eventDetails && eventId ? (
@@ -627,6 +647,21 @@ const EventDetails = () => {
                       ) : null}
                     </DialogContent>
                   </Dialog>
+                </div>
+                <div>
+                  <div>
+                    {candidatesWithCertificates.length > 0 ? (
+                      <Button
+                        onClick={() => {
+                          sendCertificateReceivedMail();
+                        }}
+                      >
+                        Send Notification
+                      </Button>
+                    ) : (
+                      <Button disabled>Send Notification</Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

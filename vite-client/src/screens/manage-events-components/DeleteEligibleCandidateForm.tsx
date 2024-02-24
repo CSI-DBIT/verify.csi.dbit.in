@@ -36,7 +36,7 @@ const DeleteEligibleCandidateForm: FC<DeleteEligibleCandidateFormProps> = ({
         }/api/eligible-candidate/delete?uniqueCertCode=${
           deletingEligibleCandidate.uniqueCertificateCode
         }`,
-        { lastEdited: new Date() }
+        { currentDate: new Date() }
       );
 
       // Show success toast

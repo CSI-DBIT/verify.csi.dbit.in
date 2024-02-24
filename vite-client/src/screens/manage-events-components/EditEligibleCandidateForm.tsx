@@ -24,7 +24,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { FC } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { EligibleCandidatesSchema } from "@/validationSchemas/EligibleCadidatesSchema";
+import {
+  EligibleCandidatesSchema,
+  validationEligibleCandidateSchema,
+} from "@/validationSchemas/EligibleCadidatesSchema";
 
 interface EditEligibleCandidateFormProps {
   editingEligibleCandidate: EligibleCandidatesSchema;
@@ -35,8 +38,8 @@ const EditEligibleCandidateForm: FC<EditEligibleCandidateFormProps> = ({
   editingEligibleCandidate,
   setIsOperationInProgress,
 }) => {
-  const editEligibleCandidateForm = useForm<MemberDetailsSchema>({
-    resolver: zodResolver(validationMemberDetailSchema),
+  const editEligibleCandidateForm = useForm<EligibleCandidatesSchema>({
+    resolver: zodResolver(validationEligibleCandidateSchema),
     defaultValues: editingEligibleCandidate
       ? {
           name: editingEligibleCandidate.name,
@@ -45,6 +48,7 @@ const EditEligibleCandidateForm: FC<EditEligibleCandidateFormProps> = ({
           branch: editingEligibleCandidate.branch.toString(),
           currentAcademicYear:
             editingEligibleCandidate.currentAcademicYear.toString(),
+          uniqueCertificateCode: editingEligibleCandidate.uniqueCertificateCode,
         }
       : undefined,
   });
@@ -56,9 +60,10 @@ const EditEligibleCandidateForm: FC<EditEligibleCandidateFormProps> = ({
       setIsOperationInProgress(true);
       const editingeligibleCandidateWithLastEdited = {
         ...editingEligibleCandidate,
-        lastEdited: new Date(),
+        currentDate: new Date(),
       };
-      await axios.post(
+      console.log("editingEligibleCandidate: ", editingEligibleCandidate);
+      await axios.put(
         `${
           import.meta.env.VITE_SERVER_URL
         }/api/eligible-candidate/edit?uniqueCertCode=${

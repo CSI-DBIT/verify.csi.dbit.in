@@ -9,7 +9,7 @@ const { v4: uuidv4 } = require("uuid");
 const xlsx = require("xlsx");
 require("dotenv").config();
 const cron = require("node-cron");
-
+const fs = require("fs");
 // importing files
 const db = require("./db");
 const MemberDetail = require("./models/memberSchema");
@@ -138,7 +138,9 @@ app
         currentDate,
         isMember
       );
-      await EligibleCandidates.findOneAndUpdate(
+
+      // Find and update the document in the database
+      const updatedDocument = await EligibleCandidates.findOneAndUpdate(
         {
           eventCode: eventCode,
           "eligibleCandidates.uniqueCertificateCode": uniqueCertificateCode,
@@ -157,8 +159,25 @@ app
           ],
         }
       );
-      res.status(200).json({ message: "Certificate deleted successfully👍" });
+
+      // If the document is updated successfully, proceed to delete the file
+      if (updatedDocument) {
+        // Get the file path
+        const filePath = path.join(__dirname, uniqueCertificateUrl);
+        // Check if the file exists
+        if (fs.existsSync(filePath)) {
+          // Delete the file
+          fs.unlinkSync(filePath);
+        }
+
+        // Respond with success message
+        res.status(200).json({ message: "Certificate deleted successfully👍" });
+      } else {
+        // Respond with error message if document not found
+        res.status(404).json({ message: "Certificate not found" });
+      }
     } catch (error) {
+      console.error(error);
       res.status(500).json({ message: "Internal Server Error" });
     }
   })
@@ -241,102 +260,6 @@ app
       res.status(500).json({ error: "An error occurred while fetching data." });
     }
   })
-  // .post(
-  //   "/api/bulk-upload/member-details",
-  //   memberExcelupload.single("bulk_upload_memberDetails_excel"),
-  //   async (req, res) => {
-  //     try {
-  //       const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
-  //       const sheetName = workbook.SheetNames[0];
-  //       let data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
-  //       // Validate data before insertion
-  //       if (!Array.isArray(data) || data.length === 0) {
-  //         return res
-  //           .status(400)
-  //           .json({ error: "Invalid data format or empty data array" });
-  //       }
-
-  //       // Check if fields in the Excel file match the schema (excluding these fields)
-  //       const memberSchemaPaths = Object.keys(MemberDetail.schema.paths).filter(
-  //         (path) =>
-  //           path !== "__v" &&
-  //           path !== "_id" &&
-  //           path !== "dateOfCreation" &&
-  //           path !== "isDeleted" &&
-  //           path !== "lastDeleted" &&
-  //           path !== "lastEdited" &&
-  //           path !== "lastRevoked" &&
-  //           path !== "deleteCount" &&
-  //           path !== "revokeCount" &&
-  //           path !== "editCount"
-  //       );
-  //       for (const item of data) {
-  //         const itemKeys = Object.keys(item);
-  //         const unknownColumns = itemKeys.filter(
-  //           (key) => !memberSchemaPaths.includes(key)
-  //         );
-  //         if (unknownColumns.length > 0) {
-  //           return res.status(400).json({
-  //             error: `Unknown Columns in Excel data: ${unknownColumns.join(
-  //               ", "
-  //             )}`,
-  //           });
-  //         }
-
-  //         const missingColumns = memberSchemaPaths.filter(
-  //           (path) => !itemKeys.includes(path)
-  //         );
-  //         if (missingColumns.length > 0) {
-  //           return res.status(400).json({
-  //             error: `Missing Columns or Cells in Excel data: ${missingColumns.join(
-  //               ", "
-  //             )}`,
-  //           });
-  //         }
-  //       }
-  //       // Convert startDate and dateOfCreation to Date objects
-  //       data = data.map((item) => {
-  //         if (item.startDate && !isNaN(Date.parse(item.startDate))) {
-  //           item.startDate = new Date(item.startDate);
-  //         }
-  //         if (item.dateOfCreation && !isNaN(Date.parse(item.dateOfCreation))) {
-  //           item.dateOfCreation = new Date(item.dateOfCreation);
-  //         } else {
-  //           // Set dateOfCreation to today's date if it's not present in the Excel sheet
-  //           item.dateOfCreation = new Date(item.startDate);
-  //         }
-  //         return item;
-  //       });
-  //       console.log(data);
-  //       // Validate each item in the array against the MemberDetail schema
-  //       for (const item of data) {
-  //         try {
-  //           await MemberDetail.validate(item);
-  //         } catch (validationError) {
-  //           return res.status(400).json({ error: validationError.message });
-  //         }
-  //       }
-  //       // If validation passes, insert data into the database
-  //       await MemberDetail.insertMany(data, { ordered: true });
-  //       res.status(200).json({ message: "Data uploaded successfully" });
-  //     } catch (error) {
-  //       console.error(error);
-  //       if (error.code === 11000) {
-  //         // Extract the duplicated key and its value from the error
-  //         console.log(error);
-  //         const duplicatedKey = Object.keys(error.keyPattern);
-  //         const duplicatedValue = error.keyValue[duplicatedKey];
-
-  //         return res.status(400).json({
-  //           error: `Duplicate key error. The key "${duplicatedKey}" with value "${duplicatedValue}" already exists.`,
-  //         });
-  //       } else {
-  //         res.status(500).json({ error: "Internal server error" });
-  //       }
-  //     }
-  //   }
-  // )
   .post(
     "/api/bulk-upload/member-details",
     memberExcelupload.single("bulk_upload_memberDetails_excel"),
@@ -630,6 +553,44 @@ app
           $inc: { editCount: 1 },
         }
       );
+      console.log(startDate, duration);
+      const endDate = new Date(
+        new Date(startDate).getTime() +
+          Number(duration) * 365 * 24 * 60 * 60 * 1000
+      );
+      const isMembershipValid = new Date() < endDate;
+      if (isMembershipValid) {
+        await EligibleCandidates.updateMany(
+          {
+            "eligibleCandidates.email": email,
+            "eligibleCandidates.mobileNumber": mobileNumber,
+          },
+          {
+            $set: {
+              "eligibleCandidates.$.isMember": true,
+              "eligibleCandidates.$.lastEdited": new Date(lastEdited),
+              lastEdited: new Date(lastEdited),
+            },
+            $inc: { "eligibleCandidates.$.editCount": 1, editCount: 1 },
+          }
+        );
+      } else {
+        await EligibleCandidates.updateMany(
+          {
+            "eligibleCandidates.email": email,
+            "eligibleCandidates.mobileNumber": mobileNumber,
+          },
+          {
+            $set: {
+              "eligibleCandidates.$.isMember": false,
+              "eligibleCandidates.$.lastEdited": new Date(lastEdited),
+              lastEdited: new Date(lastEdited),
+            },
+            $inc: { "eligibleCandidates.$.editCount": 1, editCount: 1 },
+          }
+        );
+      }
+
       res.status(200).json({ message: "Member updated successfully" });
     } catch (error) {
       console.error(error);
@@ -963,8 +924,31 @@ app
         lastEdited,
       } = req.body;
 
+      // genereate unique certificate code
+      let uniqueCertificateCode = generateCertificateCode();
+      // Check if the generated unique certificate code already exists in the database
+      let retries = 0;
+      const maxRetries = 5; // Maximum number of retries
+
+      // Check if the generated unique certificate code already exists in the database
+      let existingCertificateCode = await EligibleCandidates.findOne({
+        "eligibleCandidates.uniqueCertificateCode": uniqueCertificateCode,
+      });
+      console.log(existingCertificateCode);
+      while (existingCertificateCode) {
+        retries++;
+        if (retries > maxRetries) {
+          return res
+            .status(500)
+            .json({ error: "Failed to generate a unique certificate code" });
+        }
+        uniqueCertificateCode = generateCertificateCode(); // Generate a new code
+        existingEvent = await EligibleCandidates.findOne({
+          "eligibleCandidates.uniqueCertificateCode": uniqueCertificateCode,
+        }); // Check again
+      }
+
       // Check if the candidate already exists in the memberDetails database
-      const uniqueCertificateCode = generateCertificateCode();
       let isMember = false;
       const existingMember = await MemberDetail.findOne({
         email: email,
@@ -975,7 +959,7 @@ app
         // Check if the current date is less than startDate + duration
         const { startDate, duration } = existingMember;
         const endDate = new Date(
-          startDate.getTime() + duration * 24 * 60 * 60 * 1000
+          startDate.getTime() + duration * 365 * 24 * 60 * 60 * 1000
         ); // Adding duration to startDate
         if (new Date() < endDate) {
           // If member exists and current date is within validity period, set isMember to true
@@ -1190,7 +1174,7 @@ app
     }
   })
 
-  .post("/api/eligible-candidate/edit", async (req, res) => {
+  .put("/api/eligible-candidate/edit", async (req, res) => {
     try {
       // Get studentId from query parameters
       const uniqueCertCode = req.query.uniqueCertCode;
@@ -1200,11 +1184,11 @@ app
           .json({ error: "Certificate UniqueCode is required" });
       }
       // Check if the member exists
-      const existingEligibleCandidate = await EligibleCandidates.findOne({
+      const doesEligibleCandidateexist = await EligibleCandidates.findOne({
         "eligibleCandidates.uniqueCertificateCode": uniqueCertCode,
       });
-      console.log(existingEligibleCandidate);
-      if (!existingEligibleCandidate) {
+      console.log(doesEligibleCandidateexist);
+      if (!doesEligibleCandidateexist) {
         return res.status(404).json({ error: "Eligible Candidate not found" });
       }
 
@@ -1214,7 +1198,7 @@ app
         mobileNumber,
         branch,
         currentAcademicYear,
-        lastEdited,
+        currentDate,
       } = req.body;
       await EligibleCandidates.findOneAndUpdate(
         { "eligibleCandidates.uniqueCertificateCode": uniqueCertCode },
@@ -1226,8 +1210,8 @@ app
             "eligibleCandidates.$[elem].branch": Number(branch),
             "eligibleCandidates.$[elem].currentAcademicYear":
               Number(currentAcademicYear),
-            "eligibleCandidates.$[elem].lastEdited": new Date(lastEdited),
-            lastEdited: new Date(lastEdited),
+            "eligibleCandidates.$[elem].lastEdited": new Date(currentDate),
+            lastEdited: new Date(currentDate),
           },
           $inc: { "eligibleCandidates.$[elem].editCount": 1, editCount: 1 },
         },
@@ -1256,8 +1240,8 @@ app
       }
 
       // Extract lastDeleted from request body
-      const { lastEdited } = req.body;
-      if (!lastEdited) {
+      const { currentDate } = req.body;
+      if (!currentDate) {
         return res.status(400).json({ error: "Last Deleted date is required" });
       }
 
@@ -1268,7 +1252,8 @@ app
           $set: {
             "eligibleCandidates.$[elem].isDeleted": true,
             "eligibleCandidates.$[elem].uniqueCertificateCode": "",
-            lastEdited: new Date(lastEdited),
+            "eligibleCandidates.$[elem].uniqueCertificateUrl": "",
+            lastEdited: new Date(currentDate),
           },
           $inc: { editCount: 1 },
         },
@@ -1277,7 +1262,7 @@ app
           arrayFilters: [{ "elem.uniqueCertificateCode": uniqueCertCode }],
         }
       );
-      res.status(200).json({ message: "Member deleted successfully" });
+      res.status(200).json({ message: "Candidate deleted successfully" });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });

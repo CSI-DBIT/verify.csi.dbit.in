@@ -149,7 +149,7 @@ const ManageEligibleCandidatesTableView: FC<
       accessorKey: "uniqueCertificateUrl",
       header: () => <div>Certificate</div>,
       cell: ({ row }) => {
-        const certificateFileUrl = row.getValue(
+        const uniqueCertificateUrl = row.getValue(
           "uniqueCertificateUrl"
         ) as string;
         const uniqueCertificateCode = row.getValue("uniqueCertificateCode");
@@ -173,7 +173,7 @@ const ManageEligibleCandidatesTableView: FC<
               {
                 eventCode: eventCode,
                 uniqueCertificateCode: uniqueCertificateCode,
-                uniqueCertificateUrl: certificateFileUrl,
+                uniqueCertificateUrl: uniqueCertificateUrl,
                 isMember: isMember,
                 currentDate: new Date(),
               }
@@ -265,6 +265,12 @@ const ManageEligibleCandidatesTableView: FC<
         const onDrop = async (acceptedFiles: File[]) => {
           setIsCertificateDragActive(false);
           const file = acceptedFiles[0];
+          if(!file){
+            toast({
+              title: "Wrong file type",
+              variant: "destructive",
+            });
+          }
           setSelectedCertificateFile(file);
         };
 
@@ -280,7 +286,7 @@ const ManageEligibleCandidatesTableView: FC<
             setIsCertificateDragActive(false);
           },
         });
-        if (!certificateFileUrl) {
+        if (!uniqueCertificateUrl) {
           return (
             <div>
               {!selectedCertificateFile && (
@@ -424,15 +430,15 @@ const ManageEligibleCandidatesTableView: FC<
                   <DialogHeader>
                     <DialogTitle>Preview Certificate</DialogTitle>
                     <DialogDescription>
-                      {certificateFileUrl.length > 20
-                        ? `${certificateFileUrl.substring(0, 20)}...`
-                        : certificateFileUrl}
+                      {uniqueCertificateUrl.length > 20
+                        ? `${uniqueCertificateUrl.substring(0, 20)}...`
+                        : uniqueCertificateUrl}
                     </DialogDescription>
                     <embed
                       className="w-full h-[600px]"
                       src={`${
                         import.meta.env.VITE_SERVER_URL
-                      }/${certificateFileUrl}`}
+                      }/${uniqueCertificateUrl}`}
                       type="application/pdf"
                     />
                   </DialogHeader>

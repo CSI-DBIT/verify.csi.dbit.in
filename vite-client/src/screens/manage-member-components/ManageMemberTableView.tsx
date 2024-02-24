@@ -155,9 +155,9 @@ const ManageMemberTableView: FC<ManageMemberTableViewProps> = ({
       enableSorting: true,
     },
     {
-      id: "isMember",
+      id: "Membership",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={"Is Member"} />
+        <DataTableColumnHeader column={column} title={"Membership"} />
       ),
       cell: ({ row }) => {
         const startDate = new Date(row.getValue("startDate"));
@@ -172,14 +172,14 @@ const ManageMemberTableView: FC<ManageMemberTableViewProps> = ({
           return (
             <div className="flex flex-wrap gap-2">
               <UserRoundCheck color="#07e704" />
-              <span>Member</span>
+              <span>Active</span>
             </div>
           );
         } else {
           return (
             <div className="flex flex-wrap gap-2">
               <UserRoundMinus color="#e70404" />
-              <span>Non Member</span>
+              <span>Inactive</span>
             </div>
           );
         }
@@ -219,7 +219,7 @@ const ManageMemberTableView: FC<ManageMemberTableViewProps> = ({
     },
   ];
   return (
-    <DataTable columns={columns} data={memberTabledata} rowsPerPage={10} />
+      <DataTable columns={columns} data={memberTabledata} rowsPerPage={10} />
   );
 };
 

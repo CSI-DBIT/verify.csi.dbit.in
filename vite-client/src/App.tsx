@@ -12,7 +12,7 @@ import Temp from "./screens/Temp";
 import CertificateAllocation from "./screens/CertificateAllocation";
 import ManageEvent from "./screens/ManageEvent";
 import EventDetails from "./screens/manage-events-components/EventDetails";
-
+import { Scrollbars } from "react-custom-scrollbars-2";
 const App = () => {
   const router = createBrowserRouter([
     {
