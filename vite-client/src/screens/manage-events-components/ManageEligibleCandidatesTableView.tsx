@@ -146,7 +146,7 @@ const ManageEligibleCandidatesTableView: FC<
     },
     {
       accessorKey: "uniqueCertificateUrl",
-      header: () => <div>Certificate</div>,
+      header: () => <div>Event Certificates</div>,
       cell: ({ row }) => {
         const uniqueCertificateUrl = row.getValue(
           "uniqueCertificateUrl"
@@ -266,7 +266,7 @@ const ManageEligibleCandidatesTableView: FC<
           const file = acceptedFiles[0];
           if (!file) {
             toast({
-              title: "Wrong file type",
+              title: "Wrong file type | expected .pdf",
               variant: "destructive",
             });
           }
@@ -285,6 +285,7 @@ const ManageEligibleCandidatesTableView: FC<
             setIsCertificateDragActive(false);
           },
         });
+        
         if (!uniqueCertificateUrl) {
           return (
             <div>
@@ -297,7 +298,7 @@ const ManageEligibleCandidatesTableView: FC<
                 >
                   <input {...getInputProps()} />
                   <FileDown />
-                  <p className="text-gray-400">Drop your PDF file here</p>
+                  <p className="text-gray-400">Drop Certificate</p>
                 </div>
               )}
               {selectedCertificateFile && (

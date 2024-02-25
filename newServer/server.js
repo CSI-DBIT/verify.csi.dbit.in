@@ -15,10 +15,12 @@ const db = require("./db");
 const MemberDetail = require("./models/memberSchema");
 const CertificateDetail = require("./models/certificateSchema");
 const EventDetail = require("./models/eventSchema");
-const { generateCertificateCode, generateEventCode } = require("./utils");
+const {
+  generateCertificateCode,
+  generateEventCode,
+  createTransporter,
+} = require("./utils");
 const EligibleCandidates = require("./models/certificateEligibleCandidates");
-const MemberCertificateDetail = require("./models/memberCertificateDetails");
-
 const app = express();
 
 // Multer storages
@@ -906,6 +908,170 @@ app
       }
       // Send event details as response
       res.status(200).json({ event });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  })
+  .post("/api/event/send-certificate-emails", async (req, res) => {
+    // get event details using event code passed in query
+    try {
+      const eventCode = req.query.eventCode;
+      const { candidateEmails, currentDate } = req.body;
+      // Validate event code
+      if (!eventCode || !candidateEmails) {
+        return res.status(400).json({ error: "Event code is required" });
+      }
+      console.log(candidateEmails);
+      //emailOptions - who sends what to whom
+      const sendEmail = async (emailOptions) => {
+        let emailTransporter = await createTransporter();
+        await emailTransporter.sendMail(emailOptions);
+      };
+      // const certificateSentMail = () => {
+      //   return `<!DOCTYPE html>
+      //   <html lang="en">
+      //   <head>
+      //     <meta charset="UTF-8">
+      //     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      //     <title>Confirm your email address</title>
+      //     <style>
+      //       body {
+      //         background-color: #ffffff;
+      //         margin: 0 auto;
+      //         font-family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif";
+      //       }
+        
+      //       .container {
+      //         margin: 0 auto;
+      //         padding: 0px 20px;
+      //       }
+        
+      //       .logo-container {
+      //         margin-top: 32px;
+      //       }
+        
+      //       h1 {
+      //         color: #1d1c1d;
+      //         font-size: 36px;
+      //         font-weight: 700;
+      //         margin: 30px 0;
+      //         padding: 0;
+      //         line-height: 42px;
+      //       }
+        
+      //       .hero-text {
+      //         font-size: 20px;
+      //         line-height: 28px;
+      //         margin-bottom: 30px;
+      //       }
+        
+      //       .code-box {
+      //         background: rgb(245, 244, 245);
+      //         border-radius: 4px;
+      //         margin-bottom: 30px;
+      //         padding: 40px 10px;
+      //       }
+        
+      //       .confirmation-code-text {
+      //         font-size: 30px;
+      //         text-align: center;
+      //         vertical-align: middle;
+      //       }
+        
+      //       p {
+      //         color: #000;
+      //         font-size: 14px;
+      //         line-height: 24px;
+      //       }
+        
+      //       .footer-text {
+      //         font-size: 12px;
+      //         color: #b7b7b7;
+      //         line-height: 15px;
+      //         text-align: left;
+      //         margin-bottom: 50px;
+      //       }
+        
+      //       .footer-link {
+      //         color: #b7b7b7;
+      //         text-decoration: underline;
+      //       }
+        
+      //       .footer-logos {
+      //         margin-bottom: 32px;
+      //         padding-left: 8px;
+      //         padding-right: 8px;
+      //         width: 100%;
+      //       }
+        
+      //       .social-media-icon {
+      //         display: inline;
+      //         margin-left: 32px;
+      //       }
+      //     </style>
+      //   </head>
+      //   <body>
+      //     <div class="container">
+      //       <div class="logo-container">
+      //         <img src="slack-logo.png" alt="Slack" width="120" height="36">
+      //       </div>
+      //       <h1>Confirm your email address</h1>
+      //       <p class="hero-text">
+      //         Your confirmation code is below - enter it in your open browser window and we'll help you get signed in.
+      //       </p>
+        
+      //       <div class="code-box">
+      //         <p class="confirmation-code-text">DJZ-TLX</p>
+      //       </div>
+        
+      //       <p>
+      //         If you didn't request this email, there's nothing to worry about, you can safely ignore it.
+      //       </p>
+        
+      //       <div class="footer-logos">
+      //         <img src="slack-logo.png" alt="Slack" width="120" height="36">
+      //         <div>
+      //           <a href="/">
+      //             <img src="slack-twitter.png" alt="Slack" width="32" height="32" class="social-media-icon">
+      //           </a>
+      //           <a href="/">
+      //             <img src="slack-facebook.png" alt="Slack" width="32" height="32" class="social-media-icon">
+      //           </a>
+      //           <a href="/">
+      //             <img src="slack-linkedin.png" alt="Slack" width="32" height="32" class="social-media-icon">
+      //           </a>
+      //         </div>
+      //       </div>
+        
+      //       <div>
+      //         <a class="footer-link" href="https://slackhq.com" target="_blank" rel="noopener noreferrer">Our blog</a>
+      //         &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+      //         <a class="footer-link" href="https://slack.com/legal" target="_blank" rel="noopener noreferrer">Policies</a>
+      //         &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+      //         <a class="footer-link" href="https://slack.com/help" target="_blank" rel="noopener noreferrer">Help center</a>
+      //         &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+      //         <a class="footer-link" href="https://slack.com/community" target="_blank" rel="noopener noreferrer" data-auth="NotApplicable" data-linkindex="6">Slack Community</a>
+      //         <p class="footer-text">
+      //           ©2022 Slack Technologies, LLC, a Salesforce company. <br />
+      //           500 Howard Street, San Francisco, CA 94105, USA <br />
+      //           <br />
+      //           All rights reserved.
+      //         </p>
+      //       </div>
+      //     </div>
+      //   </body>
+      //   </html>`;
+      // };
+      var htmlstream = fs.createReadStream("./emails/emails.html");
+      sendEmail({
+        subject: "Test",
+        to: "omjannu2002@gmail.com",
+        from: process.env.EMAIL,
+        html: htmlstream,
+      });
+
+      console.log("email sent");
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });

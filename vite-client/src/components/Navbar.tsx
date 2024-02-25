@@ -1,6 +1,7 @@
 import { Home, PanelRight } from "lucide-react";
-import verifyLogo from "@/assets/verify-dark-logo-nobg.png";
-
+// import verifyLogo from "@/assets/verify-dark-logo-nobg.png";
+import verifyLogoDark from "@/assets/verify.dev_dark_name_logo.png";
+import verifyLogoLight from "@/assets/verify.dev_light_name_logo.png";
 import { Link } from "react-router-dom";
 import {
   Sheet,
@@ -12,13 +13,16 @@ import {
 import { Card, CardDescription } from "./ui/card";
 import { Button } from "./ui/button";
 import { ModeToggle } from "./mode-toggle";
+import { useTheme } from "./theme-provider";
 
 const Navbar = () => {
+  const { theme } = useTheme();
+  const logoSrc = theme === 'dark' ? verifyLogoLight : verifyLogoDark;
   return (
     <div className="flex justify-between items-center py-2 px-6">
       <Link to="/" className="flex justify-center items-center gap-4">
-        <img src={verifyLogo} alt="verify csi logo"/>
-        <span className="text-2xl font-bold">/ verify@csi </span>
+        <img className="w-48" src={logoSrc} alt="verify csi logo"/>
+        {/* <span className="text-2xl font-bold">/ verify@csi </span> */}
       </Link>
       <div className="flex items-center gap-2">
         <Sheet>
@@ -30,8 +34,7 @@ const Navbar = () => {
           <SheetContent>
             <SheetHeader>
               <SheetTitle className="flex justify-center items-center space-x-4">
-                <img src={verifyLogo} alt="verify csi logo" />
-                <span className="text-xl font-bold">/ verify@csi </span>
+                <img className="w-48" src={logoSrc} alt="verify csi logo" />
               </SheetTitle>
               <SheetTitle>
                 <Link to="/">

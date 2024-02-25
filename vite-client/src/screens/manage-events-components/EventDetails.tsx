@@ -56,6 +56,7 @@ import { CardDescription } from "@/components/ui/card";
 import { branchText, currentAcademicYearText } from "../constants";
 import { useNavigate } from "react-router-dom";
 import PageNotFound from "../PageNotFound";
+
 const fetchEventDetails = async (eventId: string): Promise<EventSchema> => {
   try {
     const response = await axios.get(
@@ -116,11 +117,51 @@ const fetchEligibleCandidatesDetails = async (
     }
   }
 };
-const sendCertificateReceivedMail = async (): Promise<void> => {
+const sendCertificateReceivedMail = async (
+  eventId: string,
+  candidateEmails: string[]
+): Promise<void> => {
   try {
-    console.log("inside try");
+    const response = await axios.post(
+      `${
+        import.meta.env.VITE_SERVER_URL
+      }/api/event/send-certificate-emails?eventCode=${eventId}`,
+      { candidateEmails, currentDate: new Date() },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    // toast({
+    //   title: `${eventId}`,
+    //   description: (
+    //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+    //       <code className="text-white">
+    //         {JSON.stringify(candidateEmails, null, 2)}
+    //       </code>
+    //     </pre>
+    //   ),
+    // });
+    if (response.status === 200) {
+      toast({
+        title: response.data.message,
+        variant: "default",
+      });
+    } else {
+      toast({
+        title: response.data.error,
+        variant: "destructive",
+      });
+      console.error("Request to server failed");
+    }
   } catch (error) {
-    console.log("inside catch");
+    toast({
+      title: "unexpected error",
+      variant: "destructive",
+    });
+    console.error("Error sending request to server:", error);
   }
 };
 const EventDetails = () => {
@@ -141,7 +182,7 @@ const EventDetails = () => {
     resolver: zodResolver(validationEventSchema),
   });
   const [candidatesWithCertificates, setCandidatesWithCertificates] = useState<
-    EligibleCandidatesSchema[]
+    string[]
   >([]);
   useEffect(() => {
     try {
@@ -173,7 +214,7 @@ const EventDetails = () => {
         );
         console.log("candidates with certificates : ", filteredCandidates);
         console.log(candidateEmails);
-        setCandidatesWithCertificates(filteredCandidates);
+        setCandidatesWithCertificates(candidateEmails);
       });
       if (
         isEligibleCandidateAdded ||
@@ -656,7 +697,10 @@ const EventDetails = () => {
                     {candidatesWithCertificates.length > 0 ? (
                       <Button
                         onClick={() => {
-                          sendCertificateReceivedMail();
+                          sendCertificateReceivedMail(
+                            eventId,
+                            candidatesWithCertificates
+                          );
                         }}
                       >
                         Send Notification
