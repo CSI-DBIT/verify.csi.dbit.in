@@ -117,53 +117,55 @@ const fetchEligibleCandidatesDetails = async (
     }
   }
 };
-const sendCertificateReceivedMail = async (
-  eventId: string,
-  candidateEmails: string[]
-): Promise<void> => {
-  try {
-    const response = await axios.post(
-      `${
-        import.meta.env.VITE_SERVER_URL
-      }/api/event/send-certificate-emails?eventCode=${eventId}`,
-      { candidateEmails, currentDate: new Date() },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+// const sendCertificateReceivedMail = async (
+//   eventId: string,
+//   candidateEmails: string[]
+// ): Promise<void> => {
+//   try {
+//     setIsSendingNotifications(true);
+//     const response = await axios.post(
+//       `${
+//         import.meta.env.VITE_SERVER_URL
+//       }/api/event/send-certificate-emails?eventCode=${eventId}`,
+//       { candidateEmails, currentDate: new Date() },
+//       {
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
 
-    // toast({
-    //   title: `${eventId}`,
-    //   description: (
-    //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-    //       <code className="text-white">
-    //         {JSON.stringify(candidateEmails, null, 2)}
-    //       </code>
-    //     </pre>
-    //   ),
-    // });
-    if (response.status === 200) {
-      toast({
-        title: response.data.message,
-        variant: "default",
-      });
-    } else {
-      toast({
-        title: response.data.error,
-        variant: "destructive",
-      });
-      console.error("Request to server failed");
-    }
-  } catch (error) {
-    toast({
-      title: "unexpected error",
-      variant: "destructive",
-    });
-    console.error("Error sending request to server:", error);
-  }
-};
+//     // toast({
+//     //   title: `${eventId}`,
+//     //   description: (
+//     //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+//     //       <code className="text-white">
+//     //         {JSON.stringify(candidateEmails, null, 2)}
+//     //       </code>
+//     //     </pre>
+//     //   ),
+//     // });
+//     if (response.status === 200) {
+//       toast({
+//         title: response.data.message,
+//         variant: "default",
+//       });
+//     } else {
+//       toast({
+//         title: response.data.error,
+//         variant: "destructive",
+//       });
+//       console.error("Request to server failed");
+//     }
+//     setIsSendingNotifications(false);
+//   } catch (error) {
+//     toast({
+//       title: "unexpected error",
+//       variant: "destructive",
+//     });
+//     console.error("Error sending request to server:", error);
+//   }
+// };
 const EventDetails = () => {
   const navigateTo = useNavigate();
   const { eventId } = useParams();
@@ -178,6 +180,7 @@ const EventDetails = () => {
   const [isEventDetailsDeleted, setIsEventDetailsDeleted] = useState(false);
   const [isOperationInProgress, setIsOperationInProgress] =
     useState<boolean>(false);
+  const [isSendingNotifications, setIsSendingNotifications] = useState(false);
   const edit_event_details_form = useForm<EventSchema>({
     resolver: zodResolver(validationEventSchema),
   });
@@ -306,6 +309,61 @@ const EventDetails = () => {
         variant: "destructive",
       });
       setDeleteEventDialogOpen(false);
+    }
+  };
+  const sendCertificateReceivedMail = async (
+    eventId: string,
+    candidateEmails: string[]
+  ): Promise<void> => {
+    try {
+      setIsSendingNotifications(true);
+      const response = await axios.post(
+        `${
+          import.meta.env.VITE_SERVER_URL
+        }/api/event/send-certificate-emails/all?eventCode=${eventId}`,
+        { candidateEmails, currentDate: new Date() },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.status === 200) {
+        toast({
+          title: response.data.message,
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: response.data.error,
+          variant: "destructive",
+        });
+        console.error("Request to server failed");
+      }
+      fetchEligibleCandidatesDetails(String(eventId)).then((data) => {
+        setEligibleCandidates(data);
+
+        const filteredCandidates = data.filter((candidate) => {
+          if (!candidate.uniqueCertificateUrl) {
+            return;
+          }
+          return candidate.uniqueCertificateUrl !== "";
+        });
+        const candidateEmails = filteredCandidates.map(
+          (candidate) => candidate.email
+        );
+        console.log("candidates with certificates : ", filteredCandidates);
+        console.log(candidateEmails);
+        setCandidatesWithCertificates(candidateEmails);
+      });
+      setIsSendingNotifications(false);
+    } catch (error) {
+      toast({
+        title: "unexpected error",
+        variant: "destructive",
+      });
+      console.error("Error sending request to server:", error);
+      setIsSendingNotifications(false);
     }
   };
   const [editEventDialogOpen, setEditEventDialogOpen] = useState(false);
@@ -681,7 +739,7 @@ const EventDetails = () => {
                       {eventDetails ? (
                         <DialogFooter>
                           <Button
-                            variant="outline"
+                            variant="destructive"
                             className="hover:bg-red-600 w-full"
                             onClick={async () => handleDeleteEventDetails()}
                           >
@@ -696,6 +754,7 @@ const EventDetails = () => {
                   <div>
                     {candidatesWithCertificates.length > 0 ? (
                       <Button
+                        disabled={isSendingNotifications}
                         onClick={() => {
                           sendCertificateReceivedMail(
                             eventId,
@@ -703,10 +762,12 @@ const EventDetails = () => {
                           );
                         }}
                       >
-                        Send Notification
+                        {isSendingNotifications
+                          ? "Sending Emails..."
+                          : "Send Emails"}
                       </Button>
                     ) : (
-                      <Button disabled>Send Notification</Button>
+                      <Button disabled>Send Emails</Button>
                     )}
                   </div>
                 </div>

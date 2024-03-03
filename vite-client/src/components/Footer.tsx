@@ -5,7 +5,7 @@ const Footer = () => {
   const { theme } = useTheme();
   const logoSrc = theme === "dark" ? verifyLogoLight : verifyLogoDark;
   return (
-    <footer className="text-white p-4">
+    <footer className="text-white px-4">
       <div className="container">
         <p className="flex items-center justify-center gap-2">
           <span>&copy; 2024</span>{" "}

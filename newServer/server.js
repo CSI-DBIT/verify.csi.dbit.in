@@ -914,175 +914,13 @@ app
       res.status(500).json({ error: "Internal server error" });
     }
   })
-  // .post("/api/event/send-certificate-emails", async (req, res) => {
-  //   // get event details using event code passed in query
-  //   try {
-  //     const eventCode = req.query.eventCode;
-  //     const { candidateEmails, currentDate } = req.body;
-  //     // Validate event code
-  //     if (!eventCode || !candidateEmails) {
-  //       return res.status(400).json({ error: "Event code is required" });
-  //     }
-  //     console.log(candidateEmails,eventCode);
-  //     //emailOptions - who sends what to whom
-  //     const sendEmail = async (emailOptions) => {
-  //       let emailTransporter = await createTransporter();
-  //       await emailTransporter.sendMail(emailOptions);
-  //     };
-  //     const certificateSentMail = () => {
-  //       return `<!DOCTYPE html>
-  //       <html lang="en">
-  //       <head>
-  //         <meta charset="UTF-8">
-  //         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  //         <title>Confirm your email address</title>
-  //         <style>
-  //           body {
-  //             background-color: #ffffff;
-  //             margin: 0 auto;
-  //             font-family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif";
-  //           }
 
-  //           .container {
-  //             margin: 0 auto;
-  //             padding: 0px 20px;
-  //           }
-
-  //           .logo-container {
-  //             margin-top: 32px;
-  //           }
-
-  //           h1 {
-  //             color: #1d1c1d;
-  //             font-size: 36px;
-  //             font-weight: 700;
-  //             margin: 30px 0;
-  //             padding: 0;
-  //             line-height: 42px;
-  //           }
-
-  //           .hero-text {
-  //             font-size: 20px;
-  //             line-height: 28px;
-  //             margin-bottom: 30px;
-  //           }
-
-  //           .code-box {
-  //             background: rgb(245, 244, 245);
-  //             border-radius: 4px;
-  //             margin-bottom: 30px;
-  //             padding: 40px 10px;
-  //           }
-
-  //           .confirmation-code-text {
-  //             font-size: 30px;
-  //             text-align: center;
-  //             vertical-align: middle;
-  //           }
-
-  //           p {
-  //             color: #000;
-  //             font-size: 14px;
-  //             line-height: 24px;
-  //           }
-
-  //           .footer-text {
-  //             font-size: 12px;
-  //             color: #b7b7b7;
-  //             line-height: 15px;
-  //             text-align: left;
-  //             margin-bottom: 50px;
-  //           }
-
-  //           .footer-link {
-  //             color: #b7b7b7;
-  //             text-decoration: underline;
-  //           }
-
-  //           .footer-logos {
-  //             margin-bottom: 32px;
-  //             padding-left: 8px;
-  //             padding-right: 8px;
-  //             width: 100%;
-  //           }
-
-  //           .social-media-icon {
-  //             display: inline;
-  //             margin-left: 32px;
-  //           }
-  //         </style>
-  //       </head>
-  //       <body>
-  //         <div class="container">
-  //           <div class="logo-container">
-  //             <img src="slack-logo.png" alt="Slack" width="120" height="36">
-  //           </div>
-  //           <h1>Confirm your email address</h1>
-  //           <p class="hero-text">
-  //             Your confirmation code is below - enter it in your open browser window and we'll help you get signed in.
-  //           </p>
-
-  //           <div class="code-box">
-  //             <p class="confirmation-code-text">DJZ-TLX</p>
-  //           </div>
-
-  //           <p>
-  //             If you didn't request this email, there's nothing to worry about, you can safely ignore it.
-  //           </p>
-
-  //           <div class="footer-logos">
-  //             <img src="slack-logo.png" alt="Slack" width="120" height="36">
-  //             <div>
-  //               <a href="/">
-  //                 <img src="slack-twitter.png" alt="Slack" width="32" height="32" class="social-media-icon">
-  //               </a>
-  //               <a href="/">
-  //                 <img src="slack-facebook.png" alt="Slack" width="32" height="32" class="social-media-icon">
-  //               </a>
-  //               <a href="/">
-  //                 <img src="slack-linkedin.png" alt="Slack" width="32" height="32" class="social-media-icon">
-  //               </a>
-  //             </div>
-  //           </div>
-
-  //           <div>
-  //             <a class="footer-link" href="https://slackhq.com" target="_blank" rel="noopener noreferrer">Our blog</a>
-  //             &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  //             <a class="footer-link" href="https://slack.com/legal" target="_blank" rel="noopener noreferrer">Policies</a>
-  //             &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  //             <a class="footer-link" href="https://slack.com/help" target="_blank" rel="noopener noreferrer">Help center</a>
-  //             &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  //             <a class="footer-link" href="https://slack.com/community" target="_blank" rel="noopener noreferrer" data-auth="NotApplicable" data-linkindex="6">Slack Community</a>
-  //             <p class="footer-text">
-  //               ©2022 Slack Technologies, LLC, a Salesforce company. <br />
-  //               500 Howard Street, San Francisco, CA 94105, USA <br />
-  //               <br />
-  //               All rights reserved.
-  //             </p>
-  //           </div>
-  //         </div>
-  //       </body>
-  //       </html>`;
-  //     };
-  //     sendEmail({
-  //       subject: "Test",
-  //       to: "omjannu2002@gmail.com",
-  //       from: process.env.EMAIL,
-  //       html: certificateSentMail(),
-  //     });
-
-  //     console.log("email sent");
-  //   } catch (error) {
-  //     console.error(error);
-  //     res.status(500).json({ error: "Internal server error" });
-  //   }
-  // })
-
-  .post("/api/event/send-certificate-emails", async (req, res) => {
+  .post("/api/event/send-certificate-emails/all", async (req, res) => {
     // get event details using event code passed in query
     try {
       const eventCode = req.query.eventCode;
       const { candidateEmails, currentDate } = req.body;
+      console.log(candidateEmails, currentDate);
       // Validate event code
       if (!eventCode || !candidateEmails) {
         return res.status(400).json({ error: "Event code is required" });
@@ -1090,7 +928,7 @@ app
 
       // Fetch event details
       const eventDetails = await EventDetail.findOne({ eventCode });
-
+      console.log(eventDetails);
       if (!eventDetails) {
         return res.status(404).json({ error: "Event not found" });
       }
@@ -1116,223 +954,152 @@ app
             throw new Error("Candidate not found for the provided email");
           }
 
-          // Update emailSentCount, editCount, and lastEdited fields
-          candidate.emailSentCount += 1;
-          candidate.editCount += 1;
-          candidate.lastEdited = new Date(currentDate);
-
-          // Save the updated document
-          await eligibleCandidates.save();
-
           // Return the candidate details
           return {
             name: candidate.name,
             uniqueCertificateCode: candidate.uniqueCertificateCode,
             certificateFilePath: candidate.uniqueCertificateUrl,
+            emailSentCount: candidate.emailSentCount,
           };
         } catch (error) {
           throw new Error(`Error fetching user details: ${error.message}`);
+        }
+      };
+      const updateUserDetails = async (eventCode, userEmail) => {
+        try {
+          // Find the document with the given eventCode
+          const eligibleCandidates = await EligibleCandidates.findOne({
+            eventCode,
+          });
+
+          if (!eligibleCandidates) {
+            throw new Error("Event not found");
+          }
+
+          // Find the eligible candidate with the given email
+          const candidate = eligibleCandidates.eligibleCandidates.find(
+            (candidate) => candidate.email === userEmail
+          );
+
+          if (!candidate) {
+            throw new Error("Candidate not found for the provided email");
+          }
+
+          // Update emailSentCount, editCount, and lastEdited fields
+          candidate.emailSentCount += 1;
+          candidate.editCount += 1;
+          candidate.lastEdited = new Date(currentDate);
+          eligibleCandidates.lastEdited = new Date(currentDate);
+          eligibleCandidates.editCount += 1;
+
+          // Save the updated document
+          await eligibleCandidates.save();
+        } catch (error) {
+          throw new Error(`Error updating user details: ${error.message}`);
         }
       };
 
       // Email template with user's details
       const generateEmailContent = async (candidateEmail) => {
         const userDetails = await getUserDetails(eventCode, candidateEmail);
-
-        // Read certificate file
-        const certificateFile = fs.readFileSync(
-          userDetails.certificateFilePath
-        );
-
+        console.log("userDetails", userDetails);
         return {
           html: `
           <!DOCTYPE html>
           <html lang="en">
-            <head>
-              <meta charset="UTF-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-              <title>Confirm your email address</title>
-              <style>
-                body {
-                  background-color: #ffffff;
-                  margin: 0 auto;
-                  font-family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif";
-                }
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Your Certificate</title>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+              }
 
-                .container {
-                  margin: 0 auto;
-                  padding: 0px 20px;
-                }
+              .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+              }
 
-                .logo-container {
-                  margin-top: 32px;
-                }
+              h1 {
+                color: #333;
+                font-size: 24px;
+                margin-bottom: 20px;
+              }
 
-                h1 {
-                  color: #1d1c1d;
-                  font-size: 36px;
-                  font-weight: 700;
-                  margin: 30px 0;
-                  padding: 0;
-                  line-height: 42px;
-                }
+              p {
+                color: #666;
+                font-size: 16px;
+                margin-bottom: 20px;
+              }
 
-                .hero-text {
-                  font-size: 20px;
-                  line-height: 28px;
-                  margin-bottom: 30px;
-                }
+              .code {
+                background: #f9f9f9;
+                padding: 10px;
+                border-radius: 4px;
+                margin-bottom: 20px;
+                background: #f4f4f4;
+                font-size: x-large;
+                font-weight:bold;
+              }
 
-                .code-box {
-                  background: rgb(245, 244, 245);
-                  border-radius: 4px;
-                  margin-bottom: 30px;
-                  padding: 40px 10px;
-                }
+              .footer {
+                background: #f4f4f4;
+                padding: 10px;
+                border-radius: 4px;
+                text-align: center;
+              }
 
-                .confirmation-code-text {
-                  font-size: 30px;
-                  text-align: center;
-                  vertical-align: middle;
-                }
+              .footer p {
+                font-size: 12px;
+                color: #888;
+                margin: 0;
+              }
 
-                p {
-                  color: #000;
-                  font-size: 14px;
-                  line-height: 24px;
-                }
-
-                .footer-text {
-                  font-size: 12px;
-                  color: #b7b7b7;
-                  line-height: 15px;
-                  text-align: left;
-                  margin-bottom: 50px;
-                }
-
-                .footer-link {
-                  color: #b7b7b7;
-                  text-decoration: underline;
-                }
-
-                .footer-logos {
-                  margin-bottom: 32px;
-                  padding-left: 8px;
-                  padding-right: 8px;
-                  width: 100%;
-                }
-
-                .social-media-icon {
-                  display: inline;
-                  margin-left: 32px;
-                }
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <div class="logo-container">
-                  <img src="slack-logo.png" alt="Slack" width="120" height="36" />
-                </div>
-                <h1>Hello ${userDetails.name},</h1>
-                <p class="hero-text">
-                This is an authentic and verified certificate code for the event ${
-                  eventDetails.name
-                } conducted on ${eventDetails.startDate.toLocaleDateString(undefined, {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}.
-                </p>
-
-                <div class="code-box">
-                  <p class="confirmation-code-text">${
-                    userDetails.uniqueCertificateCode
-                  }</p>
-                </div>
-
-                <div class="footer-logos">
-                  <img src="slack-logo.png" alt="Slack" width="120" height="36" />
-                  <div>
-                    <a href="/">
-                      <img
-                        src="slack-twitter.png"
-                        alt="Slack"
-                        width="32"
-                        height="32"
-                        class="social-media-icon"
-                      />
-                    </a>
-                    <a href="/">
-                      <img
-                        src="slack-facebook.png"
-                        alt="Slack"
-                        width="32"
-                        height="32"
-                        class="social-media-icon"
-                      />
-                    </a>
-                    <a href="/">
-                      <img
-                        src="slack-linkedin.png"
-                        alt="Slack"
-                        width="32"
-                        height="32"
-                        class="social-media-icon"
-                      />
-                    </a>
-                  </div>
-                </div>
-
-                <div>
-                  <a
-                    class="footer-link"
-                    href="https://slackhq.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    >Our blog</a
-                  >
-                  &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-                  <a
-                    class="footer-link"
-                    href="https://slack.com/legal"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    >Policies</a
-                  >
-                  &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-                  <a
-                    class="footer-link"
-                    href="https://slack.com/help"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    >Help center</a
-                  >
-                  &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-                  <a
-                    class="footer-link"
-                    href="https://slack.com/community"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-auth="NotApplicable"
-                    data-linkindex="6"
-                    >Slack Community</a
-                  >
-                  <p class="footer-text">
-                    ©2022 Slack Technologies, LLC, a Salesforce company. <br />
-                    500 Howard Street, San Francisco, CA 94105, USA <br />
-                    <br />
-                    All rights reserved.
-                  </p>
-                </div>
+              .footer a {
+                color: #3498db;
+                text-decoration: none;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>${eventDetails.name} Certificate</h1>
+              <p>Dear ${userDetails.name},</p>
+              <p>Congratulations! You have successfully participated in ${
+                eventDetails.name
+              } held on  ${eventDetails.startDate.toLocaleDateString(
+            undefined,
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }
+          )}. As promised, here is your unique certificate code:</p>
+              <div class="code">
+                <p> <strong>Certificate Code :</strong> ${
+                  userDetails.uniqueCertificateCode
+                }</p>
               </div>
-            </body>
+              <p>To verify your certificate, please visit <a href="http://localhost:5173/${
+                userDetails.uniqueCertificateCode
+              }">verify.dev</a> and enter the provided code.</p>
+              <p>Thank you for your participation and dedication. We hope to see you again at our future events.</p>
+              <div class="footer">
+                <p>Best regards, <br> Verify@dev</p>
+              </div>
+            </div>
+          </body>
           </html>
-
           `,
-          attachment: {
-            filename: `${eventDetails.name}-${userDetails.name}.pdf`,
-            content: certificateFile,
-          },
         };
       };
 
@@ -1344,22 +1111,28 @@ app
 
       // Send email to each candidate
       for (const candidateEmail of candidateEmails) {
-        const { html, attachment } = await generateEmailContent(candidateEmail);
+        const userDetails = await getUserDetails(eventCode, candidateEmail);
+        if (userDetails.emailSentCount === 0) {
+          const { html } = await generateEmailContent(candidateEmail);
 
-        // Setup email options
-        const emailOptions = {
-          subject: "Test",
-          to: candidateEmail,
-          from: process.env.EMAIL,
-          html: html,
-          attachments: [attachment],
-        };
+          // Setup email options
+          const emailOptions = {
+            subject: `${eventDetails.name} Certificate`,
+            to: candidateEmail,
+            from: process.env.EMAIL,
+            html: html,
+          };
 
-        // Send email
-        await sendEmail(emailOptions);
-        console.log(`Email sent to ${candidateEmail}`);
+          // Send email
+          await sendEmail(emailOptions);
+          updateUserDetails(eventCode, candidateEmail);
+          console.log(`Email sent to ${candidateEmail}`);
+        } else {
+          console.log(
+            `Email not sent to ${candidateEmail} as emailSentCount is not zero`
+          );
+        }
       }
-
       console.log("All emails sent");
       res.status(200).json({ message: "Emails sent successfully" });
     } catch (error) {
@@ -1367,175 +1140,166 @@ app
       res.status(500).json({ error: "Internal server error" });
     }
   })
-
-  .post("/api/event/send-certificate-emails", async (req, res) => {
+  .post("/api/event/send-certificate-emails/single", async (req, res) => {
+    // get event details using event code passed in query
     try {
       const eventCode = req.query.eventCode;
-      const { candidateEmails, currentDate } = req.body;
-
-      // Validate event code and candidate emails
-      if (!eventCode || !candidateEmails) {
-        return res
-          .status(400)
-          .json({ error: "Event code and candidate emails are required" });
+      const candidateEmail = req.query.candidateEmail;
+      const currentDate = req.query.currentDate;
+      console.log(candidateEmail, currentDate);
+      // Validate event code
+      if (!eventCode || !candidateEmail) {
+        return res.status(400).json({ error: "Event code is required" });
       }
 
-      // Function to get HTML content for certificate email
-      const getCertificateEmailContent = () => {
-        return `<!DOCTYPE html>
-            <html lang="en">
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Confirm your email address</title>
-              <style>
-                body {
-                  background-color: #ffffff;
-                  margin: 0 auto;
-                  font-family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif";
-                }
-            
-                .container {
-                  margin: 0 auto;
-                  padding: 0px 20px;
-                }
-            
-                .logo-container {
-                  margin-top: 32px;
-                }
-            
-                h1 {
-                  color: #1d1c1d;
-                  font-size: 36px;
-                  font-weight: 700;
-                  margin: 30px 0;
-                  padding: 0;
-                  line-height: 42px;
-                }
-            
-                .hero-text {
-                  font-size: 20px;
-                  line-height: 28px;
-                  margin-bottom: 30px;
-                }
-            
-                .code-box {
-                  background: rgb(245, 244, 245);
-                  border-radius: 4px;
-                  margin-bottom: 30px;
-                  padding: 40px 10px;
-                }
-            
-                .confirmation-code-text {
-                  font-size: 30px;
-                  text-align: center;
-                  vertical-align: middle;
-                }
-            
-                p {
-                  color: #000;
-                  font-size: 14px;
-                  line-height: 24px;
-                }
-            
-                .footer-text {
-                  font-size: 12px;
-                  color: #b7b7b7;
-                  line-height: 15px;
-                  text-align: left;
-                  margin-bottom: 50px;
-                }
-            
-                .footer-link {
-                  color: #b7b7b7;
-                  text-decoration: underline;
-                }
-            
-                .footer-logos {
-                  margin-bottom: 32px;
-                  padding-left: 8px;
-                  padding-right: 8px;
-                  width: 100%;
-                }
-            
-                .social-media-icon {
-                  display: inline;
-                  margin-left: 32px;
-                }
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <div class="logo-container">
-                  <img src="slack-logo.png" alt="Slack" width="120" height="36">
-                </div>
-                <h1>Confirm your email address</h1>
-                <p class="hero-text">
-                  Your confirmation code is below - enter it in your open browser window and we'll help you get signed in.
-                </p>
-            
-                <div class="code-box">
-                  <p class="confirmation-code-text">DJZ-TLX</p>
-                </div>
-            
-                <p>
-                  If you didn't request this email, there's nothing to worry about, you can safely ignore it.
-                </p>
-            
-                <div class="footer-logos">
-                  <img src="slack-logo.png" alt="Slack" width="120" height="36">
-                  <div>
-                    <a href="/">
-                      <img src="slack-twitter.png" alt="Slack" width="32" height="32" class="social-media-icon">
-                    </a>
-                    <a href="/">
-                      <img src="slack-facebook.png" alt="Slack" width="32" height="32" class="social-media-icon">
-                    </a>
-                    <a href="/">
-                      <img src="slack-linkedin.png" alt="Slack" width="32" height="32" class="social-media-icon">
-                    </a>
-                  </div>
-                </div>
-            
-                <div>
-                  <a class="footer-link" href="https://slackhq.com" target="_blank" rel="noopener noreferrer">Our blog</a>
-                  &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-                  <a class="footer-link" href="https://slack.com/legal" target="_blank" rel="noopener noreferrer">Policies</a>
-                  &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-                  <a class="footer-link" href="https://slack.com/help" target="_blank" rel="noopener noreferrer">Help center</a>
-                  &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-                  <a class="footer-link" href="https://slack.com/community" target="_blank" rel="noopener noreferrer" data-auth="NotApplicable" data-linkindex="6">Slack Community</a>
-                  <p class="footer-text">
-                    ©2022 Slack Technologies, LLC, a Salesforce company. <br />
-                    500 Howard Street, San Francisco, CA 94105, USA <br />
-                    <br />
-                    All rights reserved.
-                  </p>
-                </div>
-              </div>
-            </body>
-            </html>`;
-      };
+      // Fetch event details
+      const eventDetails = await EventDetail.findOne({ eventCode });
+      console.log(eventDetails);
+      if (!eventDetails) {
+        return res.status(404).json({ error: "Event not found" });
+      }
 
-      // Send email function
+      // Find the document with the given eventCode
+      const eligibleCandidates = await EligibleCandidates.findOne({
+        eventCode,
+      });
+
+      if (!eligibleCandidates) {
+        throw new Error("Event not found");
+      }
+
+      // Find the eligible candidate with the given email
+      const candidate = eligibleCandidates.eligibleCandidates.find(
+        (candidate) => candidate.email === candidateEmail
+      );
+
+      if (!candidate) {
+        throw new Error("Candidate not found for the provided email");
+      }
+      console.log(candidate);
+
+      // Email sender function
       const sendEmail = async (emailOptions) => {
         let emailTransporter = await createTransporter();
         await emailTransporter.sendMail(emailOptions);
       };
 
-      // Prepare email options
+      // Setup email options
       const emailOptions = {
-        subject: "Test",
-        to: "omjannu2002@gmail.com", // Change this to candidateEmails
+        subject: `${eventDetails.name} Certificate`,
+        to: candidateEmail,
         from: process.env.EMAIL,
-        html: getCertificateEmailContent(), // Call the function to get HTML content
+        html: `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Your Certificate</title>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+              }
+
+              .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+              }
+
+              h1 {
+                color: #333;
+                font-size: 24px;
+                margin-bottom: 20px;
+              }
+
+              p {
+                color: #666;
+                font-size: 16px;
+                margin-bottom: 20px;
+              }
+
+              .code {
+                background: #f9f9f9;
+                padding: 10px;
+                border-radius: 4px;
+                margin-bottom: 20px;
+                background: #f4f4f4;
+                font-size: x-large;
+                font-weight:bold;
+              }
+
+              .footer {
+                background: #f4f4f4;
+                padding: 10px;
+                border-radius: 4px;
+                text-align: center;
+              }
+
+              .footer p {
+                font-size: 12px;
+                color: #888;
+                margin: 0;
+              }
+
+              .footer a {
+                color: #3498db;
+                text-decoration: none;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>${eventDetails.name} Certificate</h1>
+              <p>Dear ${candidate.name},</p>
+              <p>Congratulations! You have successfully participated in ${
+                eventDetails.name
+              } held on  ${eventDetails.startDate.toLocaleDateString(
+          undefined,
+          {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }
+        )}. As promised, here is your unique certificate code:</p>
+              <div class="code">
+                <p> <strong>Certificate Code :</strong> ${
+                  candidate.uniqueCertificateCode
+                }</p>
+              </div>
+              <p>To verify your certificate, please visit <a href="http://localhost:5173/${
+                candidate.uniqueCertificateCode
+              }">verify.dev</a> and enter the provided code.</p>
+              <p>Thank you for your participation and dedication. We hope to see you again at our future events.</p>
+              <div class="footer">
+                <p>Best regards, <br> Verify@dev</p>
+              </div>
+            </div>
+          </body>
+          </html>
+          `,
       };
 
       // Send email
       await sendEmail(emailOptions);
+      // Update emailSentCount, editCount, and lastEdited fields
+      candidate.emailSentCount += 1;
+      candidate.editCount += 1;
+      candidate.lastEdited = new Date(currentDate);
+      eligibleCandidates.lastEdited = new Date(currentDate);
+      eligibleCandidates.editCount += 1;
 
-      console.log("email sent");
-      res.status(200).json({ message: "Email sent successfully" });
+      // Save the updated document
+      await eligibleCandidates.save();
+      console.log(`Email sent to ${candidateEmail}`);
+      res.status(200).json({ message: "Emails sent successfully" });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });

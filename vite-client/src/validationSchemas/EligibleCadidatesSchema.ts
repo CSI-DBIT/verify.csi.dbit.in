@@ -9,6 +9,7 @@ export const validationEligibleCandidateSchema = z.object({
   isMember: z.boolean().optional(),
   uniqueCertificateCode: z.string().optional(),
   uniqueCertificateUrl: z.string().optional(),
+  emailSentCount: z.number().optional(),
 });
 
 export type EligibleCandidatesSchema = z.infer<

@@ -1,4 +1,4 @@
-import { FC, SetStateAction, useCallback, useState } from "react";
+import { FC, useState } from "react";
 import { DataTableColumnHeader } from "@/components/reusableComponents/DataTableColumnHeader";
 import { DialogHeader } from "@/components/ui/dialog";
 import {
@@ -22,6 +22,8 @@ import {
   Eye,
   FileDown,
   FileX2,
+  MailCheck,
+  MailX,
   MoreHorizontal,
   Trash2,
   Upload,
@@ -56,7 +58,6 @@ interface ManageEligibleCandidateTableViewProps {
 const ManageEligibleCandidatesTableView: FC<
   ManageEligibleCandidateTableViewProps
 > = ({ eligibleCandidatesData, setIsOperationInProgress, eventCode }) => {
-  const [qrCodeData, setQRCodeData] = useState<string>("");
   const columns: ColumnDef<EligibleCandidatesSchema>[] = [
     {
       accessorKey: "name",
@@ -160,7 +161,6 @@ const ManageEligibleCandidatesTableView: FC<
           useState(false);
         const [isCertificateUploading, setIsCertificateUploading] =
           useState(false);
-
         const deleteCertificate = async () => {
           try {
             setIsCertificateUploading(true);
@@ -285,7 +285,7 @@ const ManageEligibleCandidatesTableView: FC<
             setIsCertificateDragActive(false);
           },
         });
-        
+
         if (!uniqueCertificateUrl) {
           return (
             <div>
@@ -330,7 +330,6 @@ const ManageEligibleCandidatesTableView: FC<
                             <DialogTrigger>
                               <Button
                                 size={"icon"}
-                                // onClick={previewUploadedCertificate}
                                 variant={"ghost"}
                                 className="bg-blue-800 hover:bg-blue-900"
                               >
@@ -482,11 +481,24 @@ const ManageEligibleCandidatesTableView: FC<
       enableSorting: true,
     },
     {
-      accessorKey: "Email Sent",
-      header: () => <div>Certificate Code</div>,
+      accessorKey: "emailSentCount",
+      header: () => <div>Email</div>,
       cell: ({ row }) => {
-        const emailSentCount = row.getValue("emailSentCount");
-        return emailSentCount;
+        const emailSentCount = Number(row.getValue("emailSentCount"));
+        if (emailSentCount && emailSentCount > 0) {
+          return (
+            <div className="flex gap-2 items-center">
+              <MailCheck color="#07e704" /> <span>Sent</span>
+            </div>
+          );
+        } else {
+          return (
+            <div className="flex gap-2 items-center">
+              <MailX color="#F7D100" />
+              <span>Not Sent</span>
+            </div>
+          );
+        }
       },
       enableHiding: true,
       enableSorting: true,
@@ -496,7 +508,8 @@ const ManageEligibleCandidatesTableView: FC<
       header: () => <div>Actions</div>,
       cell: ({ row }) => {
         const eligibleCandidate = row.original;
-
+        const candidateEmail = eligibleCandidate.email;
+        const [qrCodeData, setQRCodeData] = useState<string>("");
         const downloadQRCode = () => {
           const downloadLink = document.createElement("a");
           downloadLink.href = qrCodeData;
@@ -504,6 +517,43 @@ const ManageEligibleCandidatesTableView: FC<
           document.body.appendChild(downloadLink);
           downloadLink.click();
           document.body.removeChild(downloadLink);
+        };
+        const [isSendingEmail, setIsSendingEmail] = useState(false);
+        const sendCertificateMail = async (): Promise<void> => {
+          try {
+            setIsSendingEmail(true);
+            const response = await axios.post(
+              `${
+                import.meta.env.VITE_SERVER_URL
+              }/api/event/send-certificate-emails/single?eventCode=${eventCode}&candidateEmail=${candidateEmail}&currentDate=${new Date()}`,
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+            if (response.status === 200) {
+              toast({
+                title: response.data.message,
+                variant: "default",
+              });
+            } else {
+              toast({
+                title: response.data.error,
+                variant: "destructive",
+              });
+              console.error("Request to server failed");
+            }
+            setIsSendingEmail(false);
+            setIsOperationInProgress(true);
+          } catch (error) {
+            toast({
+              title: "unexpected error",
+              variant: "destructive",
+            });
+            console.error("Error sending request to server:", error);
+            setIsSendingEmail(false);
+          }
         };
 
         return (
@@ -516,44 +566,14 @@ const ManageEligibleCandidatesTableView: FC<
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <DropdownMenuItem
-                    onSelect={(e) => {
-                      e.preventDefault();
-                    }}
-                  >
-                    edit
-                  </DropdownMenuItem>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Edit Eligible Candidates</DialogTitle>
-                    <DialogDescription>
-                      Edit eligible candidates details
-                    </DialogDescription>
-                  </DialogHeader>
-                  <EditEligibleCandidateForm
-                    editingEligibleCandidate={eligibleCandidate}
-                    setIsOperationInProgress={setIsOperationInProgress}
-                  />
-                </DialogContent>
-              </Dialog>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <DropdownMenuItem
-                    onSelect={(e) => {
-                      e.preventDefault();
-                    }}
-                  >
-                    delete
-                  </DropdownMenuItem>
-                </DialogTrigger>
-                <DeleteEligibleCandidateForm
-                  deletingEligibleCandidate={eligibleCandidate}
-                  setIsOperationInProgress={setIsOperationInProgress}
-                />
-              </Dialog>
+              <EditEligibleCandidateForm
+                editingEligibleCandidate={eligibleCandidate}
+                setIsOperationInProgress={setIsOperationInProgress}
+              />
+              <DeleteEligibleCandidateForm
+                deletingEligibleCandidate={eligibleCandidate}
+                setIsOperationInProgress={setIsOperationInProgress}
+              />
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => {
@@ -568,6 +588,12 @@ const ManageEligibleCandidatesTableView: FC<
                 }}
               >
                 Copy Unique Code
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={isSendingEmail}
+                onClick={() => sendCertificateMail()}
+              >
+                {isSendingEmail ? "Sending Email..." : "Send Email"}
               </DropdownMenuItem>
               <Dialog>
                 <DialogTrigger asChild>

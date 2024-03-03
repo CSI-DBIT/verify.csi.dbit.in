@@ -19,8 +19,10 @@ import ReactCardFlip from "react-card-flip";
 import { Badge } from "@/components/ui/badge";
 import { Clock4, Instagram, Linkedin, Youtube } from "lucide-react";
 import Footer from "@/components/Footer";
+import { Link } from "react-router-dom";
+import { url } from "inspector";
 const HomeScreen = () => {
-  const TEXTS = ["Verify.", "Certificate.", "Membership."];
+  const TEXTS = ["Verify.", "Validate.", "Authenticate."];
   const [index, setIndex] = useState(0);
   const [flipped, setflipped] = useState(false);
 
@@ -36,19 +38,18 @@ const HomeScreen = () => {
     setflipped(!flipped);
     console.log(import.meta.env.VITE_DEV_SERVER_URL);
   };
+  const [certificateCode, setCertificateCode] = useState("");
+  const [studentId, setStudentId] = useState("");
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <div className="lg:p-4 p-4 lg:flex flex-grow justify-center items-center">
+      <div className="px-4 lg:flex flex-grow justify-center items-center">
         <div className="flex flex-col lg:space-y-8 space-y-3 p-4 lg:w-6/12">
           <div className="lg:text-3xl text-xl">
-            / Verify & Authenticate easily through
-          </div>
-          <div className="flex lg:text-6xl text-3xl font-bold">
-            <span>csi@</span>
             <TextTransition springConfig={presets.wobbly}>
-              {TEXTS[index % TEXTS.length]}
-            </TextTransition>
+              /{TEXTS[index % TEXTS.length]}
+            </TextTransition>{" "}
+            <span>easily through verify@dev</span>
           </div>
           <div className="lg:w-3/4">
             Ensure your{" "}
@@ -56,9 +57,7 @@ const HomeScreen = () => {
               certificate's & membership
             </span>{" "}
             authenticity through{" "}
-            <span className="font-bold text-lg italic">verify@csi</span>. Gain
-            confidence that your certificates are legitimate and issued by
-            CSI_DBIT.
+            <span className="font-bold text-lg italic">verify@csi</span>
           </div>
           <div className="lg:w-[550px]">
             <Tabs defaultValue="certificate">
@@ -75,18 +74,25 @@ const HomeScreen = () => {
                   <CardHeader>
                     <CardTitle>Validate Certificate</CardTitle>
                     <CardDescription>
-                      Validate your certificate details here. Click "Validate"
-                      to recieve certificate.
+                      Enter your certificate code below to validate your
+                      certificate
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="space-y-1">
                       <Label htmlFor="current">Certificate code:</Label>
-                      <Input id="code" placeholder="eg : xhdgrw" />
+                      <Input
+                        value={certificateCode}
+                        onChange={(e) => setCertificateCode(e.target.value)}
+                        id="code"
+                        placeholder="eg : xhdgrw38yz"
+                      />
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline">Validate</Button>
+                    <Link to={`/certificate/${certificateCode}`}>
+                      <Button variant="outline">Validate</Button>
+                    </Link>
                   </CardFooter>
                 </Card>
               </TabsContent>
@@ -95,18 +101,24 @@ const HomeScreen = () => {
                   <CardHeader>
                     <CardTitle>Verify Membership</CardTitle>
                     <CardDescription>
-                      Verify your membership status below. Click "Verify" for
-                      member verification.
+                      Enter your Student Id below to verify your membership
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="space-y-1">
                       <Label htmlFor="current">Student Id:</Label>
-                      <Input id="studentId" placeholder="20XXXXXX14" />
+                      <Input
+                        value={studentId}
+                        onChange={(e) => setStudentId(e.target.value)}
+                        id="studentId"
+                        placeholder="20XXXXXX14"
+                      />
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline">Verify</Button>
+                    <Link to={`/member/${studentId}`}>
+                      <Button variant="outline">Verify</Button>
+                    </Link>
                   </CardFooter>
                 </Card>
               </TabsContent>
@@ -114,7 +126,7 @@ const HomeScreen = () => {
           </div>
         </div>
         <div className="flex flex-col space-y-4 p-4 lg:w-6/12">
-          <Card className="lg:h-[600px] border lg:flex justify-center items-center p-4">
+          <Card className="lg:flex justify-center items-center p-4">
             <img
               className="hidden lg:block lg:relative h-full w-full"
               src={gridBackground}
@@ -124,47 +136,46 @@ const HomeScreen = () => {
               <ReactCardFlip isFlipped={flipped} flipDirection="vertical">
                 <Card
                   onClick={handleClick}
-                  className="lg:w-[600px] lg:h-[400px]"
+                  className="min-w-[500px] min-h-[300px]"
                 >
-                  <div className="flex flex-col p-4 px-6 space-y-1 lg:space-y-6">
+                  <div className="flex grow flex-col p-4 px-6 space-y-1">
                     <div className="flex justify-between items-center">
                       <div>
-                        <Label className="lg:text-lg">Membership Id</Label>
-                        <div className="lg:text-2xl">20XXXXXX14</div>
+                        <Label className="">Membership Id</Label>
+                        <div className="">20XXXXXX14</div>
                       </div>
-                      <Badge
-                        className="bg-green-700 lg:text-xl"
-                        variant="outline"
-                      >
+                      <Badge className="bg-green-700 " variant="outline">
                         Active
                       </Badge>
                     </div>
-                    <h1 className="text-xl lg:text-6xl font-bold">Jhon Doe</h1>
-                    <p className="lg:text-2xl">johdoe@gmail.com</p>
-                    <div className="flex items-center space-x-2">
-                      <Badge className="text-xs lg:text-2xl" variant="outline">
-                        COMPS
-                      </Badge>
-                      <Badge className="text-xs lg:text-2xl" variant="outline">
-                        SEM IV
-                      </Badge>
-                      <Badge className="text-xs lg:text-2xl" variant="outline">
-                        3 yrs
-                      </Badge>
+                    <div>
+                      <h1 className="text-4xl font-bold">Jhon Doe</h1>
+                      <div>johdoe@gmail.com</div>
+                      <div className="flex items-center space-x-2 py-3">
+                        <Badge className="text-xs" variant="outline">
+                          COMPS
+                        </Badge>
+                        <Badge className="text-xs" variant="outline">
+                          SEM IV
+                        </Badge>
+                        <Badge className="text-xs" variant="outline">
+                          3 yrs
+                        </Badge>
+                      </div>
                     </div>
                     <div className="flex justify-between items-center">
                       <div>
-                        <Label className="lg:text-lg">Start Date</Label>
+                        <Label className="">Start Date</Label>
                         <div className="flex items-center space-x-1">
-                          <Clock4 />
-                          <span className="lg:text-2xl">dd/mm/yyyy</span>
+                          <Clock4 className="h-4 w-4" />
+                          <span className="">dd/mm/yyyy</span>
                         </div>
                       </div>
                       <div>
-                        <Label className="lg:text-lg">End Date</Label>
+                        <Label className="">End Date</Label>
                         <div className="flex items-center space-x-1">
-                          <Clock4 />
-                          <span className="lg:text-2xl">dd/mm/yyyy</span>
+                          <Clock4 className="h-4 w-4" />
+                          <span className="">dd/mm/yyyy</span>
                         </div>
                       </div>
                     </div>

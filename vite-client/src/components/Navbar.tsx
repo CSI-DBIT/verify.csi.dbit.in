@@ -19,7 +19,7 @@ const Navbar = () => {
   const { theme } = useTheme();
   const logoSrc = theme === 'dark' ? verifyLogoLight : verifyLogoDark;
   return (
-    <div className="flex justify-between items-center py-2 px-6">
+    <div className="flex justify-between items-center px-6">
       <Link to="/" className="flex justify-center items-center gap-4">
         <img className="w-48" src={logoSrc} alt="verify csi logo"/>
         {/* <span className="text-2xl font-bold">/ verify@csi </span> */}
