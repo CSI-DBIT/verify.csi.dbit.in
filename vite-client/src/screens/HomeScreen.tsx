@@ -17,10 +17,9 @@ import TextTransition, { presets } from "react-text-transition";
 import { useEffect, useState } from "react";
 import ReactCardFlip from "react-card-flip";
 import { Badge } from "@/components/ui/badge";
-import { Clock4, Instagram, Linkedin, Youtube } from "lucide-react";
+import { Clock4 } from "lucide-react";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
-import { url } from "inspector";
 const HomeScreen = () => {
   const TEXTS = ["Verify.", "Validate.", "Authenticate."];
   const [index, setIndex] = useState(0);
@@ -46,9 +45,15 @@ const HomeScreen = () => {
       <div className="px-4 lg:flex flex-grow justify-center items-center">
         <div className="flex flex-col lg:space-y-8 space-y-3 p-4 lg:w-6/12">
           <div className="lg:text-3xl text-xl">
-            <TextTransition springConfig={presets.wobbly}>
-              /{TEXTS[index % TEXTS.length]}
-            </TextTransition>{" "}
+            <div className="flex flex-wrap items-center">
+              <span>@</span>
+              <TextTransition
+                springConfig={presets.wobbly}
+                className="font-bold"
+              >
+                {TEXTS[index % TEXTS.length]}
+              </TextTransition>
+            </div>
             <span>easily through verify@dev</span>
           </div>
           <div className="lg:w-3/4">
@@ -91,7 +96,9 @@ const HomeScreen = () => {
                   </CardContent>
                   <CardFooter>
                     <Link to={`/certificate/${certificateCode}`}>
-                      <Button variant="outline">Validate</Button>
+                      <Button variant={"secondary"}>
+                        Validate Certificate
+                      </Button>
                     </Link>
                   </CardFooter>
                 </Card>
@@ -117,7 +124,7 @@ const HomeScreen = () => {
                   </CardContent>
                   <CardFooter>
                     <Link to={`/member/${studentId}`}>
-                      <Button variant="outline">Verify</Button>
+                      <Button variant={"secondary"}>Verify Membership</Button>
                     </Link>
                   </CardFooter>
                 </Card>
@@ -136,9 +143,9 @@ const HomeScreen = () => {
               <ReactCardFlip isFlipped={flipped} flipDirection="vertical">
                 <Card
                   onClick={handleClick}
-                  className="min-w-[500px] min-h-[300px]"
+                  className="min-w-[450px] min-h-[250px]"
                 >
-                  <div className="flex grow flex-col p-4 px-6 space-y-1">
+                  <div className="flex w-full h-full flex-col p-4 px-6 space-y-1">
                     <div className="flex justify-between items-center">
                       <div>
                         <Label className="">Membership Id</Label>
@@ -156,7 +163,7 @@ const HomeScreen = () => {
                           COMPS
                         </Badge>
                         <Badge className="text-xs" variant="outline">
-                          SEM IV
+                          SEM 6
                         </Badge>
                         <Badge className="text-xs" variant="outline">
                           3 yrs
@@ -182,49 +189,33 @@ const HomeScreen = () => {
                   </div>
                 </Card>
 
-                <Card
-                  onClick={handleClick}
-                  className="lg:w-[600px] lg:h-[400px]"
-                >
+                <Card onClick={handleClick} className="w-[450px] h-[250px]">
                   <div className="flex flex-col p-4 px-6 space-y-1 lg:space-y-6">
                     <div className="flex justify-between items-center">
                       <div>
-                        <Label className="lg:text-lg">Membership Id</Label>
-                        <div className="lg:text-2xl">20XXXXXX14</div>
+                        <Label className="">Membership Id</Label>
+                        <div className="">20XXXXXX14</div>
                       </div>
-                      <Badge
-                        className="bg-green-700 lg:text-xl"
-                        variant="outline"
-                      >
+                      <Badge className="bg-green-700 " variant="outline">
                         Active
                       </Badge>
                     </div>
                     <div className="lg:flex items-center justify-between ">
                       <div>
-                        <h1 className="text-xl lg:text-4xl font-bold">
-                          CSI DBIT
-                        </h1>
-                        <p className="lg:text-lg">
+                        <h1 className=" font-bold">CSI DBIT</h1>
+                        <p className="text-xs">
                           CSI has effectively created a platform for everyone to
                           progress together, and has relentlessly worked to
                           provide the best.
                         </p>
                       </div>
-                      <div className="flex justify-center items-center">
+                      <div className="flex justify-end items-center">
                         <img
-                          className="h-3/4 w-3/4"
+                          className="h-6/12 w-6/12"
                           src={csiCardQrImage}
                           alt="grid background"
                         />
                       </div>
-                    </div>
-                    <div className="flex items-center">
-                      <Instagram />
-                      <Button variant="link">@csidbit</Button>
-                      <Linkedin />
-                      <Button variant="link">@csidbit</Button>
-                      <Youtube />
-                      <Button variant="link">@CSIDBIT</Button>
                     </div>
                   </div>
                 </Card>
