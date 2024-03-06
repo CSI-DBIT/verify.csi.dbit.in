@@ -117,55 +117,6 @@ const fetchEligibleCandidatesDetails = async (
     }
   }
 };
-// const sendCertificateReceivedMail = async (
-//   eventId: string,
-//   candidateEmails: string[]
-// ): Promise<void> => {
-//   try {
-//     setIsSendingNotifications(true);
-//     const response = await axios.post(
-//       `${
-//         import.meta.env.VITE_SERVER_URL
-//       }/api/event/send-certificate-emails?eventCode=${eventId}`,
-//       { candidateEmails, currentDate: new Date() },
-//       {
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
-
-//     // toast({
-//     //   title: `${eventId}`,
-//     //   description: (
-//     //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-//     //       <code className="text-white">
-//     //         {JSON.stringify(candidateEmails, null, 2)}
-//     //       </code>
-//     //     </pre>
-//     //   ),
-//     // });
-//     if (response.status === 200) {
-//       toast({
-//         title: response.data.message,
-//         variant: "default",
-//       });
-//     } else {
-//       toast({
-//         title: response.data.error,
-//         variant: "destructive",
-//       });
-//       console.error("Request to server failed");
-//     }
-//     setIsSendingNotifications(false);
-//   } catch (error) {
-//     toast({
-//       title: "unexpected error",
-//       variant: "destructive",
-//     });
-//     console.error("Error sending request to server:", error);
-//   }
-// };
 const EventDetails = () => {
   const navigateTo = useNavigate();
   const { eventId } = useParams();

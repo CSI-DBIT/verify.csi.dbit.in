@@ -38,8 +38,10 @@ const candidate_certificateStorage = multer.diskStorage({
     cb(null, "./candidate_certificates");
   },
   filename: (req, file, cb) => {
-    const { eventCode, uniqueCertificateCode } = req.body;
-    const fileName = `${uniqueCertificateCode}_${file.originalname}`;
+    const { uniqueCertificateCode } = req.body;
+    const fileName = `${uniqueCertificateCode}_${file.originalname
+      .replace(/\s+/g, "_")
+      .toLowerCase()}`;
     cb(null, fileName);
   },
 });
@@ -1660,6 +1662,33 @@ app
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  })
+  .get("/api/get/certificate", async (req, res) => {
+    try {
+      const uniqueCertificateCode = req.query.uniqueCertificateCode;
+      console.log(uniqueCertificateCode);
+      const candidate = await EligibleCandidates.findOne({
+        "eligibleCandidates.uniqueCertificateCode": uniqueCertificateCode,
+      });
+      console.log(candidate);
+
+      if (!candidate) {
+        return res.status(404).json({ message: "Candidate not found" });
+      }
+      const eventDetails = await EventDetail.findOne({
+        eventCode: candidate.eventCode,
+      });
+
+      const certificateDetails = candidate.eligibleCandidates.find(
+        (c) => c.uniqueCertificateCode === uniqueCertificateCode
+      );
+      console.log(certificateDetails, eventDetails);
+      // Return the candidate details
+      res.status(200).json({ certificateDetails, eventDetails });
+    } catch (error) {
+      console.error("Error fetching candidate details:", error);
+      res.status(500).json({ message: "Internal Server Error" });
     }
   });
 

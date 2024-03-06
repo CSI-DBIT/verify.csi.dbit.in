@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -19,11 +18,59 @@ import ReactCardFlip from "react-card-flip";
 import { Badge } from "@/components/ui/badge";
 import { Clock4 } from "lucide-react";
 import Footer from "@/components/Footer";
-import { Link } from "react-router-dom";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useNavigate } from "react-router-dom";
+const validateCertificateSchema = z.object({
+  uniqueCertificateCode: z.string().min(1).max(10),
+});
+const verifyMembershipSchema = z.object({
+  studentId: z.string().min(1).max(10),
+});
+
 const HomeScreen = () => {
+  const navigate = useNavigate();
   const TEXTS = ["Verify.", "Validate.", "Authenticate."];
   const [index, setIndex] = useState(0);
   const [flipped, setflipped] = useState(false);
+  const validateCertificateform = useForm<
+    z.infer<typeof validateCertificateSchema>
+  >({
+    resolver: zodResolver(validateCertificateSchema),
+    defaultValues: {
+      uniqueCertificateCode: "",
+    },
+  });
+
+  function onValidateCertificateformSubmit(
+    values: z.infer<typeof validateCertificateSchema>
+  ) {
+    console.log(values);
+    navigate(`/certificate/validate/${values.uniqueCertificateCode}`);
+  }
+
+  const verifyMembershipform = useForm<z.infer<typeof verifyMembershipSchema>>({
+    resolver: zodResolver(verifyMembershipSchema),
+    defaultValues: {
+      studentId: "",
+    },
+  });
+
+  function onVerifyMembershipformSubmit(
+    values: z.infer<typeof verifyMembershipSchema>
+  ) {
+    console.log(values);
+    navigate(`/member/verify/${values.studentId}`);
+  }
 
   useEffect(() => {
     const intervalId = setInterval(
@@ -35,10 +82,8 @@ const HomeScreen = () => {
   const handleClick = (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setflipped(!flipped);
-    console.log(import.meta.env.VITE_DEV_SERVER_URL);
   };
-  const [certificateCode, setCertificateCode] = useState("");
-  const [studentId, setStudentId] = useState("");
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -67,66 +112,92 @@ const HomeScreen = () => {
           <div className="lg:w-[550px]">
             <Tabs defaultValue="certificate">
               <TabsList className="grid w-full h-full grid-cols-2">
-                <TabsTrigger value="certificate" className="text-lg">
-                  Certificate
-                </TabsTrigger>
-                <TabsTrigger value="member" className="text-lg">
-                  Membership
-                </TabsTrigger>
+                <TabsTrigger value="certificate">Certificate</TabsTrigger>
+                <TabsTrigger value="member">Membership</TabsTrigger>
               </TabsList>
               <TabsContent value="certificate">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Validate Certificate</CardTitle>
+                    <CardTitle className="text-lg">
+                      Validate Certificate
+                    </CardTitle>
                     <CardDescription>
                       Enter your certificate code below to validate your
                       certificate
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div className="space-y-1">
-                      <Label htmlFor="current">Certificate code:</Label>
-                      <Input
-                        value={certificateCode}
-                        onChange={(e) => setCertificateCode(e.target.value)}
-                        id="code"
-                        placeholder="eg : xhdgrw38yz"
-                      />
-                    </div>
+                  <CardContent>
+                    <Form {...validateCertificateform}>
+                      <form
+                        onSubmit={validateCertificateform.handleSubmit(
+                          onValidateCertificateformSubmit
+                        )}
+                        className="space-y-2"
+                      >
+                        <FormField
+                          control={validateCertificateform.control}
+                          name="uniqueCertificateCode"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Certificate Code:</FormLabel>
+                              <FormControl>
+                                <Input placeholder="xg******op" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Button
+                          variant={"secondary"}
+                          className="w-full"
+                          type="submit"
+                        >
+                          Validate Certificate
+                        </Button>
+                      </form>
+                    </Form>
                   </CardContent>
-                  <CardFooter>
-                    <Link to={`/certificate/${certificateCode}`}>
-                      <Button variant={"secondary"}>
-                        Validate Certificate
-                      </Button>
-                    </Link>
-                  </CardFooter>
                 </Card>
               </TabsContent>
               <TabsContent value="member">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Verify Membership</CardTitle>
+                    <CardTitle className="text-lg">Verify Membership</CardTitle>
                     <CardDescription>
                       Enter your Student Id below to verify your membership
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div className="space-y-1">
-                      <Label htmlFor="current">Student Id:</Label>
-                      <Input
-                        value={studentId}
-                        onChange={(e) => setStudentId(e.target.value)}
-                        id="studentId"
-                        placeholder="20XXXXXX14"
-                      />
-                    </div>
+                  <CardContent>
+                    <Form {...verifyMembershipform}>
+                      <form
+                        onSubmit={verifyMembershipform.handleSubmit(
+                          onVerifyMembershipformSubmit
+                        )}
+                        className="space-y-2"
+                      >
+                        <FormField
+                          control={verifyMembershipform.control}
+                          name="studentId"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Student Id:</FormLabel>
+                              <FormControl>
+                                <Input placeholder="20******19" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Button
+                          variant={"secondary"}
+                          className="w-full"
+                          type="submit"
+                        >
+                          Verify Membership
+                        </Button>
+                      </form>
+                    </Form>
                   </CardContent>
-                  <CardFooter>
-                    <Link to={`/member/${studentId}`}>
-                      <Button variant={"secondary"}>Verify Membership</Button>
-                    </Link>
-                  </CardFooter>
                 </Card>
               </TabsContent>
             </Tabs>
@@ -143,7 +214,7 @@ const HomeScreen = () => {
               <ReactCardFlip isFlipped={flipped} flipDirection="vertical">
                 <Card
                   onClick={handleClick}
-                  className="min-w-[450px] min-h-[250px]"
+                  className="lg:w-[450px] lg:h-[250px]"
                 >
                   <div className="flex w-full h-full flex-col p-4 px-6 space-y-1">
                     <div className="flex justify-between items-center">
@@ -188,8 +259,10 @@ const HomeScreen = () => {
                     </div>
                   </div>
                 </Card>
-
-                <Card onClick={handleClick} className="w-[450px] h-[250px]">
+                <Card
+                  onClick={handleClick}
+                  className="lg:w-[450px] lg:h-[250px]"
+                >
                   <div className="flex flex-col p-4 px-6 space-y-1 lg:space-y-6">
                     <div className="flex justify-between items-center">
                       <div>
@@ -209,7 +282,7 @@ const HomeScreen = () => {
                           provide the best.
                         </p>
                       </div>
-                      <div className="flex justify-end items-center">
+                      <div className="lg:flex justify-end items-center">
                         <img
                           className="h-6/12 w-6/12"
                           src={csiCardQrImage}

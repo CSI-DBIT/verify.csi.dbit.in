@@ -20,11 +20,11 @@ const App = () => {
       errorElement: <PageNotFound />,
     },
     {
-      path: "/member/:studentId",
+      path: "/member/verify/:studentId",
       element: <MemberScreen />,
     },
     {
-      path: "/certificate/:uniqueCertificateCode",
+      path: "/certificate/validate/:uniqueCertificateCode",
       element: <CertificateScreen />,
     },
     {
