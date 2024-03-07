@@ -1436,6 +1436,9 @@ app
             path !== "isDeleted" &&
             path !== "editCount" &&
             path !== "lastEdited" &&
+            path !== "uniqueCertificateUrl" &&
+            path !== "emailSentCount" &&
+            path !== "dateOfIssuing" &&
             path !== "uniqueCertificateCode"
         );
         console.log(eligibleCandidatesSchemaPaths);
@@ -1674,7 +1677,7 @@ app
       console.log(candidate);
 
       if (!candidate) {
-        return res.status(404).json({ message: "Candidate not found" });
+        return res.status(404).json({ message: "Invalid cretificate code" });
       }
       const eventDetails = await EventDetail.findOne({
         eventCode: candidate.eventCode,
@@ -1689,6 +1692,102 @@ app
     } catch (error) {
       console.error("Error fetching candidate details:", error);
       res.status(500).json({ message: "Internal Server Error" });
+    }
+  })
+  .get("/api/get/memberDetails", async (req, res) => {
+    const studentId = req.query.studentId;
+
+    // Function to fetch eventDetails based on eventCode
+    const getEventDetails = async (eventCode) => {
+      try {
+        const eventDetails = await EventDetail.findOne({ eventCode });
+        if (eventDetails) {
+          return {
+            name: eventDetails.name,
+            category: eventDetails.category,
+            typeOfEvent: eventDetails.typeOfEvent,
+            branchesAllowed: eventDetails.branchesAllowed,
+            academicYearAllowed: eventDetails.academicYearAllowed,
+            isBranchSpecific: eventDetails.isBranchSpecific,
+            isAcademicYearSpecific: eventDetails.isAcademicYearSpecific,
+            isMemberOnly: eventDetails.isMemberOnly,
+            startDate: eventDetails.startDate,
+            endDate: eventDetails.endDate,
+            isDeleted: eventDetails.isDeleted,
+          };
+        }
+        return null;
+      } catch (error) {
+        console.error("Error fetching eventDetails:", error);
+        throw error;
+      }
+    };
+
+    try {
+      // Fetch member details based on studentId
+      const memberDetails = await MemberDetail.findOne({
+        studentId,
+        isDeleted: false,
+      });
+
+      if (memberDetails) {
+        // Fetch all eligible candidates with the same email as member details' email
+        const eligibleCandidates = await EligibleCandidates.find({
+          "eligibleCandidates.email": memberDetails.email,
+        });
+
+        if (eligibleCandidates.length > 0) {
+          const data = {
+            memberDetails: {
+              name: memberDetails.name,
+              email: memberDetails.email,
+              mobileNumber: memberDetails.mobileNumber,
+              gender: memberDetails.gender,
+              studentId: memberDetails.studentId,
+              branch: memberDetails.branch,
+              currentAcademicYear: memberDetails.currentAcademicYear,
+              currentSemester: memberDetails.currentSemester,
+              duration: memberDetails.duration,
+              startDate: memberDetails.startDate,
+              isDeleted: memberDetails.isDeleted,
+            },
+            certificatesDetails: [],
+          };
+
+          // Fetch event details for each eligible candidate's event code
+          for (const eligibleCandidate of eligibleCandidates) {
+            const eventDetails = await getEventDetails(
+              eligibleCandidate.eventCode
+            );
+            for (const eligibleCandidateData of eligibleCandidate.eligibleCandidates) {
+              if (eligibleCandidateData.email == memberDetails.email) {
+                data.certificatesDetails.push({
+                  eventCode: eligibleCandidateData.eventCode,
+                  uniqueCertificateCode:
+                    eligibleCandidateData.uniqueCertificateCode,
+                  uniqueCertificateUrl:
+                    eligibleCandidateData.uniqueCertificateUrl,
+                  emailSentCount: eligibleCandidateData.emailSentCount,
+                  eventDetails,
+                });
+              }
+            }
+          }
+
+          res.json(data);
+        } else {
+          res.status(404).json({
+            error: "No eligible candidates found for the given email.",
+          });
+        }
+      } else {
+        res
+          .status(404)
+          .json({ error: "Member details not found for the given studentId." });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({ error: "Internal Server Error" });
     }
   });
 

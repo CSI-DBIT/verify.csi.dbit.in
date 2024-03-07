@@ -11,6 +11,8 @@ export const validationMemberDetailSchema = z.object({
   currentSemester: z.string(),
   duration: z.string(),
   startDate: z.date(),
+  endDate: z.date().optional(),
+  status: z.string().optional(),
 });
 
 export type MemberDetailsSchema = z.infer<typeof validationMemberDetailSchema>;

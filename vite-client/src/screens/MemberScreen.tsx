@@ -1,146 +1,132 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import Navbar from "@/components/Navbar";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Clock4 } from "lucide-react";
-import csiCardQrImage from "../assets/csi qr code.png";
 import Certificate from "../components/Cerificate"; // Import Certificate component
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Footer from "@/components/Footer";
+import csiCardQrImage from "../assets/csi qr code.png";
+import { branchText } from "./constants";
+import { useParams } from "react-router-dom";
+import { MemberDetailsSchema } from "@/validationSchemas/MemberDetailSchema";
 
 const MemberScreen = () => {
-  const getBranchText = (branchNumber: number) => {
-    type BranchMap = { [key: number]: string };
-
-    const branchMap: BranchMap = {
-      1: "IT",
-      2: "COMPS",
-      3: "EXTC",
-      4: "MECH",
-    };
-
-    return branchMap[branchNumber];
-  };
-  const [memberData, setMemberData] = useState<{
-    membershipId: number;
-    status: string;
-    name: string;
-    email: string;
-    currentBranch: number;
-    currentSemester: number;
-    membershipDuration: number;
-    startDate: string;
-    endDate: string;
-    certificates: { title: string }[];
-  } | null>(null);
+  const { studentId } = useParams();
+  const [memberDetails, setMemberDetails] = useState<MemberDetailsSchema>();
+  const [certificateDetails, setCertificateDetails] = useState([]);
 
   useEffect(() => {
-    // Fetch data from your API endpoint
-    fetch("your-api-endpoint")
-      .then((response) => response.json())
-      .then((data) => setMemberData(data))
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
+    const fetchMemberData = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_SERVER_URL}/api/get/memberDetails`,
+          {
+            params: { studentId: studentId },
+          }
+        );
 
-  useEffect(() => {
-    // Dummy data for testing
-    const dummyData = {
-      membershipId: 2020130014,
-      status: "Active",
-      name: "John Doe",
-      email: "johndoe@gmail.com",
-      currentBranch: 4,
-      currentSemester: 6,
-      membershipDuration: 3,
-      startDate: "dd/mm/yyyy",
-      endDate: "dd/mm/yyyy",
-      certificates: [
-        { title: "Certificate 1" },
-        { title: "Certificate 2" },
-        { title: "Certificate 2" },
-        { title: "Certificate 2" },
-        { title: "Certificate 2" },
-        { title: "Certificate 2" },
-        { title: "Certificate 2" },
-        { title: "Certificate 2" },
-        { title: "Certificate 2" },
-        { title: "Certificate 2" },
-        { title: "Certificate 2" },
-        { title: "Certificate 2" },
-      ],
+        const { memberDetails, certificatesDetails } = response.data;
+
+        // Calculate endDate based on startDate and duration
+        const startDate = new Date(memberDetails.startDate);
+        const endDate = new Date(startDate);
+        endDate.setFullYear(startDate.getFullYear() + memberDetails.duration);
+
+        // Determine status based on current date
+        const currentDate = new Date();
+        const status = currentDate <= endDate ? "Active" : "Not Active";
+
+        setMemberDetails({
+          ...memberDetails,
+          endDate: endDate.toISOString(), // Update endDate
+          status: status, // Update status
+        });
+
+        setCertificateDetails(certificatesDetails);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
 
-    setMemberData(dummyData);
-  }, []);
+    fetchMemberData();
+  }, [studentId]);
 
-  if (!memberData) {
+  if (!memberDetails) {
     // Display a loading indicator while data is being fetched
     return <div>Loading...</div>;
   }
+
+  // Function to format the date as date/month/year
+  const formatDate = (dateString: string | number | Date) => {
+    return new Date(dateString).toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    });
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <div className="flex-grow justify-center items-center space-y-4 p-4">
-        <div className="w-full h-full lg:flex justify-center items-center lg:space-x-4">
-          <Card className="lg:w-3/4 lg:h-[400px] p-4">
-            <div className="flex flex-col p-4 px-6 space-y-1 lg:space-y-6">
+        <div className="w-full h-full lg:flex justify-center items-center space-x-4">
+          <Card className="lg:w-3/4 lg:h-[300px] p-4">
+            <div className="flex flex-col">
               <div className="flex justify-between items-center">
                 <div>
-                  <Label className="lg:text-lg">Membership Id</Label>
-                  <div className="lg:text-2xl">{memberData.membershipId}</div>
+                  <Label className="">Membership Id</Label>
+                  <div className="">{memberDetails.studentId}</div>
                 </div>
                 <Badge
-                  className="bg-green-700 lg:text-xl px-4 py-1"
+                  className={`px-4 py-1 ${
+                    memberDetails.status === "Active"
+                      ? "bg-green-900"
+                      : "bg-red-900"
+                  }`}
                   variant="outline"
                 >
-                  {memberData.status}
+                  {memberDetails.status}
                 </Badge>
               </div>
-              <h1 className="text-xl lg:text-6xl font-bold">
-                {memberData.name}
-              </h1>
-              <p className="lg:text-2xl">{memberData.email}</p>
+              <h1 className="text-xl font-bold">{memberDetails.name}</h1>
+              <p className="">{memberDetails.email}</p>
               <div className="flex items-center space-x-2">
-                <Badge
-                  className="text-xs lg:text-2xl lg:px-6"
-                  variant="outline"
-                >
-                  {getBranchText(memberData.currentBranch)}
+                <Badge className="text-xs " variant="outline">
+                  {branchText[Number(memberDetails.branch)]}
                 </Badge>
-                <Badge
-                  className="text-xs lg:text-2xl lg:px-6"
-                  variant="outline"
-                >
-                  SEM {memberData.currentSemester}
+                <Badge className="text-xs" variant="outline">
+                  SEM {memberDetails.currentSemester}
                 </Badge>
-                <Badge
-                  className="text-xs lg:text-2xl lg:px-6"
-                  variant="outline"
-                >
-                  {memberData.membershipDuration} yrs
+                <Badge className="text-xs" variant="outline">
+                  {memberDetails.duration} yrs
                 </Badge>
               </div>
               <div className="flex space-x-4 items-center">
                 <div>
-                  <Label className="lg:text-lg">Start Date</Label>
+                  <Label className="">Start Date</Label>
                   <div className="flex items-center space-x-2">
-                    <Clock4 />
-                    <span className="lg:text-2xl">{memberData.startDate}</span>
+                    <Clock4 className="h-4 w-4" />
+                    <span className="">
+                      {formatDate(memberDetails.startDate)}
+                    </span>
                   </div>
                 </div>
                 <div>
-                  <Label className="lg:text-lg">End Date</Label>
+                  <Label className="">End Date</Label>
                   <div className="flex items-center space-x-2">
-                    <Clock4 />
-                    <span className="lg:text-2xl">{memberData.endDate}</span>
+                    <Clock4 className="h-4 w-4" />
+                    <span className="">
+                      {formatDate(memberDetails.endDate as Date)}
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
           </Card>
-          <Card className="lg:w-1/4 lg:h-[400px] flex justify-center items-center">
+          <Card className="lg:w-1/4 lg:h-[300px] flex justify-center items-center">
             <img
               className="h-3/4 w-3/4 object-contain p-4"
               src={csiCardQrImage}
@@ -148,14 +134,13 @@ const MemberScreen = () => {
             />
           </Card>
         </div>
-        <Card className="w-full p-6 space-y-4">
-          <div className="lg:text-4xl font-bold">Certificates</div>
-          <ScrollArea className="h-[300px]">
-            {memberData.certificates.map((certificate, index) => (
-              <Certificate key={index} data={certificate} />
-            ))}
-          </ScrollArea>
-        </Card>
+
+        <div className="font-bold">Certificates</div>
+        <ScrollArea className="h-[300px]">
+          {certificateDetails.map((certificate, index) => (
+            <Certificate key={index} data={certificate} />
+          ))}
+        </ScrollArea>
       </div>
       <Footer />
     </div>
