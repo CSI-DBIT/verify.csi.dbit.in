@@ -12,6 +12,8 @@ import Temp from "./screens/Temp";
 import CertificateAllocation from "./screens/CertificateAllocation";
 import ManageEvent from "./screens/ManageEvent";
 import EventDetails from "./screens/manage-events-components/EventDetails";
+import { Dashboard } from "./screens/DashBoard";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
 const App = () => {
   const router = createBrowserRouter([
     {
@@ -54,6 +56,14 @@ const App = () => {
     {
       path: "temp",
       element: <Temp />,
+    },
+    {
+      path: "dashboard",
+      element: (
+        <TooltipProvider>
+          <Dashboard />
+        </TooltipProvider>
+      ),
     },
   ]);
   return (

@@ -200,11 +200,9 @@ const CertificateScreen = () => {
               />
             </Document>
             <p className="max-w-2xl mx-auto text-lg text-center">
-              <span className="font-bold">
-                This certificate verifies that {certificateDetails.name}{" "}
-                successfully completed
-              </span>{" "}
-              the{" "}
+              <span>This certificate verifies that </span>
+              <span className="font-bold">{certificateDetails.name} </span>{" "}
+              <span>successfully completed the{" "}</span>
               <span className="font-bold text-blue-600 capitalize">
                 {eventDetails.name}
               </span>{" "}

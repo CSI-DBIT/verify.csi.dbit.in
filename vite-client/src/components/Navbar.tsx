@@ -116,6 +116,16 @@ const Navbar = () => {
                   </Card>
                 </Link>
               </SheetTitle>
+              <SheetTitle>
+                <Link to="/dashboard">
+                  <Card className="p-2 flex items-center space-x-2">
+                    <CardDescription>
+                      <Home size={22} />
+                    </CardDescription>
+                    <CardDescription>Temp</CardDescription>
+                  </Card>
+                </Link>
+              </SheetTitle>
             </SheetHeader>
           </SheetContent>
         </Sheet>
