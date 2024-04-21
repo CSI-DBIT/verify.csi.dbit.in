@@ -2,20 +2,11 @@ import { MemberDetailsSchema } from "@/validationSchemas/MemberDetailSchema";
 import { FC } from "react";
 import DataTable from "@/screens/manage-member-components/DataTable";
 import { DataTableColumnHeader } from "@/components/reusableComponents/DataTableColumnHeader";
-import { DialogHeader } from "@/components/ui/dialog";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuLabel,
-  DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, UserRoundCheck, UserRoundMinus } from "lucide-react";
