@@ -1,3 +1,14 @@
+import {
+  Bookmark,
+  Puzzle,
+  Server,
+  ServerOff,
+  Shrub,
+  Speech,
+  Trophy,
+} from "lucide-react";
+import { ReactComponentElement } from "react";
+
 interface GenderText {
   [key: number]: string;
 }
@@ -60,4 +71,52 @@ export const durationText: DurationText = {
   1: "One Year",
   2: "Two Years",
   3: "Three Years",
+};
+interface EventCategoryText {
+  [key: number]: {
+    name: string;
+    icon: React.ComponentType<{ className?: string }>;
+  };
+}
+
+// Use the defined type
+export const eventCategoryText: EventCategoryText = {
+  1: {
+    name: "Talks",
+    icon: Speech,
+  },
+  2: {
+    name: "Competitions",
+    icon: Trophy,
+  },
+  3: {
+    name: "Workshops",
+    icon: Puzzle,
+  },
+  4: {
+    name: "Others",
+    icon: Bookmark,
+  },
+};
+interface EventTypeText {
+  [key: number]: {
+    name: string;
+    icon: React.ComponentType<{ className?: string }>;
+  };
+}
+
+// Use the defined type
+export const eventTypeText: EventTypeText = {
+  1: {
+    name: "Technical",
+    icon: Server,
+  },
+  2: {
+    name: "Non Technical",
+    icon: ServerOff,
+  },
+  3: {
+    name: "Others",
+    icon: Shrub,
+  },
 };

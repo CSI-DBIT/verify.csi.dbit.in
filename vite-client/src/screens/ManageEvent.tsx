@@ -1,15 +1,6 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Toaster } from "@/components/ui/toaster";
-import { PlusCircle } from "lucide-react";
 import AddEventForm from "./manage-events-components/AddEventForm";
 import { useEffect, useState } from "react";
 import { EventSchema } from "@/validationSchemas/EventSchema";

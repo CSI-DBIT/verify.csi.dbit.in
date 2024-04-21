@@ -46,6 +46,7 @@ const EventCard: FC<EventCardProps> = ({ event, index }) => {
                   ) : (
                     <Bookmark className="text-muted-foreground" />
                   )}
+
                 </TooltipTrigger>
                 <TooltipContent>
                   {event.category == "1"
@@ -79,7 +80,7 @@ const EventCard: FC<EventCardProps> = ({ event, index }) => {
           ) : event.typeOfEvent == "2" ? (
             <ServerOff className="text-muted-foreground/70" />
           ) : (
-            <Shrub />
+            <Shrub className="text-muted-foreground/70" />
           )}
           <div className="capitalize text-muted-foreground/70">
             {event.typeOfEvent == "1"

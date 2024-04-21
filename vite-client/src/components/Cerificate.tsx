@@ -3,7 +3,11 @@ import { Card } from "./ui/card";
 
 interface CertificateData {
   title: string;
+  uniqueCertificateCode: string;
+  uniqueCertificateUrl: string;
+  // Include other properties as needed
 }
+
 
 interface CertificateProps {
   data: CertificateData;

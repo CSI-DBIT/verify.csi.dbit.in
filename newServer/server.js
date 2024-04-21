@@ -394,7 +394,10 @@ app
       if (!studentId) {
         return res.status(400).json({ error: "Student ID is required" });
       }
-      const documents = await MemberDetail.find({ studentId: studentId });
+      const documents = await MemberDetail.find({
+        studentId: studentId,
+        isDeleted: false,
+      });
       res.json(documents);
     } catch (error) {
       console.error(error);
@@ -1760,20 +1763,23 @@ app
               eligibleCandidate.eventCode
             );
             for (const eligibleCandidateData of eligibleCandidate.eligibleCandidates) {
-              if (eligibleCandidateData.email == memberDetails.email) {
+              if (
+                eligibleCandidateData.email == memberDetails.email &&
+                eligibleCandidateData.uniqueCertificateUrl != ""
+              ) {
                 data.certificatesDetails.push({
-                  eventCode: eligibleCandidateData.eventCode,
+                  eventCode: eligibleCandidate.eventCode,
                   uniqueCertificateCode:
                     eligibleCandidateData.uniqueCertificateCode,
                   uniqueCertificateUrl:
                     eligibleCandidateData.uniqueCertificateUrl,
                   emailSentCount: eligibleCandidateData.emailSentCount,
-                  eventDetails,
+                  ...eventDetails,
                 });
               }
             }
           }
-
+          console.log(data);
           res.json(data);
         } else {
           res.status(404).json({
