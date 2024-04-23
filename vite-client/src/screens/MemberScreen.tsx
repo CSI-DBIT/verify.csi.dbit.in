@@ -20,6 +20,7 @@ const MemberScreen = () => {
   const [certificateDetails, setCertificateDetails] = useState([]);
   const [flipped, setFlipped] = useState(false);
   const [qrCodeSrc, setQrCodeSrc] = useState("");
+  const [eventCounts, setEventCounts] = useState({});
 
   useEffect(() => {
     const fetchMemberData = async () => {
@@ -49,6 +50,12 @@ const MemberScreen = () => {
         });
 
         setCertificateDetails(certificatesDetails);
+        // Calculate event counts based on category
+        const counts = certificatesDetails.reduce((acc, certificate) => {
+          acc[certificate.category] = (acc[certificate.category] || 0) + 1;
+          return acc;
+        }, {});
+        setEventCounts(counts);
 
         // Generate QR code
         generateQRCode();
@@ -95,7 +102,7 @@ const MemberScreen = () => {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <div className="flex-grow justify-center items-center space-y-4 p-4">
-        <div className="flex justify-around items-center space-x-2">
+        <div className="lg:flex justify-around items-center gap-2">
           <ReactCardFlip isFlipped={flipped} flipDirection="vertical">
             <Card onClick={handleClick} className="lg:w-[450px] lg:h-[250px]">
               <div className="flex w-full h-full flex-col p-4 px-6 space-y-1">
@@ -119,7 +126,7 @@ const MemberScreen = () => {
                       SEM {memberDetails.currentSemester}
                     </Badge>
                     <Badge className="text-xs" variant="outline">
-                      {memberDetails.duration} yrs duration
+                      {memberDetails.duration} yrs
                     </Badge>
                   </div>
                 </div>
@@ -180,8 +187,7 @@ const MemberScreen = () => {
             <div className="w-3/4 lg:h-[250px] grid grid-cols-2 gap-2">
               <Card></Card>
               <Card></Card>
-              <Card></Card>
-              <Card></Card>
+              <Card className="col-span-2"></Card>
             </div>
             <Card className="w-1/4 lg:h-[250px] flex justify-center items-center">
               <img

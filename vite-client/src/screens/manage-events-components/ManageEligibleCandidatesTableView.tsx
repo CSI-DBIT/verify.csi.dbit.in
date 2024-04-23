@@ -417,7 +417,6 @@ const ManageEligibleCandidatesTableView: FC<
               <Dialog>
                 <DialogTrigger className="w-full">
                   <Button
-                    // onClick={previewUploadedCertificate}
                     variant={"secondary"}
                     className="bg-blue-800 hover:bg-blue-900 w-full flex gap-2 items-center"
                   >

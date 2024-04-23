@@ -575,6 +575,11 @@ app
           },
           {
             $set: {
+              "eligibleCandidates.name": name,
+              "eligibleCandidates.branch": branch,
+              "eligibleCandidates.mobileNumber": mobileNumber,
+              "eligibleCandidates.currentAcademicYear": currentAcademicYear,
+              "eligibleCandidates.currentSemester": currentSemester,
               "eligibleCandidates.$.isMember": true,
               "eligibleCandidates.$.lastEdited": new Date(lastEdited),
               lastEdited: new Date(lastEdited),
