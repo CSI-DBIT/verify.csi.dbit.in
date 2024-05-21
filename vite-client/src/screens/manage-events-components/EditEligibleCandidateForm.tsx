@@ -24,15 +24,24 @@ import {
   EligibleCandidatesSchema,
   validationEligibleCandidateSchema,
 } from "@/validationSchemas/EligibleCadidatesSchema";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 interface EditEligibleCandidateFormProps {
+  eventCode: String;
   editingEligibleCandidate: EligibleCandidatesSchema;
   setIsOperationInProgress: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const EditEligibleCandidateForm: FC<EditEligibleCandidateFormProps> = ({
+  eventCode,
   editingEligibleCandidate,
   setIsOperationInProgress,
 }) => {
@@ -61,24 +70,30 @@ const EditEligibleCandidateForm: FC<EditEligibleCandidateFormProps> = ({
         currentDate: new Date(),
       };
       console.log("editingEligibleCandidate: ", editingEligibleCandidate);
-      await axios.put(
+      const response = await axios.put(
         `${
           import.meta.env.VITE_SERVER_URL
         }/api/eligible-candidate/edit?uniqueCertCode=${
           editingEligibleCandidate.uniqueCertificateCode
-        }`,
+        }&eventCode=${eventCode}`,
         editingeligibleCandidateWithLastEdited
       );
-      toast({
-        title: "Eligible Candidate Updated Successfully",
-        variant: "default",
-      });
+      if (response.data.success) {
+        toast({
+          title: response.data.message,
+        });
+      } else {
+        toast({
+          title: response.data.message,
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       // Handle errors (e.g., show an error toast)
-      console.error("Error submitting form:", error);
+      console.error("Error editing eligible candidate:", error);
       toast({
         title: "Error editing Eligible Candidate",
-        description: error.message || "An unexpected error occurred",
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
     }

@@ -22,12 +22,12 @@ const ManageDelete: FC<ManageDeleteProps> = ({
 }) => {
   return (
     <Drawer>
-      <DrawerTrigger className="pr-2 pb-2">
+      <DrawerTrigger>
         <Button>View Deleted Members</Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>Are you absolutely sure?</DrawerTitle>
+          <DrawerTitle>Deleted Member lists</DrawerTitle>
           <DrawerDescription>This action cannot be undone.</DrawerDescription>
         </DrawerHeader>
         <ManageDeleteTableView
@@ -36,7 +36,7 @@ const ManageDelete: FC<ManageDeleteProps> = ({
         />
         <DrawerFooter>
           <DrawerClose asChild>
-            <Button variant="default">Cancel</Button>
+            <Button variant="destructive">Cancel</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

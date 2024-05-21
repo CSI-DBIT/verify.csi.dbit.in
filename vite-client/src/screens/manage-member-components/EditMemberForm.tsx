@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/popover";
 import axios from "axios";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Pencil } from "lucide-react";
 import { FC, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -74,34 +74,45 @@ const EditMemberForm: FC<EditMemberFormProps> = ({
   });
 
   const onEditMemberSubmit: SubmitHandler<MemberDetailsSchema> = async (
-    editingMember: MemberDetailsSchema
+    editedMemberDetails: MemberDetailsSchema
   ) => {
     try {
       setIsOperationInProgress(true);
-      const editingMemberWithLastEdited = {
-        ...editingMember,
+      const editedMemberDetailsWithLastEdited = {
+        ...editedMemberDetails,
         lastEdited: new Date(),
       };
-      await axios.post(
+      const response = await axios.post(
         `${import.meta.env.VITE_SERVER_URL}/api/member/edit?studentId=${
           editingMember.studentId
-        }`,
-        editingMemberWithLastEdited
+        }&email=${editingMember.email}`,
+        editedMemberDetailsWithLastEdited
       );
-      toast({
-        title: "Member Updated Successfully",
-        variant: "default",
-      });
-      setIsDialogOpen(false);
+
+      if (response.data.success) {
+        toast({
+          title: response.data.message,
+          variant: "default",
+        });
+        setIsDialogOpen(false);
+      } else {
+        toast({
+          title: response.data.message,
+          variant: "destructive",
+        });
+        setIsDialogOpen(false);
+      }
     } catch (error) {
-      // Handle errors (e.g., show an error toast)
+      // Handle errors from the API call (e.g., show an error toast)
       console.error("Error submitting form:", error);
       toast({
-        title: "Error editing member",
-        description: error.message || "An unexpected error occurred",
+        title: "Error updating member details",
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
       setIsDialogOpen(false);
+    } finally {
+      setIsOperationInProgress(false);
     }
   };
 
@@ -113,7 +124,10 @@ const EditMemberForm: FC<EditMemberFormProps> = ({
             e.preventDefault();
           }}
         >
-          edit
+          <div className="flex gap-2 justify-center items-center">
+            <Pencil className="h-4 w-4" />
+            <span>Edit</span>
+          </div>
         </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent>

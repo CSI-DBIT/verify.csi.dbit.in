@@ -1,4 +1,4 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -11,92 +11,92 @@ import AddMemberView from "./manage-member-components/AddMemberView";
 import ManageDelete from "./manage-member-components/ManageDelete";
 
 const ManageMember = () => {
-  const [memberTabledata, setmemberTableData] = useState<MemberDetailsSchema[]>(
+  const [memberTabledata, setMemberTableData] = useState<MemberDetailsSchema[]>(
     []
   );
-  const [delMemberTabledata, setDelmemberTableData] = useState<
+  const [delMemberTabledata, setDelMemberTableData] = useState<
     MemberDetailsSchema[]
   >([]);
   const [isBulkUploadCompleted, setIsBulkUploadCompleted] = useState(false);
   const [isMemberAdded, setIsMemberAdded] = useState(false);
   const [isOperationInProgress, setIsOperationInProgress] =
     useState<boolean>(false);
-  //fetch member data
-  const fetchMembers = async (): Promise<MemberDetailsSchema[]> => {
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_SERVER_URL}/api/get/all-members`
-      );
-      return response.data as MemberDetailsSchema[];
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError;
-        const errorMessage =
-          axiosError.response?.data?.error || "Unknown error";
-        toast({
-          title: errorMessage,
-          variant: "destructive",
-        });
-        throw new Error(errorMessage);
-      } else {
-        // Handle other types of errors
-        console.error("Unexpected error:", error);
-        toast({
-          title: "Unexpected error:",
-          variant: "destructive",
-        });
-        throw new Error("Unexpected error");
-      }
-    }
-  };
-  const fetchDeleted = async (): Promise<MemberDetailsSchema[]> => {
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_SERVER_URL}/api/get/deleted-members`
-      );
-      return response.data as MemberDetailsSchema[];
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError;
-        const errorMessage =
-          axiosError.response?.data?.error || "Unknown error";
-        toast({
-          title: errorMessage,
-          variant: "destructive",
-        });
-        throw new Error(errorMessage);
-      } else {
-        // Handle other types of errors
-        console.error("Unexpected error:", error);
-        toast({
-          title: "Unexpected error:",
-          variant: "destructive",
-        });
-        throw new Error("Unexpected error");
-      }
-    }
-  };
-  // Use the useEffect hook to fetch data when the component mounts
+
   useEffect(() => {
-    fetchMembers().then((data) => {
-      setmemberTableData(data);
-      console.log(data);
-    });
-    fetchDeleted().then((data) => {
-      setDelmemberTableData(data);
-      console.log(data);
-    });
+    const fetchData = async () => {
+      try {
+        const members = await fetchMembers();
+        const deletedMembers = await fetchDeleted();
+        setMemberTableData(members);
+        setDelMemberTableData(deletedMembers);
+      } catch (error) {
+        toast({
+          title: "Unexpected error",
+          description: "Error fetching data",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchData();
     if (isMemberAdded || isBulkUploadCompleted || isOperationInProgress) {
-      fetchMembers().then((data) => setmemberTableData(data));
-      fetchDeleted().then((data) => setDelmemberTableData(data));
+      fetchMembers();
       setIsMemberAdded(false);
       setIsBulkUploadCompleted(false);
       setIsOperationInProgress(false);
     }
-    console.log("use effect run");
   }, [isBulkUploadCompleted, isMemberAdded, isOperationInProgress]);
+
+  const fetchMembers = async (): Promise<MemberDetailsSchema[]> => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/api/member/get/all_members`
+      );
+      if (response.data.success) {
+        return response.data.allMembers as MemberDetailsSchema[];
+      } else {
+        toast({
+          title: "Fetching error",
+          description: response.data.message,
+          variant: "destructive",
+        });
+        return [];
+      }
+    } catch (error) {
+      toast({
+        title: "Unexpected error",
+        description: "Error fetching members",
+        variant: "destructive",
+      });
+      return [];
+    }
+  };
+
+  const fetchDeleted = async (): Promise<MemberDetailsSchema[]> => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/api/member/get/deleted_members`
+      );
+      if (response.data.success) {
+        return response.data.deletedMembers as MemberDetailsSchema[];
+      } else {
+        toast({
+          title: "Fetching error",
+          description: response.data.message,
+          variant: "destructive",
+        });
+        return [];
+      }
+    } catch (error) {
+      toast({
+        title: "Unexpected error",
+        description: "Error fetching deleted members",
+        variant: "destructive",
+      });
+      return [];
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -123,4 +123,5 @@ const ManageMember = () => {
     </div>
   );
 };
+
 export default ManageMember;

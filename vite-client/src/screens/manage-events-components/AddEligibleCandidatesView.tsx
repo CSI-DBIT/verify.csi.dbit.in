@@ -30,7 +30,7 @@ import {
 } from "@/validationSchemas/EligibleCadidatesSchema";
 import { EventSchema } from "@/validationSchemas/EventSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { FC, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 interface AddEligibleCandidatesViewProps {
@@ -71,7 +71,7 @@ const AddEligibleCandidatesView: FC<AddEligibleCandidatesViewProps> = ({
 
       // Make the API request
       const response = await axios.post(
-        `${import.meta.env.VITE_SERVER_URL}/api/eligible-candidates/add`,
+        `${import.meta.env.VITE_SERVER_URL}/api/eligible-candidate/add`,
         requestData
       );
       // Reset the form and show success toast
@@ -82,41 +82,24 @@ const AddEligibleCandidatesView: FC<AddEligibleCandidatesViewProps> = ({
         branch: "1",
         currentAcademicYear: "1",
       });
-      // toast({
-      //   title: "You submitted the following values:",
-      //   description: (
-      //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-      //       <code className="text-white">
-      //         {JSON.stringify(requestData, null, 2)}
-      //       </code>
-      //     </pre>
-      //   ),
-      // });
       setDialogOpen(false);
-      toast({
-        title: `${JSON.stringify(response.data.message, null, 2)}`,
-      });
-
-      setIsEligibleCandidateAdded(true);
-    } catch (error) {
-      // Handle errors (e.g., show an error toast)
-      console.error("Error submitting form:", error);
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError;
-        const errorMessage =
-          axiosError.response?.data?.error || "Unknown error";
+      if (response.data.success) {
         toast({
-          title: errorMessage,
-          variant: "destructive",
+          title: response.data.message,
         });
       } else {
-        // Handle other types of errors
-        console.error("Unexpected error:", error);
         toast({
-          title: "Unexpected error:",
+          title: response.data.message,
           variant: "destructive",
         });
       }
+      setIsEligibleCandidateAdded(true);
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      toast({
+        title: "Unexpected error",
+        variant: "destructive",
+      });
     }
   };
 

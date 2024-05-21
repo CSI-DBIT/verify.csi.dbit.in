@@ -20,20 +20,17 @@ const MemberScreen = () => {
   const [certificateDetails, setCertificateDetails] = useState([]);
   const [flipped, setFlipped] = useState(false);
   const [qrCodeSrc, setQrCodeSrc] = useState("");
-  const [eventCounts, setEventCounts] = useState({});
 
   useEffect(() => {
     const fetchMemberData = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_SERVER_URL}/api/get/memberDetails`,
+          `${import.meta.env.VITE_SERVER_URL}/api/member/get/memberDetails`,
           {
             params: { studentId: studentId },
           }
         );
-
-        const { memberDetails, certificatesDetails } = response.data;
-
+        const { memberDetails, certificatesDetails } = response.data.memberData;
         // Calculate endDate based on startDate and duration
         const startDate = new Date(memberDetails.startDate);
         const endDate = new Date(startDate);
@@ -41,21 +38,14 @@ const MemberScreen = () => {
 
         // Determine status based on current date
         const currentDate = new Date();
-        const status = currentDate <= endDate ? "Active" : "Not Active";
+        const status = currentDate <= endDate ? "Active" : "Inactive";
 
         setMemberDetails({
           ...memberDetails,
           endDate: endDate.toISOString(), // Update endDate
           status: status, // Update status
         });
-
         setCertificateDetails(certificatesDetails);
-        // Calculate event counts based on category
-        const counts = certificatesDetails.reduce((acc, certificate) => {
-          acc[certificate.category] = (acc[certificate.category] || 0) + 1;
-          return acc;
-        }, {});
-        setEventCounts(counts);
 
         // Generate QR code
         generateQRCode();
@@ -65,7 +55,7 @@ const MemberScreen = () => {
     };
 
     fetchMemberData();
-  }, []);
+  }, [studentId]);
 
   // Function to generate QR code
   const generateQRCode = () => {
@@ -80,11 +70,6 @@ const MemberScreen = () => {
       });
   };
 
-  if (!memberDetails) {
-    // Display a loading indicator while data is being fetched
-    return <div>Loading...</div>;
-  }
-
   // Function to format the date as date/month/year
   const formatDate = (dateString: string | number | Date) => {
     return new Date(dateString).toLocaleDateString(undefined, {
@@ -94,24 +79,37 @@ const MemberScreen = () => {
     });
   };
 
-  const handleClick = () => {
-    setFlipped(!flipped);
-  };
-
+  console.log(memberDetails);
+  if (!memberDetails) {
+    // Display a loading indicator while data is being fetched
+    return <div>Loading...</div>;
+  }
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <div className="flex-grow justify-center items-center space-y-4 p-4">
         <div className="lg:flex justify-around items-center gap-2">
           <ReactCardFlip isFlipped={flipped} flipDirection="vertical">
-            <Card onClick={handleClick} className="lg:w-[450px] lg:h-[250px]">
+            <Card
+              onClick={() => {
+                setFlipped(!flipped);
+              }}
+              className="lg:w-[450px] lg:h-[250px]"
+            >
               <div className="flex w-full h-full flex-col p-4 px-6 space-y-1">
                 <div className="flex justify-between items-center">
                   <div>
                     <Label className="">Membership Id</Label>
                     <div className="">{memberDetails.studentId}</div>
                   </div>
-                  <Badge className="bg-green-700 " variant="outline">
+                  <Badge
+                    className={
+                      memberDetails.status === "active"
+                        ? "bg-green-700"
+                        : "bg-red-700"
+                    }
+                    variant="outline"
+                  >
                     {memberDetails.status}
                   </Badge>
                 </div>
@@ -152,15 +150,27 @@ const MemberScreen = () => {
                 </div>
               </div>
             </Card>
-            <Card onClick={handleClick} className="lg:w-[450px] lg:h-[250px]">
+            <Card
+              onClick={() => {
+                setFlipped(!flipped);
+              }}
+              className="lg:w-[450px] lg:h-[250px]"
+            >
               <div className="flex flex-col p-4 px-6 space-y-1 lg:space-y-6">
                 <div className="flex justify-between items-center">
                   <div>
                     <Label className="">Membership Id</Label>
                     <div className="">{memberDetails.studentId}</div>
                   </div>
-                  <Badge className="bg-green-700 " variant="outline">
-                    Active
+                  <Badge
+                    className={
+                      memberDetails.status === "active"
+                        ? "bg-green-700"
+                        : "bg-red-700"
+                    }
+                    variant="outline"
+                  >
+                    {memberDetails.status}
                   </Badge>
                 </div>
                 <div className="lg:flex items-center justify-between ">

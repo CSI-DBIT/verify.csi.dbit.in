@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-// certificate eligible Candidate schema
 const eligibleCandidateSchema = new mongoose.Schema({
   eventCode: {
     type: mongoose.Schema.Types.String,
@@ -35,6 +34,7 @@ const eligibleCandidateSchema = new mongoose.Schema({
       uniqueCertificateCode: {
         type: mongoose.Schema.Types.String,
         required: true,
+        default: null,
         unique: true,
       },
       uniqueCertificateUrl: {

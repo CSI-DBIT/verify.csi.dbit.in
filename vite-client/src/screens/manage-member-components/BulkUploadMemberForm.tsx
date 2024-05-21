@@ -11,6 +11,7 @@ import {
   Drawer,
 } from "@/components/ui/drawer";
 import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/components/ui/use-toast";
 import axios, { AxiosError } from "axios";
 import { FileSpreadsheet, X } from "lucide-react";
@@ -50,7 +51,7 @@ const BulkUploadMemberForm: FC<BulkUploadMemberFormProps> = ({
 
       try {
         const response = await axios.post(
-          `${import.meta.env.VITE_SERVER_URL}/api/bulk-upload/member-details`,
+          `${import.meta.env.VITE_SERVER_URL}/api/member/bulk-upload`,
           formData,
           {
             headers: {
@@ -64,46 +65,38 @@ const BulkUploadMemberForm: FC<BulkUploadMemberFormProps> = ({
             },
           }
         );
-        toast({
-          title: response.data.message,
-        });
-        setIsBulkUploadCompleted(true);
-      } catch (error) {
-        console.error("Error uploading file:", error);
-        if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          const errorMessage =
-            axiosError.response?.data?.error || "Unknown error";
+        console.log(response);
+        if (response.data.success) {
           toast({
-            title: errorMessage,
-            variant: "destructive",
-          });
-          const duplicates = axiosError.response?.data.duplicates as Object;
-          const duplicateFields = Object.keys(duplicates);
-          toast({
-            title: "You submitted the following values:",
-            description: (
-              <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                <code className="text-white">
-                  {JSON.stringify(duplicateFields, null, 2)}
-                </code>
-              </pre>
-            ),
+            title: response.data.message,
           });
         } else {
           toast({
-            title: "Unexpected error:",
+            title: response.data.message,
             variant: "destructive",
           });
-          console.error("Unexpected error:", error);
+          if (response.data.duplicates.length > 0) {
+            toast({
+              title: response.data.message,
+              description: (
+                <ScrollArea>
+                  <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+                    <code className="text-white">
+                      {JSON.stringify(response.data.duplicates, null, 2)}
+                    </code>
+                  </pre>
+                </ScrollArea>
+              ),
+              variant: "destructive",
+            });
+          }
         }
-        {
-          toast({
-            title: "Unexpected error:",
-            variant: "destructive",
-          });
-          console.error("Unexpected error:", error);
-        }
+        setIsBulkUploadCompleted(true);
+      } catch (error) {
+        toast({
+          title: "Unexpected error:",
+          variant: "destructive",
+        });
       } finally {
         setIsUploading(false);
         setSelectedFile(null);
@@ -130,7 +123,7 @@ const BulkUploadMemberForm: FC<BulkUploadMemberFormProps> = ({
 
   return (
     <Drawer>
-      <DrawerTrigger className="pr-2 pb-2">
+      <DrawerTrigger>
         <Button>Bulk Upload Members</Button>
       </DrawerTrigger>
       <DrawerContent>
@@ -177,18 +170,28 @@ const BulkUploadMemberForm: FC<BulkUploadMemberFormProps> = ({
           )}
         </div>
         <DrawerFooter>
-          <div className="flex gap-4 items-center justify-center">
-            <div>
-              {selectedFile && (
-                <Button onClick={onSubmit} disabled={isUploading}>
-                  {isUploading ? <div>Submitting...</div> : <div>Submit</div>}
+          {selectedFile ? (
+            <div className="w-full flex gap-4 items-center justify-center">
+              <Button
+                className="w-1/2"
+                onClick={onSubmit}
+                disabled={isUploading}
+              >
+                {isUploading ? <div>Submitting...</div> : <div>Submit</div>}
+              </Button>
+              <DrawerClose className="w-1/2">
+                <Button className="w-full" variant="destructive">
+                  Cancel
                 </Button>
-              )}
+              </DrawerClose>
             </div>
-            <DrawerClose>
-              <Button variant="outline">Cancel</Button>
+          ) : (
+            <DrawerClose className="w-full">
+              <Button className="w-full" variant="destructive">
+                Cancel
+              </Button>
             </DrawerClose>
-          </div>
+          )}
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

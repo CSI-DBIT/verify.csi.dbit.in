@@ -62,28 +62,24 @@ const fetchEventDetails = async (eventId: string): Promise<EventSchema> => {
     const response = await axios.get(
       `${
         import.meta.env.VITE_SERVER_URL
-      }/api/event/details?eventCode=${eventId}`
+      }/api/event/get/event_details?eventCode=${eventId}`
     );
-    return response.data.event as EventSchema;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    if (axios.isAxiosError(error)) {
-      const axiosError = error as AxiosError;
-      const errorMessage = axiosError.response?.data?.error || "Unknown error";
-      toast({
-        title: errorMessage,
-        variant: "destructive",
-      });
-      throw new Error(errorMessage);
+    if (response.data.success) {
+      return response.data.eventData as EventSchema;
     } else {
-      // Handle other types of errors
-      console.error("Unexpected error:", error);
       toast({
-        title: "Unexpected error:",
+        title: response.data.message,
         variant: "destructive",
       });
-      throw new Error("Unexpected error");
+      return response.data.eventData as EventSchema;
     }
+  } catch (error) {
+    console.error("Error fetching event details:", error);
+    toast({
+      title: "Unexpected error:",
+      variant: "destructive",
+    });
+    throw new Error("Unexpected error");
   }
 };
 const fetchEligibleCandidatesDetails = async (
@@ -93,28 +89,24 @@ const fetchEligibleCandidatesDetails = async (
     const response = await axios.get(
       `${
         import.meta.env.VITE_SERVER_URL
-      }/api/get/eligible-candidates?eventCode=${eventId}`
+      }/api/eligible-candidate/get/all?eventCode=${eventId}`
     );
-    return response.data.eligibleCandidates as EligibleCandidatesSchema[];
+    if (response.data.success) {
+      return response.data.eligibleCandidates as EligibleCandidatesSchema[];
+    } else {
+      toast({
+        title: response.data.message,
+        variant: "destructive",
+      });
+      return [];
+    }
   } catch (error) {
     console.error("Error fetching data:", error);
-    if (axios.isAxiosError(error)) {
-      const axiosError = error as AxiosError;
-      const errorMessage = axiosError.response?.data?.error || "Unknown error";
-      toast({
-        title: errorMessage,
-        variant: "destructive",
-      });
-      throw new Error(errorMessage);
-    } else {
-      // Handle other types of errors
-      console.error("Unexpected error:", error);
-      toast({
-        title: "Unexpected error:",
-        variant: "destructive",
-      });
-      throw new Error("Unexpected error");
-    }
+    toast({
+      title: "Unexpected error:",
+      variant: "destructive",
+    });
+    throw new Error("Unexpected error");
   }
 };
 const EventDetails = () => {
@@ -209,23 +201,29 @@ const EventDetails = () => {
         ...editingEventDetail,
         lastEdited: new Date(),
       };
-      await axios.post(
+      const response = await axios.post(
         `${
           import.meta.env.VITE_SERVER_URL
         }/api/event/edit?eventCode=${eventId}`,
         editingMemberWithLastEdited
       );
-      toast({
-        title: "Event Updated Successfully",
-        variant: "default",
-      });
+      if (response.data.success) {
+        toast({
+          title: response.data.message,
+        });
+      } else {
+        toast({
+          title: response.data.message,
+          variant: "destructive",
+        });
+      }
       setEditEventDialogOpen(false);
     } catch (error) {
       // Handle errors (e.g., show an error toast)
-      console.error("Error submitting form:", error);
+      console.error("Error editing event:", error);
       toast({
         title: "Error editing Event",
-        description: error.message || "An unexpected error occurred",
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
       setEditEventDialogOpen(false);
@@ -236,18 +234,23 @@ const EventDetails = () => {
       setIsEventDetailsDeleted(true);
 
       // Make the API call with the modified data
-      await axios.put(
+      const response = await axios.put(
         `${
           import.meta.env.VITE_SERVER_URL
         }/api/event/delete?eventCode=${eventId}`,
         { lastDeleted: new Date() }
       );
 
-      // Show success toast
-      toast({
-        title: "Event deleted successfully",
-        variant: "default",
-      });
+      if (response.data.success) {
+        toast({
+          title: response.data.message,
+        });
+      } else {
+        toast({
+          title: response.data.message,
+          variant: "destructive",
+        });
+      }
       setDeleteEventDialogOpen(false);
       navigateTo("/manage/events");
     } catch (error) {
@@ -256,7 +259,7 @@ const EventDetails = () => {
       // Show error toast
       toast({
         title: "Error deleting Event",
-        description: error.message || "An unexpected error occurred",
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
       setDeleteEventDialogOpen(false);

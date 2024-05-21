@@ -57,7 +57,7 @@ const BulkUploadMemberForm: FC<BulkUploadEligibleCandidatesProps> = ({
         const response = await axios.post(
           `${
             import.meta.env.VITE_SERVER_URL
-          }/api/bulk-upload/eligible-candidates`,
+          }/api/eligible-candidate/bulk-upload`,
           formData,
           {
             headers: {
@@ -71,27 +71,24 @@ const BulkUploadMemberForm: FC<BulkUploadEligibleCandidatesProps> = ({
             },
           }
         );
-        toast({
-          title: response.data.message,
-        });
-        setIsBulkUploadCompleted(true);
-      } catch (error) {
-        console.error("Error uploading file:", error);
-        if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          const errorMessage =
-            axiosError.response?.data?.error || "Unknown error";
+        if (response.data.success) {
           toast({
-            title: errorMessage,
-            variant: "destructive",
+            title: response.data.message,
           });
         } else {
           toast({
-            title: "Unexpected error:",
+            title: response.data.message,
             variant: "destructive",
           });
-          console.error("Unexpected error:", error);
         }
+
+        setIsBulkUploadCompleted(true);
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        toast({
+          title: "Unexpected error:",
+          variant: "destructive",
+        });
       } finally {
         setIsUploading(false);
         setSelectedFile(null);

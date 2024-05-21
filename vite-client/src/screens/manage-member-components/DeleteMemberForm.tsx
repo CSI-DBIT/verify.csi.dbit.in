@@ -108,6 +108,7 @@ import axios from "axios";
 import { toast } from "@/components/ui/use-toast";
 import { FC, useState } from "react";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Eraser } from "lucide-react";
 
 interface DeleteMemberFormProps {
   deletingMember: MemberDetailsSchema;
@@ -124,7 +125,7 @@ const DeleteMemberForm: FC<DeleteMemberFormProps> = ({
       setIsOperationInProgress(true);
 
       // Make the API call with the modified data
-      await axios.put(
+      const response = await axios.put(
         `${import.meta.env.VITE_SERVER_URL}/api/member/delete?studentId=${
           deletingMember.studentId
         }`,
@@ -135,11 +136,19 @@ const DeleteMemberForm: FC<DeleteMemberFormProps> = ({
         }
       );
 
-      // Show success toast
-      toast({
-        title: "Member deleted successfully",
-        variant: "default",
-      });
+      if (response.data.success) {
+        // Show success toast
+        toast({
+          title: response.data.message,
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: response.data.messsage,
+          variant: "destructive",
+        });
+      }
+
       setIsDialogOpen(false);
     } catch (error) {
       // Handle error
@@ -147,7 +156,7 @@ const DeleteMemberForm: FC<DeleteMemberFormProps> = ({
       // Show error toast
       toast({
         title: "Error deleting member",
-        description: error.message || "An unexpected error occurred",
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
       setIsDialogOpen(false);
@@ -162,7 +171,10 @@ const DeleteMemberForm: FC<DeleteMemberFormProps> = ({
             e.preventDefault();
           }}
         >
-          delete
+          <div className="flex gap-2 justify-center items-center">
+            <Eraser className="h-4 w-4" />
+            <span>Delete</span>
+          </div>
         </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent>
@@ -172,7 +184,7 @@ const DeleteMemberForm: FC<DeleteMemberFormProps> = ({
             Are you sure you want to delete this member?
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="h-[100px] rounded-md border p-3">
+        <ScrollArea className="h-[250px] rounded-md border p-3">
           <CardDescription>Name: {deletingMember.name}</CardDescription>
           <CardDescription>Email: {deletingMember.email}</CardDescription>
           <CardDescription>
@@ -209,7 +221,7 @@ const DeleteMemberForm: FC<DeleteMemberFormProps> = ({
         <DialogFooter>
           <Button
             variant="outline"
-            className="hover:bg-red-600 w-full"
+            className="bg-red-600 w-full"
             onClick={async () => handleDelete(deletingMember)}
           >
             Confirm Delete

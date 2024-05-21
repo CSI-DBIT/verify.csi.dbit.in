@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import AddEventForm from "./manage-events-components/AddEventForm";
 import { useEffect, useState } from "react";
 import { EventSchema } from "@/validationSchemas/EventSchema";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { toast } from "@/components/ui/use-toast";
 import EventCard from "./manage-events-components/EventCard";
 
@@ -14,26 +14,22 @@ const ManageEvent = () => {
   const fetchEvents = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_SERVER_URL}/api/get/all-events`
+        `${import.meta.env.VITE_SERVER_URL}/api/event/get/all_events`
       );
-      return response.data.events as EventSchema[];
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError;
-        const errorMessage =
-          axiosError.response?.data?.error || "Unknown error";
-        toast({
-          title: errorMessage,
-          variant: "destructive",
-        });
-        throw new Error(errorMessage);
+      if (response.data.success) {
+        return response.data.allEvents as EventSchema[];
       } else {
         toast({
-          title: "Unexpected error:",
+          title: response.data.message,
           variant: "destructive",
         });
-        throw new Error("Unexpected error");
       }
+    } catch (error) {
+      toast({
+        title: "Unexpected error:",
+        variant: "destructive",
+      });
+      throw new Error("Unexpected error");
     }
   };
   useEffect(() => {

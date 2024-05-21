@@ -1,30 +1,16 @@
 import { FC } from "react";
 import { DataTableColumnHeader } from "@/components/reusableComponents/DataTableColumnHeader";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Download,
   Eye,
-  MoreHorizontal,
   UserRoundCheck,
   UserRoundMinus,
+  UsersRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  branchText,
-  currentAcademicYearText,
-  currentSemesterText,
-  durationText,
-  eventCategoryText,
-  eventTypeText,
-  genderText,
-} from "../constants";
 import DataTable from "./DataTable";
 import { CertificateDetailsSchema } from "@/validationSchemas/CertificateDetailsSchema";
-import { boolean } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { eventCategoryText, eventTypeText } from "../constants";
 
 interface CertificateTableViewProps {
   certificateData: CertificateDetailsSchema[];
@@ -41,6 +28,7 @@ interface CertificateTableViewProps {
 const CertificateTableView: FC<CertificateTableViewProps> = ({
   certificateData,
 }) => {
+  console.log(certificateData);
   const handleDownload = (certificateUrl: string, fileName: string) => {
     const downloadUrl = `${import.meta.env.VITE_SERVER_URL}/${certificateUrl}`;
     const link = document.createElement("a");
@@ -57,6 +45,10 @@ const CertificateTableView: FC<CertificateTableViewProps> = ({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={"Event name"} />
       ),
+      cell: ({ row }) => {
+        const eventName = row.getValue("name") as string;
+        return <div className="capitalize">{eventName}</div>;
+      },
       enableHiding: false,
       enableSorting: true,
     },
@@ -67,11 +59,11 @@ const CertificateTableView: FC<CertificateTableViewProps> = ({
       ),
       cell: ({ row }) => {
         const category = parseInt(row.getValue("category"), 10);
-        const eventCategoryIcon = eventCategoryText[category];
+        const eventCategory = eventCategoryText[category];
         return (
           <div className="flex gap-2 items-center">
-            <eventCategoryIcon.icon className="text-muted-foreground" />
-            {eventCategoryText[category].name}
+            <eventCategory.icon className="text-muted-foreground" />
+            {eventCategory.name}
           </div>
         );
       },
@@ -85,11 +77,11 @@ const CertificateTableView: FC<CertificateTableViewProps> = ({
       ),
       cell: ({ row }) => {
         const type = parseInt(row.getValue("typeOfEvent"), 10);
-        const eventTypeIcon = eventTypeText[type];
+        const eventType = eventTypeText[type];
         return (
           <div className="flex gap-2 items-center">
-            <eventTypeIcon.icon className="text-muted-foreground" />
-            {eventTypeText[type].name}
+            <eventType.icon className="text-muted-foreground" />
+            {eventType.name}
           </div>
         );
       },
@@ -120,22 +112,22 @@ const CertificateTableView: FC<CertificateTableViewProps> = ({
     {
       accessorKey: "isMemberOnly",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={"MemberOnly"} />
+        <DataTableColumnHeader column={column} title={"Status"} />
       ),
       cell: ({ row }) => {
         const isMemberOnly = row.getValue("isMemberOnly") as boolean;
         if (isMemberOnly) {
           return (
             <div className="flex flex-wrap gap-2">
-              <UserRoundCheck color="#07e704" />
-              <span>True</span>
+              <UserRoundCheck />
+              <span>Member Only</span>
             </div>
           );
         } else {
           return (
             <div className="flex flex-wrap gap-2">
-              <UserRoundMinus color="#e70404" />
-              <span>False</span>
+              <UsersRound />
+              <span>Open to all</span>
             </div>
           );
         }
@@ -202,7 +194,9 @@ const CertificateTableView: FC<CertificateTableViewProps> = ({
             onClick={() =>
               handleDownload(
                 certificateData.uniqueCertificateUrl,
-                certificateData.name+"_"+certificateData.uniqueCertificateCode
+                certificateData.name +
+                  "_" +
+                  certificateData.uniqueCertificateCode
               )
             }
           >

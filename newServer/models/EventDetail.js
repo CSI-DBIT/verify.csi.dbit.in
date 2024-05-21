@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { generateUniqueEventCode } = require("../utils");
 // Event schema
 const eventSchema = new mongoose.Schema({
   eventCode: {

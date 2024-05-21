@@ -24,6 +24,8 @@ import {
   getFacetedUniqueValues,
   getFacetedRowModel,
   flexRender,
+  Row,
+  RowData,
 } from "@tanstack/react-table";
 import {
   branch,
@@ -34,6 +36,8 @@ import {
 } from "./manageMemberConstants";
 import { useState } from "react";
 import { X } from "lucide-react";
+import { mkConfig, generateCsv, download } from "export-to-csv";
+import { MemberDetailsSchema } from "@/validationSchemas/MemberDetailSchema";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -75,6 +79,18 @@ function DataTable<TData, TValue>({
     },
   });
   const isFiltered = table.getState().columnFilters.length > 0;
+  const csvConfig = mkConfig({
+    fieldSeparator: ",",
+    filename: "MemberDetails", // export file name (without .csv)
+    decimalSeparator: ".",
+    useKeysAsHeaders: true,
+  });
+
+  const exportExcel = (rows: Row<_>[]) => {
+    const rowData = rows.map((row) => row.original);
+    const csv = generateCsv(csvConfig)(rowData);
+    download(csvConfig)(csv);
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -137,7 +153,16 @@ function DataTable<TData, TValue>({
               />
             )}
           </div>
-          <DataTableViewOptions table={table} />
+          <div className="flex gap-2 justify-center items-center">
+            <Button
+              variant={"secondary"}
+              type="button"
+              onClick={() => exportExcel(table.getFilteredRowModel().rows)}
+            >
+              Export to Excel
+            </Button>
+            <DataTableViewOptions table={table} />
+          </div>
         </div>
       </div>
       <div className="rounded-md border">

@@ -7,12 +7,9 @@ const Footer = () => {
   return (
     <footer className="text-white px-4">
       <div className="container">
-        <p className="flex items-center justify-center gap-2">
-          <span>&copy; 2024</span>{" "}
-          <span>
-            <img className="w-28" src={logoSrc} alt="verify csi logo" />
-          </span>{" "}
-          <span>All rights reserved.</span>
+        <p className="lg:flex items-center justify-center gap-2">
+          <img className="w-28" src={logoSrc} alt="verify csi logo" />
+          <span>&copy; 2024 All rights reserved.</span>
         </p>
       </div>
     </footer>

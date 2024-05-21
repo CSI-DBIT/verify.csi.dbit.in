@@ -24,6 +24,7 @@ import {
   genderText,
 } from "../constants";
 import { UserRoundCheck, UserRoundMinus } from "lucide-react";
+import { formatDate } from "@/lib/utils";
 
 interface ManageDeleteTableViewProps {
   delMemberTabledata: MemberDetailsSchema[];
@@ -38,7 +39,7 @@ const ManageDeleteTableView: FC<ManageDeleteTableViewProps> = ({
       setIsOperationInProgress(true);
 
       // Make the API call to revoke the member with the modified data
-      await axios.put(
+      const response = await axios.put(
         `${import.meta.env.VITE_SERVER_URL}/api/member/revoke?studentId=${
           revokingMember.studentId
         }`,
@@ -48,19 +49,24 @@ const ManageDeleteTableView: FC<ManageDeleteTableViewProps> = ({
           mobileNumber: revokingMember.mobileNumber,
         }
       );
-
-      // Show success toast
-      toast({
-        title: "Member revoked successfully",
-        variant: "default",
-      });
+      if (response.data.success) {
+        toast({
+          title: response.data.message,
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: response.data.message,
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       // Handle error
       console.error("Error revoking member:", error);
       // Show error toast
       toast({
         title: "Error revoking member",
-        description: error.message || "An unexpected error occurred",
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
     }
@@ -237,7 +243,7 @@ const ManageDeleteTableView: FC<ManageDeleteTableViewProps> = ({
                   Are you sure you want to revoke this member?
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="h-[100px] rounded-md border p-3">
+              <ScrollArea className="h-[250px] rounded-md border p-3">
                 <CardDescription>Name: {revokingMember.name}</CardDescription>
                 <CardDescription>Email: {revokingMember.email}</CardDescription>
                 <CardDescription>
@@ -268,13 +274,13 @@ const ManageDeleteTableView: FC<ManageDeleteTableViewProps> = ({
                   Duration: {durationText[Number(revokingMember.duration)]}
                 </CardDescription>
                 <CardDescription>
-                  Start Date: {revokingMember.startDate.toString()}
+                  Start Date: {formatDate(revokingMember.startDate.toString())}
                 </CardDescription>
               </ScrollArea>
               <DialogFooter>
                 <Button
                   variant="outline"
-                  className="hover:bg-green-600 w-full"
+                  className="bg-green-600 hover:bg-green-800 w-full"
                   onClick={async () => handleRevoke(revokingMember)}
                 >
                   Confirm Revoke

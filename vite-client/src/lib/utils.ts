@@ -15,3 +15,19 @@ export function cn(...inputs: ClassValue[]) {
 //     </pre>
 //   ),
 // });
+export const formatDate = (dateString: string | number | Date) => {
+  const date = new Date(dateString);
+
+  // Check if date is valid
+  if (!(date instanceof Date)) {
+    console.error("Invalid date:", dateString);
+    return "Invalid Date";
+  }
+
+  // Format date in local format
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};

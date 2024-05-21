@@ -33,7 +33,7 @@ const DeleteEligibleCandidateForm: FC<DeleteEligibleCandidateFormProps> = ({
       setIsOperationInProgress(true);
 
       // Make the API call with the modified data
-      await axios.put(
+      const response = await axios.put(
         `${
           import.meta.env.VITE_SERVER_URL
         }/api/eligible-candidate/delete?uniqueCertCode=${
@@ -41,19 +41,23 @@ const DeleteEligibleCandidateForm: FC<DeleteEligibleCandidateFormProps> = ({
         }`,
         { currentDate: new Date() }
       );
-
-      // Show success toast
-      toast({
-        title: "Eligible Candidate deleted successfully",
-        variant: "default",
-      });
+      if (response.data.success) {
+        toast({
+          title: response.data.message,
+        });
+      } else {
+        toast({
+          title: response.data.message,
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       // Handle error
       console.error("Error deleting eligible Candidate:", error);
       // Show error toast
       toast({
         title: "Error deleting eligible candidate",
-        description: error.message || "An unexpected error occurred",
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
     }

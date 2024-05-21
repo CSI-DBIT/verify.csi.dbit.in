@@ -97,38 +97,24 @@ const AddEventForm: FC<AddEventFormProps> = ({ setIsEventAdded }) => {
         startDate: new Date(),
         endDate: new Date(),
       });
-      // toast({
-      //   title: "You submitted the following values:",
-      //   description: (
-      //     <pre className="rounded-md bg-slate-950 p-4">
-      //       <code className="text-white">{JSON.stringify(eventData, null, 2)}</code>
-      //     </pre>
-      //   ),
-      // })
-      toast({
-        title: `${JSON.stringify(response.data.message, null, 2)}`,
-      });
-      setIsEventAdded(true);
-      setIsDialogOpen(false);
-    } catch (error) {
-      //  Handle errors (e.g., show an error toast)
-      console.error("Error submitting form:", error);
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError;
-        const errorMessage =
-          axiosError.response?.data?.error || "Unknown error";
+      if (response.data.success) {
         toast({
-          title: errorMessage,
-          variant: "destructive",
+          title: response.data.message,
         });
       } else {
-        // Handle other types of errors
-        console.error("Unexpected error:", error);
         toast({
-          title: "Unexpected error:",
+          title: response.data.message,
           variant: "destructive",
         });
       }
+      setIsEventAdded(true);
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      toast({
+        title: "Unexpected error",
+        variant: "destructive",
+      });
       setIsDialogOpen(false);
     }
     setIsSubmitting(false);

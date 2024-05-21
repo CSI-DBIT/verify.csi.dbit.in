@@ -231,26 +231,22 @@ const ManageEligibleCandidatesTableView: FC<
                   },
                 }
               );
-              toast({
-                title: response.data.message,
-              });
-            } catch (error) {
-              console.error("Error uploading file:", error);
-              if (axios.isAxiosError(error)) {
-                const axiosError = error as AxiosError;
-                const errorMessage =
-                  axiosError.response?.data?.error || "Unknown error";
+              if (response.data.success) {
                 toast({
-                  title: errorMessage,
+                  title: response.data.message,
+                });
+              } else {
+                toast({
+                  title: response.data.message,
                   variant: "destructive",
                 });
               }
-
+            } catch (error) {
+              console.error("Error uploading file:", error);
               toast({
                 title: "Unexpected error:",
                 variant: "destructive",
               });
-              console.error("Unexpected error:", error);
             } finally {
               setSelectedCertificateFile(null);
             }
@@ -461,12 +457,19 @@ const ManageEligibleCandidatesTableView: FC<
                   <DialogHeader>
                     <DialogTitle>Permanantly Delete Certificate</DialogTitle>
                     <DialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      certificates and remove your data from our servers.
+                      This will permanently delete certificates and remove your
+                      data from our servers.
+                      <p>
+                        <strong>This action cannot be undone.</strong>
+                      </p>
                     </DialogDescription>
                   </DialogHeader>
                   <div>
-                    <Button variant={"destructive"} onClick={deleteCertificate}>
+                    <Button
+                      className="w-full"
+                      variant={"destructive"}
+                      onClick={deleteCertificate}
+                    >
                       Confirm Delete
                     </Button>
                   </div>
@@ -531,17 +534,15 @@ const ManageEligibleCandidatesTableView: FC<
                 },
               }
             );
-            if (response.status === 200) {
+            if (response.data.success) {
               toast({
                 title: response.data.message,
-                variant: "default",
               });
             } else {
               toast({
-                title: response.data.error,
+                title: response.data.message,
                 variant: "destructive",
               });
-              console.error("Request to server failed");
             }
             setIsSendingEmail(false);
             setIsOperationInProgress(true);
@@ -568,6 +569,7 @@ const ManageEligibleCandidatesTableView: FC<
               <EditEligibleCandidateForm
                 editingEligibleCandidate={eligibleCandidate}
                 setIsOperationInProgress={setIsOperationInProgress}
+                eventCode={eventCode}
               />
               <DeleteEligibleCandidateForm
                 deletingEligibleCandidate={eligibleCandidate}
@@ -600,7 +602,11 @@ const ManageEligibleCandidatesTableView: FC<
                     onSelect={(e) => {
                       e.preventDefault();
                       QRCode.toDataURL(
-                        `https://localhost/${eligibleCandidate.uniqueCertificateCode}`
+                        `${
+                          import.meta.env.VITE_CLIENT_URL
+                        }/certificate/validate/${
+                          eligibleCandidate.uniqueCertificateCode
+                        }`
                       ).then(setQRCodeData);
                     }}
                   >
@@ -627,7 +633,11 @@ const ManageEligibleCandidatesTableView: FC<
                   <div className="flex gap-2 items-center">
                     <Input
                       id="link"
-                      defaultValue={`https://localhost/${eligibleCandidate.uniqueCertificateCode}`}
+                      defaultValue={`${
+                        import.meta.env.VITE_CLIENT_URL
+                      }/certificate/validate/${
+                        eligibleCandidate.uniqueCertificateCode
+                      }`}
                       readOnly
                     />
                     <Button
@@ -635,10 +645,18 @@ const ManageEligibleCandidatesTableView: FC<
                       className="px-3"
                       onClick={() => {
                         navigator.clipboard.writeText(
-                          `https://localhost/${eligibleCandidate.uniqueCertificateCode}`
+                          `${
+                            import.meta.env.VITE_CLIENT_URL
+                          }/certificate/validate/${
+                            eligibleCandidate.uniqueCertificateCode
+                          }`
                         );
                         toast({
-                          title: `Copied : https://localhost/${eligibleCandidate.uniqueCertificateCode}`,
+                          title: `Copied : ${
+                            import.meta.env.VITE_CLIENT_URL
+                          }/certificate/validate/${
+                            eligibleCandidate.uniqueCertificateCode
+                          }`,
                         });
                       }}
                     >

@@ -7,7 +7,6 @@ import {
   Speech,
   Trophy,
 } from "lucide-react";
-import { ReactComponentElement } from "react";
 
 interface GenderText {
   [key: number]: string;
