@@ -106,8 +106,8 @@ const AddEligibleCandidatesView: FC<AddEligibleCandidatesViewProps> = ({
   return (
     <div>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogTrigger className="pr-2 pb-2">
-          <Button>Add Eligible Candidate</Button>
+        <DialogTrigger>
+          <Button>Add Candidate</Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>

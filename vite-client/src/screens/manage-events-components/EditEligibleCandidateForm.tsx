@@ -33,9 +33,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Pencil } from "lucide-react";
 
 interface EditEligibleCandidateFormProps {
-  eventCode: String;
+  eventCode: string;
   editingEligibleCandidate: EligibleCandidatesSchema;
   setIsOperationInProgress: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -107,7 +108,7 @@ const EditEligibleCandidateForm: FC<EditEligibleCandidateFormProps> = ({
             e.preventDefault();
           }}
         >
-          edit
+          <Pencil className="mr-2 h-4 w-4"/>Edit
         </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent>

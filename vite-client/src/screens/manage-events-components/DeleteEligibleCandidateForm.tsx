@@ -16,6 +16,7 @@ import { toast } from "@/components/ui/use-toast";
 import { FC } from "react";
 import { EligibleCandidatesSchema } from "@/validationSchemas/EligibleCadidatesSchema";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Eraser } from "lucide-react";
 
 interface DeleteEligibleCandidateFormProps {
   deletingEligibleCandidate: EligibleCandidatesSchema;
@@ -71,7 +72,8 @@ const DeleteEligibleCandidateForm: FC<DeleteEligibleCandidateFormProps> = ({
             e.preventDefault();
           }}
         >
-          delete
+          <Eraser className="mr-2 h-4 w-4" />
+          Delete
         </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent>

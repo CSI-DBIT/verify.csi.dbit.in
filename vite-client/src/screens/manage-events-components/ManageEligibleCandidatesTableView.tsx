@@ -25,6 +25,8 @@ import {
   MailCheck,
   MailX,
   MoreHorizontal,
+  QrCode,
+  Send,
   Trash2,
   Upload,
   UserRoundCheck,
@@ -48,6 +50,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useDropzone } from "react-dropzone";
+import CopyUniqueCodeComponent from "./table components/CopyUniqueCodeComponent";
 
 interface ManageEligibleCandidateTableViewProps {
   eligibleCandidatesData: EligibleCandidatesSchema[];
@@ -138,9 +141,15 @@ const ManageEligibleCandidatesTableView: FC<
       accessorKey: "uniqueCertificateCode",
       header: () => <div>Certificate Code</div>,
       cell: ({ row }) => {
-        const uniqueCertificateCode = row.getValue("uniqueCertificateCode");
+        const uniqueCertificateCode = row.getValue(
+          "uniqueCertificateCode"
+        ) as string;
 
-        return uniqueCertificateCode;
+        return (
+          <CopyUniqueCodeComponent
+            uniqueCertificateCode={uniqueCertificateCode}
+          />
+        );
       },
       enableHiding: true,
       enableSorting: true,
@@ -588,12 +597,14 @@ const ManageEligibleCandidatesTableView: FC<
                   });
                 }}
               >
+                <Copy className="mr-2 h-4 w-4" />
                 Copy Unique Code
               </DropdownMenuItem>
               <DropdownMenuItem
                 disabled={isSendingEmail}
                 onClick={() => sendCertificateMail()}
               >
+                <Send className="mr-2 h-4 w-4" />
                 {isSendingEmail ? "Sending Email..." : "Send Email"}
               </DropdownMenuItem>
               <Dialog>
@@ -610,6 +621,7 @@ const ManageEligibleCandidatesTableView: FC<
                       ).then(setQRCodeData);
                     }}
                   >
+                    <QrCode className="mr-2 h-4 w-4" />
                     Generate Qr Code
                   </DropdownMenuItem>
                 </DialogTrigger>

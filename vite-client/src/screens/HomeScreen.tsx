@@ -30,6 +30,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useNavigate } from "react-router-dom";
+import GridPattern from "@/components/magicUi/animated-grid-pattern";
+import { cn } from "@/lib/utils";
 const validateCertificateSchema = z.object({
   uniqueCertificateCode: z.string().min(1).max(10),
 });
@@ -79,10 +81,6 @@ const HomeScreen = () => {
     );
     return () => clearTimeout(intervalId);
   }, []);
-  const handleClick = (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-    setflipped(!flipped);
-  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -204,20 +202,30 @@ const HomeScreen = () => {
           </div>
         </div>
         <div className="flex flex-col space-y-4 p-4 lg:w-6/12">
-          <Card className="lg:flex justify-center items-center p-4">
-            <img
+          <div className="lg:flex justify-center items-center">
+            <GridPattern
+              numSquares={50}
+              maxOpacity={0.3}
+              duration={3}
+              repeatDelay={1}
+              className={cn(
+                "[mask-image:radial-gradient(400px_circle_at_center,white,transparent)]",
+                "inset-x-0 inset-y-[-50%] h-[500px] skew-y-12 hidden lg:block lg:relative"
+              )}
+            />
+            {/* <img
               className="hidden lg:block lg:relative h-full w-full"
               src={gridBackground}
               alt="grid background"
-            />
+            /> */}
             <div className="lg:absolute">
               <ReactCardFlip isFlipped={flipped} flipDirection="vertical">
                 <Card
-                  onClick={handleClick}
+                  onClick={() => setflipped(!flipped)}
                   className="lg:w-[450px] lg:h-[250px]"
                 >
                   <div className="flex w-full h-full flex-col p-4 px-6 space-y-1">
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center ">
                       <div>
                         <Label className="">Membership Id</Label>
                         <div className="">20XXXXXX14</div>
@@ -260,7 +268,7 @@ const HomeScreen = () => {
                   </div>
                 </Card>
                 <Card
-                  onClick={handleClick}
+                  onClick={() => setflipped(!flipped)}
                   className="lg:w-[450px] lg:h-[250px]"
                 >
                   <div className="flex flex-col p-4 px-6 space-y-1 lg:space-y-6">
@@ -294,7 +302,7 @@ const HomeScreen = () => {
                 </Card>
               </ReactCardFlip>
             </div>
-          </Card>
+          </div>
         </div>
       </div>
       <Footer />

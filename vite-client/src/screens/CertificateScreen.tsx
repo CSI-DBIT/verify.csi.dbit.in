@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -10,7 +10,15 @@ import { EventSchema } from "@/validationSchemas/EventSchema";
 import { pdfjs, Document, Page } from "react-pdf";
 import { CertificateScreenSkeleton } from "@/components/CertificateScreenSkeleton";
 import { formatDate } from "@/lib/utils";
-
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Home, UserRound } from "lucide-react";
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.js",
   import.meta.url
@@ -60,6 +68,32 @@ const CertificateScreen = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
+      <div className="p-4">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link
+                  to={"/"}
+                  className="flex gap-2 justify-center items-center"
+                >
+                  <Home className="h-4 w-4" /> Home
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage className="text-gray">Certificates</BreadcrumbPage>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage className="capitalize">
+                {eventDetails?.name}
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>{" "}
+      </div>
       <div className="p-4 flex flex-grow flex-col justify-center items-center gap-2">
         {loading ? (
           <CertificateScreenSkeleton />

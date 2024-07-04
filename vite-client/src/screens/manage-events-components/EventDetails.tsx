@@ -41,7 +41,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Settings } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
@@ -56,6 +56,22 @@ import { CardDescription } from "@/components/ui/card";
 import { branchText, currentAcademicYearText } from "../constants";
 import { useNavigate } from "react-router-dom";
 import PageNotFound from "../PageNotFound";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const fetchEventDetails = async (eventId: string): Promise<EventSchema> => {
   try {
@@ -282,14 +298,13 @@ const EventDetails = () => {
           },
         }
       );
-      if (response.status === 200) {
+      if (response.data.success) {
         toast({
           title: response.data.message,
-          variant: "default",
         });
       } else {
         toast({
-          title: response.data.error,
+          title: response.data.message,
           variant: "destructive",
         });
         console.error("Request to server failed");
@@ -331,415 +346,445 @@ const EventDetails = () => {
           <div className="p-4 flex flex-grow flex-col gap-2">
             <div className="flex flex-wrap justify-between">
               <div>
-                <Link to={"/manage/events"}>
-                  <Button variant={"outline"}>Back</Button>
-                </Link>
+                <Breadcrumb>
+                  <BreadcrumbList>
+                    <BreadcrumbItem>
+                      <BreadcrumbLink asChild>
+                        <Link to={"/manage/events"}>Events</Link>
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      <BreadcrumbPage className="capitalize">
+                        {eventDetails.name}
+                      </BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
               </div>
               <div className="flex flex-wrap gap-2">
-                <div>
-                  <Dialog
-                    open={editEventDialogOpen}
-                    onOpenChange={setEditEventDialogOpen}
-                  >
-                    <DialogTrigger asChild>
-                      <Button variant="outline">Edit Event</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Edit Event Details</DialogTitle>
-                        <DialogDescription>
-                          Make changes to your profile here. Click save when
-                          you're done.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <Form {...edit_event_details_form}>
-                        <form
-                          onSubmit={edit_event_details_form.handleSubmit(
-                            onEditEventDetailsFormSubmit
-                          )}
-                          className="space-y-2"
-                        >
-                          <ScrollArea className="h-[500px] p-4">
-                            <div className="space-y-2">
-                              <FormField
-                                control={edit_event_details_form.control}
-                                name="name"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Name</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Enter Event Name"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={edit_event_details_form.control}
-                                name="isMemberOnly"
-                                render={({ field }) => (
-                                  <FormItem className="flex items-center space-x-2 space-y-0 py-2">
-                                    <FormControl>
-                                      <Checkbox
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                      />
-                                    </FormControl>
-                                    <FormLabel>Is Member Only</FormLabel>
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={edit_event_details_form.control}
-                                name="category"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Category</FormLabel>
-                                    <Select
-                                      onValueChange={field.onChange}
-                                      defaultValue={field.value}
-                                    >
-                                      <FormControl>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder="Select Category..." />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        <SelectItem value="1">Talks</SelectItem>
-                                        <SelectItem value="2">
-                                          Competitions
-                                        </SelectItem>
-                                        <SelectItem value="3">
-                                          Workshops
-                                        </SelectItem>
-                                        <SelectItem value="4">
-                                          Others
-                                        </SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={edit_event_details_form.control}
-                                name="typeOfEvent"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Event Type</FormLabel>
-                                    <Select
-                                      onValueChange={field.onChange}
-                                      defaultValue={field.value}
-                                    >
-                                      <FormControl>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder="Select Event Type..." />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        <SelectItem value="1">
-                                          Technical
-                                        </SelectItem>
-                                        <SelectItem value="2">
-                                          Non Technical
-                                        </SelectItem>
-                                        <SelectItem value="3">
-                                          Others
-                                        </SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={edit_event_details_form.control}
-                                name="academicYearAllowed"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Academic Year Allowed</FormLabel>
-                                    <Select
-                                      onValueChange={field.onChange}
-                                      defaultValue={field.value}
-                                    >
-                                      <FormControl>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder="Select Academic Year..." />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        <SelectItem value="0">All</SelectItem>
-                                        <SelectItem value="1">FE</SelectItem>
-                                        <SelectItem value="2">SE</SelectItem>
-                                        <SelectItem value="3">TE</SelectItem>
-                                        <SelectItem value="4">BE</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={edit_event_details_form.control}
-                                name="branchesAllowed"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Branches Allowed</FormLabel>
-                                    <Select
-                                      onValueChange={field.onChange}
-                                      defaultValue={field.value}
-                                    >
-                                      <FormControl>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder="Select Branches..." />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        <SelectItem value="0">All</SelectItem>
-                                        <SelectItem value="1">IT</SelectItem>
-                                        <SelectItem value="2">CS</SelectItem>
-                                        <SelectItem value="3">EXTC</SelectItem>
-                                        <SelectItem value="4">MECH</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <div className="flex gap-4 items-center">
-                                <FormField
-                                  control={edit_event_details_form.control}
-                                  name="startDate"
-                                  render={({ field }) => (
-                                    <FormItem className="flex flex-col w-full">
-                                      <FormLabel>Start Date</FormLabel>
-                                      <Popover>
-                                        <PopoverTrigger asChild>
-                                          <FormControl>
-                                            <Button
-                                              type="button"
-                                              variant={"outline"}
-                                              className={cn(
-                                                "pl-3 text-left font-normal",
-                                                !field.value &&
-                                                  "text-muted-foreground"
-                                              )}
-                                            >
-                                              {field.value ? (
-                                                format(field.value, "PPP")
-                                              ) : (
-                                                <span>Pick a date</span>
-                                              )}
-                                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                            </Button>
-                                          </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent
-                                          className="w-auto p-0"
-                                          align="start"
-                                        >
-                                          <Calendar
-                                            mode="single"
-                                            selected={field.value}
-                                            onSelect={field.onChange}
-                                            disabled={(date) =>
-                                              date > new Date() ||
-                                              date < new Date("1900-01-01")
-                                            }
-                                            initialFocus
-                                          />
-                                        </PopoverContent>
-                                      </Popover>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                <FormField
-                                  control={edit_event_details_form.control}
-                                  name="endDate"
-                                  render={({ field }) => (
-                                    <FormItem className="flex flex-col w-full">
-                                      <FormLabel>End Date</FormLabel>
-                                      <Popover>
-                                        <PopoverTrigger asChild>
-                                          <FormControl>
-                                            <Button
-                                              type="button"
-                                              variant={"outline"}
-                                              className={cn(
-                                                "pl-3 text-left font-normal",
-                                                !field.value &&
-                                                  "text-muted-foreground"
-                                              )}
-                                            >
-                                              {field.value ? (
-                                                format(field.value, "PPP")
-                                              ) : (
-                                                <span>Pick a date</span>
-                                              )}
-                                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                            </Button>
-                                          </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent
-                                          className="w-auto p-0"
-                                          align="start"
-                                        >
-                                          <Calendar
-                                            mode="single"
-                                            selected={field.value}
-                                            onSelect={field.onChange}
-                                            disabled={(date) =>
-                                              date > new Date() ||
-                                              date < new Date("1900-01-01") ||
-                                              date <
-                                                edit_event_details_form.watch(
-                                                  "startDate"
-                                                )
-                                            }
-                                            initialFocus
-                                          />
-                                        </PopoverContent>
-                                      </Popover>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-                            </div>
-                          </ScrollArea>
-                          <Button
-                            type="submit"
-                            disabled={
-                              edit_event_details_form.formState.isSubmitting
-                            }
-                            className="w-full"
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="secondary"
+                      className="flex justify-ceter items-center"
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      <span>Settings</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <Dialog
+                      open={editEventDialogOpen}
+                      onOpenChange={setEditEventDialogOpen}
+                    >
+                      <DialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          Edit Event
+                        </DropdownMenuItem>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Edit Event Details</DialogTitle>
+                          <DialogDescription>
+                            Make changes to your profile here. Click save when
+                            you're done.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <Form {...edit_event_details_form}>
+                          <form
+                            onSubmit={edit_event_details_form.handleSubmit(
+                              onEditEventDetailsFormSubmit
+                            )}
+                            className="space-y-2"
                           >
-                            Submit
-                          </Button>
-                        </form>
-                      </Form>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-                <div>
-                  <Dialog
-                    open={deleteEventDialogOpen}
-                    onOpenChange={setDeleteEventDialogOpen}
-                  >
-                    <DialogTrigger asChild>
-                      <Button variant="outline">Delete Event</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Delete Event Details</DialogTitle>
-                        <DialogDescription>
-                          Are you sure you want to delete this event?
-                        </DialogDescription>
-                      </DialogHeader>
-                      <ScrollArea className="h-[100px] rounded-md border p-3">
-                        <CardDescription>
-                          Name: {eventDetails?.name}
-                        </CardDescription>
-                        <CardDescription>
-                          Category: {eventDetails?.category}
-                        </CardDescription>
-                        <CardDescription>
-                          Branch:{" "}
-                          {branchText[Number(eventDetails?.branchesAllowed)]}
-                        </CardDescription>
-                        <CardDescription>
-                          Academic Year Allowed :{" "}
-                          {
-                            currentAcademicYearText[
-                              Number(eventDetails?.academicYearAllowed)
-                            ]
-                          }
-                        </CardDescription>
-                        <CardDescription>
-                          Start Date:{" "}
-                          {eventDetails?.startDate
-                            ? new Date(
-                                eventDetails.startDate
-                              ).toLocaleDateString("en-US", {
-                                weekday: "long",
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              })
-                            : ""}
-                        </CardDescription>
-                        <CardDescription>
-                          <span className="font-bold">End Date:</span>{" "}
-                          {eventDetails?.endDate
-                            ? new Date(eventDetails.endDate).toLocaleDateString(
-                                "en-US",
-                                {
+                            <ScrollArea className="h-[500px] p-4">
+                              <div className="space-y-2">
+                                <FormField
+                                  control={edit_event_details_form.control}
+                                  name="name"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Name</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Enter Event Name"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={edit_event_details_form.control}
+                                  name="isMemberOnly"
+                                  render={({ field }) => (
+                                    <FormItem className="flex items-center space-x-2 space-y-0 py-2">
+                                      <FormControl>
+                                        <Checkbox
+                                          checked={field.value}
+                                          onCheckedChange={field.onChange}
+                                        />
+                                      </FormControl>
+                                      <FormLabel>Is Member Only</FormLabel>
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={edit_event_details_form.control}
+                                  name="category"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Category</FormLabel>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                      >
+                                        <FormControl>
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Select Category..." />
+                                          </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                          <SelectItem value="1">
+                                            Talks
+                                          </SelectItem>
+                                          <SelectItem value="2">
+                                            Competitions
+                                          </SelectItem>
+                                          <SelectItem value="3">
+                                            Workshops
+                                          </SelectItem>
+                                          <SelectItem value="4">
+                                            Others
+                                          </SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={edit_event_details_form.control}
+                                  name="typeOfEvent"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Event Type</FormLabel>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                      >
+                                        <FormControl>
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Select Event Type..." />
+                                          </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                          <SelectItem value="1">
+                                            Technical
+                                          </SelectItem>
+                                          <SelectItem value="2">
+                                            Non Technical
+                                          </SelectItem>
+                                          <SelectItem value="3">
+                                            Others
+                                          </SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={edit_event_details_form.control}
+                                  name="academicYearAllowed"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>
+                                        Academic Year Allowed
+                                      </FormLabel>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                      >
+                                        <FormControl>
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Select Academic Year..." />
+                                          </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                          <SelectItem value="0">All</SelectItem>
+                                          <SelectItem value="1">FE</SelectItem>
+                                          <SelectItem value="2">SE</SelectItem>
+                                          <SelectItem value="3">TE</SelectItem>
+                                          <SelectItem value="4">BE</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={edit_event_details_form.control}
+                                  name="branchesAllowed"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Branches Allowed</FormLabel>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                      >
+                                        <FormControl>
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Select Branches..." />
+                                          </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                          <SelectItem value="0">All</SelectItem>
+                                          <SelectItem value="1">IT</SelectItem>
+                                          <SelectItem value="2">CS</SelectItem>
+                                          <SelectItem value="3">
+                                            EXTC
+                                          </SelectItem>
+                                          <SelectItem value="4">
+                                            MECH
+                                          </SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <div className="flex gap-4 items-center">
+                                  <FormField
+                                    control={edit_event_details_form.control}
+                                    name="startDate"
+                                    render={({ field }) => (
+                                      <FormItem className="flex flex-col w-full">
+                                        <FormLabel>Start Date</FormLabel>
+                                        <Popover>
+                                          <PopoverTrigger asChild>
+                                            <FormControl>
+                                              <Button
+                                                type="button"
+                                                variant={"outline"}
+                                                className={cn(
+                                                  "pl-3 text-left font-normal",
+                                                  !field.value &&
+                                                    "text-muted-foreground"
+                                                )}
+                                              >
+                                                {field.value ? (
+                                                  format(field.value, "PPP")
+                                                ) : (
+                                                  <span>Pick a date</span>
+                                                )}
+                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                              </Button>
+                                            </FormControl>
+                                          </PopoverTrigger>
+                                          <PopoverContent
+                                            className="w-auto p-0"
+                                            align="start"
+                                          >
+                                            <Calendar
+                                              mode="single"
+                                              selected={field.value}
+                                              onSelect={field.onChange}
+                                              disabled={(date) =>
+                                                date > new Date() ||
+                                                date < new Date("1900-01-01")
+                                              }
+                                              initialFocus
+                                            />
+                                          </PopoverContent>
+                                        </Popover>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={edit_event_details_form.control}
+                                    name="endDate"
+                                    render={({ field }) => (
+                                      <FormItem className="flex flex-col w-full">
+                                        <FormLabel>End Date</FormLabel>
+                                        <Popover>
+                                          <PopoverTrigger asChild>
+                                            <FormControl>
+                                              <Button
+                                                type="button"
+                                                variant={"outline"}
+                                                className={cn(
+                                                  "pl-3 text-left font-normal",
+                                                  !field.value &&
+                                                    "text-muted-foreground"
+                                                )}
+                                              >
+                                                {field.value ? (
+                                                  format(field.value, "PPP")
+                                                ) : (
+                                                  <span>Pick a date</span>
+                                                )}
+                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                              </Button>
+                                            </FormControl>
+                                          </PopoverTrigger>
+                                          <PopoverContent
+                                            className="w-auto p-0"
+                                            align="start"
+                                          >
+                                            <Calendar
+                                              mode="single"
+                                              selected={field.value}
+                                              onSelect={field.onChange}
+                                              disabled={(date) =>
+                                                date > new Date() ||
+                                                date < new Date("1900-01-01") ||
+                                                date <
+                                                  edit_event_details_form.watch(
+                                                    "startDate"
+                                                  )
+                                              }
+                                              initialFocus
+                                            />
+                                          </PopoverContent>
+                                        </Popover>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+                              </div>
+                            </ScrollArea>
+                            <Button
+                              type="submit"
+                              disabled={
+                                edit_event_details_form.formState.isSubmitting
+                              }
+                              className="w-full"
+                            >
+                              Submit
+                            </Button>
+                          </form>
+                        </Form>
+                      </DialogContent>
+                    </Dialog>
+                    <Dialog
+                      open={deleteEventDialogOpen}
+                      onOpenChange={setDeleteEventDialogOpen}
+                    >
+                      <DialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          Delete Event
+                        </DropdownMenuItem>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Delete Event Details</DialogTitle>
+                          <DialogDescription>
+                            Are you sure you want to delete this event?
+                          </DialogDescription>
+                        </DialogHeader>
+                        <ScrollArea className="h-[100px] rounded-md border p-3">
+                          <CardDescription>
+                            Name: {eventDetails?.name}
+                          </CardDescription>
+                          <CardDescription>
+                            Category: {eventDetails?.category}
+                          </CardDescription>
+                          <CardDescription>
+                            Branch:{" "}
+                            {branchText[Number(eventDetails?.branchesAllowed)]}
+                          </CardDescription>
+                          <CardDescription>
+                            Academic Year Allowed :{" "}
+                            {
+                              currentAcademicYearText[
+                                Number(eventDetails?.academicYearAllowed)
+                              ]
+                            }
+                          </CardDescription>
+                          <CardDescription>
+                            Start Date:{" "}
+                            {eventDetails?.startDate
+                              ? new Date(
+                                  eventDetails.startDate
+                                ).toLocaleDateString("en-US", {
                                   weekday: "long",
                                   year: "numeric",
                                   month: "long",
                                   day: "numeric",
-                                }
-                              )
-                            : ""}
-                        </CardDescription>
-                        <CardDescription>
-                          Is Member Only : {String(eventDetails?.isMemberOnly)}
-                        </CardDescription>
-                      </ScrollArea>
-                      {eventDetails ? (
-                        <DialogFooter>
-                          <Button
-                            variant="destructive"
-                            className="hover:bg-red-600 w-full"
-                            onClick={async () => handleDeleteEventDetails()}
-                          >
-                            Permanant Delete
-                          </Button>
-                        </DialogFooter>
-                      ) : null}
-                    </DialogContent>
-                  </Dialog>
-                </div>
-                <div>
-                  <div>
+                                })
+                              : ""}
+                          </CardDescription>
+                          <CardDescription>
+                            <span className="font-bold">End Date:</span>{" "}
+                            {eventDetails?.endDate
+                              ? new Date(
+                                  eventDetails.endDate
+                                ).toLocaleDateString("en-US", {
+                                  weekday: "long",
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                })
+                              : ""}
+                          </CardDescription>
+                          <CardDescription>
+                            Is Member Only :{" "}
+                            {String(eventDetails?.isMemberOnly)}
+                          </CardDescription>
+                        </ScrollArea>
+                        {eventDetails ? (
+                          <DialogFooter>
+                            <Button
+                              variant="destructive"
+                              className="hover:bg-red-600 w-full"
+                              onClick={async () => handleDeleteEventDetails()}
+                            >
+                              Permanant Delete
+                            </Button>
+                          </DialogFooter>
+                        ) : null}
+                      </DialogContent>
+                    </Dialog>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>Manage</DropdownMenuLabel>
                     {candidatesWithCertificates.length > 0 ? (
-                      <Button
-                        disabled={isSendingNotifications}
-                        onClick={() => {
+                      <DropdownMenuItem
+                        onSelect={() => {
                           sendCertificateReceivedMail(
                             eventId,
                             candidatesWithCertificates
                           );
                         }}
+                        disabled={isSendingNotifications}
                       >
                         {isSendingNotifications
-                          ? "Sending Emails..."
-                          : "Send Emails"}
-                      </Button>
+                          ? "Sending Emails to all..."
+                          : "Send Emails to all"}
+                      </DropdownMenuItem>
                     ) : (
-                      <Button disabled>Send Emails</Button>
+                      <DropdownMenuItem disabled>Send Emails</DropdownMenuItem>
                     )}
-                  </div>
-                </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <AddEligibleCandidatesView
+                  setIsEligibleCandidateAdded={setIsEligibleCandidateAdded}
+                  eventDetails={eventDetails}
+                />
+                <BulkUploadEligibleCandidates
+                  eventDetails={eventDetails}
+                  setIsBulkUploadCompleted={setIsBulkUploadCompleted}
+                />
               </div>
             </div>
             <h2 className="scroll-m-20 pb-2 text-3xl font-bold tracking-tight first:mt-0 capitalize">
               {eventDetails ? eventDetails.name : "Event Details"}
             </h2>
-            <div className="flex flex-wrap lg:gap-2">
-              <BulkUploadEligibleCandidates
-                eventDetails={eventDetails}
-                setIsBulkUploadCompleted={setIsBulkUploadCompleted}
-              />
-              <AddEligibleCandidatesView
-                setIsEligibleCandidateAdded={setIsEligibleCandidateAdded}
-                eventDetails={eventDetails}
-              />
-            </div>
             <div>
               <ManageEligibleCandidatesTableView
                 setIsOperationInProgress={setIsOperationInProgress}

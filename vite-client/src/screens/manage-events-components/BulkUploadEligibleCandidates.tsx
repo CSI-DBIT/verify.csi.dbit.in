@@ -115,12 +115,12 @@ const BulkUploadMemberForm: FC<BulkUploadEligibleCandidatesProps> = ({
 
   return (
     <Drawer>
-      <DrawerTrigger className="pr-2 pb-2">
-        <Button>Bulk Upload Eligible Candidates</Button>
+      <DrawerTrigger>
+        <Button>Bulk Upload Candidates</Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>Bulk Upload Eligible Candidates</DrawerTitle>
+          <DrawerTitle>Bulk Upload Candidates</DrawerTitle>
           <DrawerDescription>
             <span className="capitalize">{eventDetails?.name}</span> eligible
             candidates
@@ -163,18 +163,28 @@ const BulkUploadMemberForm: FC<BulkUploadEligibleCandidatesProps> = ({
           )}
         </div>
         <DrawerFooter>
-          <div className="flex gap-4 items-center justify-center">
-            <div>
-              {selectedFile && (
-                <Button onClick={onSubmit} disabled={isUploading}>
-                  {isUploading ? <div>Submitting...</div> : <div>Submit</div>}
+          {selectedFile ? (
+            <div className="w-full flex gap-4 items-center justify-center">
+              <Button
+                className="w-1/2"
+                onClick={onSubmit}
+                disabled={isUploading}
+              >
+                {isUploading ? <div>Submitting...</div> : <div>Submit</div>}
+              </Button>
+              <DrawerClose className="w-1/2">
+                <Button className="w-full" variant="destructive">
+                  Cancel
                 </Button>
-              )}
+              </DrawerClose>
             </div>
-            <DrawerClose>
-              <Button variant="outline">Cancel</Button>
+          ) : (
+            <DrawerClose className="w-full">
+              <Button className="w-full" variant="destructive">
+                Cancel
+              </Button>
             </DrawerClose>
-          </div>
+          )}
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
