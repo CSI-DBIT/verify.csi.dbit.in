@@ -1,6 +1,4 @@
 import { Home, PanelRight } from "lucide-react";
-// import verifyLogo from "@/assets/verify-dark-logo-nobg.png";
-import verifyLogoDark from "@/assets/verify.dev_dark_name_logo.png";
 import verifyLogoLight from "@/assets/verify.dev_light_name_logo.png";
 import { Link } from "react-router-dom";
 import {
@@ -12,17 +10,13 @@ import {
 } from "@/components/ui/sheet";
 import { Card, CardDescription } from "./ui/card";
 import { Button } from "./ui/button";
-import { ModeToggle } from "./mode-toggle";
-import { useTheme } from "./theme-provider";
+import AuthForm from "./ui_elements/AuthForm";
 
 const Navbar = () => {
-  const { theme } = useTheme();
-  const logoSrc = theme === 'dark' ? verifyLogoLight : verifyLogoDark;
   return (
     <div className="flex justify-between items-center px-6">
       <Link to="/" className="flex justify-center items-center gap-4">
-        <img className="w-48" src={logoSrc} alt="verify csi logo"/>
-        {/* <span className="text-2xl font-bold">/ verify@csi </span> */}
+        <img className="w-48" src={verifyLogoLight} alt="verify csi logo" />
       </Link>
       <div className="flex items-center gap-2">
         <Sheet>
@@ -34,7 +28,7 @@ const Navbar = () => {
           <SheetContent>
             <SheetHeader>
               <SheetTitle className="flex justify-center items-center space-x-4">
-                <img className="w-48" src={logoSrc} alt="verify csi logo" />
+                <img className="w-48" src={verifyLogoLight} alt="verify csi logo" />
               </SheetTitle>
               <SheetTitle>
                 <Link to="/">
@@ -57,7 +51,7 @@ const Navbar = () => {
                 </Link>
               </SheetTitle>
               <SheetTitle>
-                <Link to="/login">
+                <Link to="/signUp">
                   <Card className="p-2 flex items-center space-x-2">
                     <CardDescription>
                       <Home size={22} />
@@ -129,7 +123,7 @@ const Navbar = () => {
             </SheetHeader>
           </SheetContent>
         </Sheet>
-        <ModeToggle />
+        <AuthForm />
       </div>
     </div>
   );

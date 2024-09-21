@@ -31,3 +31,15 @@ export const formatDate = (dateString: string | number | Date) => {
     day: "numeric",
   });
 };
+
+export const truncateWithEllipses = (
+  text: string,
+  maxLength: number
+): string => {
+  if (text.length <= maxLength) {
+    return text;
+  }
+
+  const truncatedText = text.slice(0, maxLength - 3); // Subtract 3 to account for the ellipses
+  return truncatedText + "...";
+};

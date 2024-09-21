@@ -18,7 +18,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Home, UserRound } from "lucide-react";
+import { Home } from "lucide-react";
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.js",
   import.meta.url
@@ -77,7 +77,7 @@ const CertificateScreen = () => {
                   to={"/"}
                   className="flex gap-2 justify-center items-center"
                 >
-                  <Home className="h-4 w-4" /> Home
+                  <Home className="h-4 w-4" />
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
