@@ -76,6 +76,10 @@ export const router = createBrowserRouter([
         path: "members",
         element: <ManageMember />,
       },
+      {
+        path: "settings",
+        element: <ManageMember />,
+      },
     ],
   },
 ]);
