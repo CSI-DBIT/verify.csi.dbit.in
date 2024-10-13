@@ -213,11 +213,6 @@ const HomeScreen = () => {
                 "inset-x-0 inset-y-[-50%] h-[500px] skew-y-12 hidden lg:block lg:relative"
               )}
             />
-            {/* <img
-              className="hidden lg:block lg:relative h-full w-full"
-              src={gridBackground}
-              alt="grid background"
-            /> */}
             <div className="lg:absolute">
               <ReactCardFlip isFlipped={flipped} flipDirection="vertical">
                 <Card

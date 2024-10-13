@@ -323,7 +323,7 @@ const MemberScreen = () => {
                   to={"/"}
                   className="flex gap-2 justify-center items-center"
                 >
-                  <Home className="h-4 w-4" /> Home
+                  <Home className="h-4 w-4" />
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
