@@ -57,16 +57,20 @@ const ManageEvent = () => {
     "2024-09-30": ["Meeting with team", "Project deadline"],
     // other initial events
   });
-  const handleEventsChange = (updatedEvents: EventsMap) => {
-    setCalendarEvents(updatedEvents);
+
+  const [selectedEventDate, setSelectedEventDate] = useState<string | null>(null);
+
+  const handleDateSelect = (date: string) => {
+    setSelectedEventDate(date);
+    // Open modal or drawer here
   };
 
-  const handleDateSelect = (date: string, event: string | null) => {
-    if (event) {
-      console.log(`New event added on ${date}: ${event}`);
-    } else {
-      console.log(`Date selected: ${date}`);
-    }
+  const handleEventSave = (date: string, newEvents: string[]) => {
+    setCalendarEvents((prev) => ({
+      ...prev,
+      [date]: newEvents,
+    }));
+    setSelectedEventDate(null); // Close modal or drawer
   };
 
   return (
@@ -74,11 +78,13 @@ const ManageEvent = () => {
       <div className="p-4 flex flex-col gap-2 min-h-screen">
         <EventCalendar
           events={calendarEvents}
-          onEventsChange={handleEventsChange}
           onDateSelect={handleDateSelect}
-          minDate={new Date(2023, 1, 1)} // Example min date
-          maxDate={new Date(2024, 1, 1)} // Example max date
         />
+        <div>
+        {selectedEventDate && (
+          <h1>hello {selectedEventDate}</h1>
+        )}
+        </div>
         <div className="flex justify-between items-center">
           <h2 className="scroll-m-20 pb-2 text-3xl font-bold tracking-tight first:mt-0">
             Completed Events

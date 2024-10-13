@@ -43,7 +43,7 @@ const months = [
   "Dec",
 ];
 
-const totalYears = 50; // Total years to show in pagination
+const totalYears = 50;
 const yearRange = Array.from(
   { length: totalYears },
   (_, index) => 2000 + index
@@ -51,77 +51,27 @@ const yearRange = Array.from(
 
 interface EventCalendarProps {
   events?: EventsMap;
-  onEventsChange?: (events: EventsMap) => void;
-  onDateSelect?: (date: string, event: string | null) => void;
+  onDateSelect?: (date: string) => void;
   minDate?: Date;
   maxDate?: Date;
 }
 
 const EventCalendar: FC<EventCalendarProps> = ({
-  events: initialEvents = {},
-  onEventsChange,
-  onDateSelect, // New prop for date selection
-  minDate = new Date(2000, 0, 1), // Default minDate
-  maxDate = new Date(2049, 11, 31), // Default maxDate
+  events = {},
+  onDateSelect,
+  minDate = new Date(2000, 0, 1),
+  maxDate = new Date(2049, 11, 31),
 }) => {
-  const [events, setEvents] = useState<EventsMap>(initialEvents);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [newEvent, setNewEvent] = useState<string>("");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [yearOffset, setYearOffset] = useState(0);
 
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   const startDate = startOfWeek(monthStart);
   const endDate = endOfWeek(monthEnd);
-
-  const daysInCalendar = eachDayOfInterval({
-    start: startDate,
-    end: endDate,
-  });
-
+  const daysInCalendar = eachDayOfInterval({ start: startDate, end: endDate });
   const yearsToShow = yearRange.slice(yearOffset * 10, yearOffset * 10 + 12);
-
-  const handleAddEvent = () => {
-    if (!newEvent || !selectedDate) return;
-
-    const updatedEvents = {
-      ...events,
-      [selectedDate]: [...(events[selectedDate] || []), newEvent],
-    };
-
-    setEvents(updatedEvents);
-    setNewEvent("");
-
-    if (onEventsChange) {
-      onEventsChange(updatedEvents);
-    }
-
-    // Pass the new event to the parent component
-    if (onDateSelect) {
-      onDateSelect(selectedDate, newEvent);
-    }
-  };
-
-  const handleDeleteEvent = (date: string, index: number) => {
-    const updatedEvents = { ...events };
-    updatedEvents[date].splice(index, 1);
-
-    if (updatedEvents[date].length === 0) delete updatedEvents[date];
-
-    setEvents(updatedEvents);
-
-    if (onEventsChange) {
-      onEventsChange(updatedEvents);
-    }
-
-    // Notify parent about the event deletion
-    if (onDateSelect) {
-      onDateSelect(date, null); // Pass null to indicate event deletion
-    }
-  };
 
   const handleMonthChange = (monthIndex: number) => {
     setCurrentDate((prev) => setMonth(prev, monthIndex));
@@ -162,12 +112,8 @@ const EventCalendar: FC<EventCalendarProps> = ({
             isInRange ? "opacity-50" : ""
           }`}
           onClick={() => {
-            if (!isInRange) {
-              setSelectedDate(dateString);
-              // Notify parent component with the selected date
-              if (onDateSelect) {
-                onDateSelect(dateString, null); // Pass null initially
-              }
+            if (!isInRange && onDateSelect) {
+              onDateSelect(dateString); // Notify parent component
             }
           }}
         >
@@ -207,7 +153,7 @@ const EventCalendar: FC<EventCalendarProps> = ({
           <Popover>
             <PopoverTrigger>
               <Button variant={"default"} className="flex items-center gap-2">
-                <span>{format(currentDate, "MMMM")} </span>
+                <span>{format(currentDate, "MMMM")}</span>
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
@@ -232,7 +178,6 @@ const EventCalendar: FC<EventCalendarProps> = ({
           <Popover>
             <PopoverTrigger
               onClick={() => {
-                // Calculate the correct offset to ensure the selected year is visible
                 const currentYear = currentDate.getFullYear();
                 const newOffset = Math.floor((currentYear - 2000) / 10);
                 setYearOffset(newOffset);
@@ -282,7 +227,7 @@ const EventCalendar: FC<EventCalendarProps> = ({
                         !isYearOutOfRange && handleYearChange(year)
                       }
                       className="w-full p-2 text-center"
-                      disabled={isYearOutOfRange} // Disable years outside the range
+                      disabled={isYearOutOfRange}
                     >
                       {year}
                     </Button>
@@ -310,38 +255,6 @@ const EventCalendar: FC<EventCalendarProps> = ({
         ))}
       </div>
       <div className="grid grid-cols-7 gap-4">{renderDays()}</div>
-
-      <div className="mt-4">
-        {selectedDate && (
-          <div>
-            <input
-              type="text"
-              value={newEvent}
-              onChange={(e) => setNewEvent(e.target.value)}
-              placeholder="Add new event"
-              className="border border-gray-400 p-2"
-            />
-            <button onClick={handleAddEvent} className="ml-2">
-              Add
-            </button>
-          </div>
-        )}
-        <div className="mt-2">
-          {selectedDate && <p>{selectedDate}</p>}
-          {selectedDate &&
-            events[selectedDate]?.map((event, index) => (
-              <div key={index} className="flex justify-between">
-                <span>{event}</span>
-                <button
-                  onClick={() => handleDeleteEvent(selectedDate, index)}
-                  className="text-red-500"
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
-        </div>
-      </div>
     </div>
   );
 };

@@ -11,6 +11,8 @@ import ManageMember from "./screens/ManageMember";
 import MemberScreen from "./screens/MemberScreen";
 import SignUpForm from "./screens/SignUpScreen";
 import Temp from "./screens/Temp";
+import Settings from "./screens/SettingsScreen";
+import Home from "./screens/DashboardHome";
 
 export const router = createBrowserRouter([
   {
@@ -69,6 +71,10 @@ export const router = createBrowserRouter([
     element: <Dashboard />,
     children: [
       {
+        path: "",
+        element: <Home />,
+      },
+      {
         path: "events",
         element: <ManageEvent />,
       },
@@ -78,7 +84,9 @@ export const router = createBrowserRouter([
       },
       {
         path: "settings",
-        element: <ManageMember />,
+        element: (
+          <Settings/>
+        ),
       },
     ],
   },

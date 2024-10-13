@@ -37,7 +37,7 @@ import {
   validationEventSchema,
 } from "@/validationSchemas/EventSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { format } from "date-fns";
 import { CalendarIcon, PlusCircle } from "lucide-react";
 import { FC, useState } from "react";
