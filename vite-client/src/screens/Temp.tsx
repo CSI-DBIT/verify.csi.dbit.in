@@ -324,7 +324,7 @@ const Temp = () => {
               </div>
             </PopoverTrigger>
             <PopoverContent className="max-w-[15rem]">
-              More organisations...
+              More organizations...
             </PopoverContent>
           </Popover>
 

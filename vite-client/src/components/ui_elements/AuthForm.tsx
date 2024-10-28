@@ -36,10 +36,10 @@ const AuthForm: React.FC = () => {
             </CardTitle>
             <CardDescription>
               {formType === "login"
-                ? "Enter your organisation code to login to your account"
+                ? "Enter your organization code to login to your account"
                 : formType === "signUp"
-                ? "Create a new account with your email and organisation code"
-                : "Enter your organisation code or email to reset your password"}
+                ? "Create a new account with your email and organization code"
+                : "Enter your organization code or email to reset your password"}
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -22,14 +22,15 @@ import { Label } from "@radix-ui/react-dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Phone } from "lucide-react";
+import { max } from "date-fns";
 
 const signUpSchema = z
   .object({
-    org_name: z
+    orgName: z
       .string()
-      .max(35, { message: "Organisation name must be at most 35 characters." }),
+      .max(35, { message: "Organization name must be at most 35 characters." }),
     email: z.string().email({ message: "Invalid email address." }),
-    description: z.string().optional(),
+    description: z.string().max(100, { message: "Organization description must be at most 60 characters." }).optional(),
     password: z
       .string()
       .min(2, { message: "Password must be at least 2 characters." })
@@ -55,7 +56,7 @@ const SignUpForm = () => {
   const signUpForm = useForm({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      org_name: "",
+      orgName: "",
       email: "",
       description: "",
       password: "",
@@ -67,7 +68,7 @@ const SignUpForm = () => {
   });
 
   // Watch the form fields for changes
-  const orgName$ = signUpForm.watch("org_name");
+  const orgName$ = signUpForm.watch("orgName");
   const description$ = signUpForm.watch("description");
   const phone$ = signUpForm.watch("phone");
 
@@ -93,7 +94,7 @@ const SignUpForm = () => {
       case 1:
         return ["email", "password", "confirmPassword"] as const;
       case 2:
-        return ["org_name", "description", "org_image"] as const;
+        return ["orgName", "description", "org_image"] as const;
       case 3:
         return ["address", "phone"] as const;
       default:
@@ -149,9 +150,9 @@ const SignUpForm = () => {
                   <div className="lg:flex items-center justify-between">
                     <div className="w-3/4">
                       <h1 className="font-bold">
-                        {orgName$ || "Organisation Name"}
+                        {orgName$ || "Organization Name"}
                       </h1>
-                      <p className="text-xs">
+                      <p className="text-xs text-wrap">
                         {description$ ||
                           "CSI has effectively created a platform for everyone to progress together, and has relentlessly worked to provide the best."}
                       </p>
@@ -164,7 +165,7 @@ const SignUpForm = () => {
                       <img
                         className="aspect-square object-cover"
                         src={imagePlaceholder}
-                        alt="Organisation"
+                        alt="Organization"
                       />
                     </div>
                   </div>
@@ -246,13 +247,13 @@ const SignUpForm = () => {
                 <>
                   <FormField
                     control={signUpForm.control}
-                    name="org_name"
+                    name="orgName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Organisation Name</FormLabel>
+                        <FormLabel>Organization Name</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Enter your organisation name"
+                            placeholder="Enter your organization name"
                             {...field}
                           />
                         </FormControl>
@@ -265,10 +266,10 @@ const SignUpForm = () => {
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Organisation Description</FormLabel>
+                        <FormLabel>Organization Description</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Enter your organisation description"
+                            placeholder="Enter your organization description"
                             {...field}
                           />
                         </FormControl>

@@ -13,6 +13,7 @@ import SignUpForm from "./screens/SignUpScreen";
 import Temp from "./screens/Temp";
 import Settings from "./screens/SettingsScreen";
 import Home from "./screens/DashboardHome";
+import Page from "./app/dashboard/page";
 
 export const router = createBrowserRouter([
   {
@@ -51,6 +52,10 @@ export const router = createBrowserRouter([
   {
     path: "manage/events/:eventId",
     element: <EventDetails />,
+  },
+  {
+    path: "sidebar",
+    element: <Page />,
   },
   {
     path: "temp",

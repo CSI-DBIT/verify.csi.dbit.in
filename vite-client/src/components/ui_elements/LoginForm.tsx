@@ -15,8 +15,8 @@ import {
 const loginSchema = z.object({
   org_code: z
     .string()
-    .min(2, { message: "Organisation code must be at least 2 characters." })
-    .max(10, { message: "Organisation code must be at most 10 characters." }),
+    .min(2, { message: "Organization code must be at least 2 characters." })
+    .max(10, { message: "Organization code must be at most 10 characters." }),
   password: z
     .string()
     .min(2, { message: "Password must be at least 2 characters." })
@@ -52,7 +52,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
           name="org_code"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Organisation Code or Email</FormLabel>
+              <FormLabel>Organization Code or Email</FormLabel>
               <FormControl>
                 <Input placeholder="xh7e2w6s" {...field} />
               </FormControl>

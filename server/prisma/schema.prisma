@@ -1,0 +1,161 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Organization Model
+model Organization {
+  orgId           String          @id @default(uuid())
+  orgName         String
+  description     String?
+  email           String          @unique
+  emailVerified   Boolean         @default(false)
+  password        String
+  logo            String?
+  address         String?
+  phoneNo         String?
+  eventCategories EventCategory[]
+  socialUrls      SocialUrl[]     @relation("OrganizationSocialUrls")
+  members         Membership[]
+  events          Event[]         @relation("OrganizationEvents")
+  refreshToken    String?
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  deletedAt       DateTime?      
+}
+
+// EventCategory Model
+model EventCategory {
+  categoryId     String           @id @default(uuid())
+  name           String
+  organizationId String
+  organization   Organization      @relation(fields: [organizationId], references: [orgId])
+  events         Event[]           @relation("CategoryEvents")  // Add relationship to events
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+}
+
+// SocialUrl Model
+model SocialUrl {
+  urlId          String           @id @default(uuid())
+  platform       String
+  url            String
+  organizationId String?
+  organization   Organization?     @relation("OrganizationSocialUrls", fields: [organizationId], references: [orgId])
+  memberId       String?
+  member         Member?           @relation("MemberSocialUrls", fields: [memberId], references: [memberId])
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+}
+
+// Member Model
+model Member {
+  memberId       String           @id @default(uuid())
+  memberName     String
+  email          String           @unique
+  emailVerified  Boolean          @default(false)
+  password       String
+  gender         String
+  address        String?
+  phoneNo        String?
+  memberImg      String?
+  memberships    Membership[] 
+  socialUrls     SocialUrl[]      @relation("MemberSocialUrls")
+  refreshToken   String?
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+}
+
+// Membership Model
+model Membership {
+  id             String           @id @default(uuid())
+  startDate      DateTime         @default(now())
+  status         String           @default("ACTIVE") //ACTIVE, INACTIVE, EXPIRED
+
+  memberId       String
+  member         Member           @relation(fields: [memberId], references: [memberId])
+
+  organizationId String
+  organization   Organization     @relation(fields: [organizationId], references: [orgId])
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+}
+
+// Event Model
+model Event {
+  eventId        String            @id @default(uuid())
+  
+  organizationId String
+  organization   Organization      @relation("OrganizationEvents", fields: [organizationId], references: [orgId])
+
+  categoryId     String
+  category       EventCategory     @relation("CategoryEvents", fields: [categoryId], references: [categoryId])
+
+  eventName      String
+  description    String?
+  eventPoster    String?
+  isMemberOnly   Boolean
+  eventDate      DateTime
+  participants   Participant[]
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+}
+
+// Participant Model
+model Participant {
+  participantId String            @id @default(uuid())
+  name          String
+  email         String
+  gender        String?
+  phoneNo       String?
+  address       String?
+  registeredAt  DateTime?
+  status        String            @default("REGISTERED") // REGISTERED, ATTENDED, CANCELED
+  feedback      String?
+  isMember      Boolean
+
+  eventId       String
+  event         Event             @relation(fields: [eventId], references: [eventId])
+
+  @@unique([email, eventId])
+
+  certificateId String?
+  certificate   Certificate?      @relation(fields: [certificateId], references: [certificateId])
+
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  deletedAt     DateTime?
+}
+
+// Certificate Model
+model Certificate {
+  certificateId    String         @id @default(uuid())
+  certificateCode  String         @unique
+  certificateUrl   String?
+  issuedAt         DateTime?
+  participant      Participant[]
+
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  deletedAt        DateTime?
+}
+

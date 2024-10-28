@@ -9,12 +9,12 @@ const CertificateCode = ({
 }) => {
   return (
     <Tailwind>
-      <Section className="flex justify-center items-center w-full min-h-screen bg-zinc-900 text-white font-sans">
-        <Section className="max-w-md w-full bg-zinc-800 rounded-lg shadow-lg p-6">
+      <Section className="flex justify-center items-center w-full min-h-screen bg-zinc-800 text-white font-sans">
+        <Section className="max-w-md w-full bg-zinc-900 rounded-lg shadow-lg p-6">
           {/* Logo Section */}
           <Section className="flex justify-center mb-6">
             <Img
-              src={`${serverUrl}/public/images/verify.dev_light_name_logo.png`} // Use the correct variable here
+              src={`${serverUrl}/public/images/verifydev_light_name_logo.png`} // Use the correct variable here
               alt="Event Logo"
               className="h-24 w-auto"
             />
@@ -91,7 +91,7 @@ CertificateCode.PreviewProps = {
     name: "Rahul",
     uniqueCertificateCode: "1234efht56",
   },
-  serverUrl: "http://localhost:3000",
+  serverUrl: "http://localhost:4000",
   clientUrl: "http://localhost:3000",
 };
 

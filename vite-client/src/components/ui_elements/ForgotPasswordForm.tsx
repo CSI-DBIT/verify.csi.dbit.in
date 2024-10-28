@@ -15,7 +15,7 @@ import {
 const forgotPasswordSchema = z.object({
   org_code_or_email: z
     .string()
-    .min(2, { message: "Organisation code or email must be at least 2 characters." }),
+    .min(2, { message: "Organization code or email must be at least 2 characters." }),
 });
 
 interface ForgotPasswordFormProps {
@@ -40,7 +40,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ switchToLogin }
           name="org_code_or_email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Organisation Code or Email</FormLabel>
+              <FormLabel>Organization Code or Email</FormLabel>
               <FormControl>
                 <Input placeholder="xh7e2w6s or email@example.com" {...field} />
               </FormControl>

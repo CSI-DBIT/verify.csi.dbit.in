@@ -14,7 +14,7 @@ import {
 } from "../ui/form";
 
 const signUpSchema = z.object({
-  org_name: z.string().max(25, { message: "Organisation name must be at most 25 characters." }),
+  orgName: z.string().max(25, { message: "Organization name must be at most 25 characters." }),
   email: z.string().email({ message: "Invalid email address." }),
   description: z.string().optional(),
   password: z
@@ -43,7 +43,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ switchToLogin }) => {
   const signUpForm = useForm({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      org_name: "",
+      orgName: "",
       email: "",
       description: "",
       password: "",
@@ -81,7 +81,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ switchToLogin }) => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Organisation Email</FormLabel>
+                  <FormLabel>Organization Email</FormLabel>
                   <FormControl>
                     <Input placeholder="email@example.com" {...field} />
                   </FormControl>
@@ -122,12 +122,12 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ switchToLogin }) => {
           <>
             <FormField
               control={signUpForm.control}
-              name="org_name"
+              name="orgName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Organisation Name</FormLabel>
+                  <FormLabel>Organization Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Organisation Name" {...field} />
+                    <Input placeholder="Organization Name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -140,7 +140,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ switchToLogin }) => {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input placeholder="Organisation Description" {...field} />
+                    <Input placeholder="Organization Description" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -164,7 +164,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ switchToLogin }) => {
               name="org_image"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Organisation Image URL</FormLabel>
+                  <FormLabel>Organization Image URL</FormLabel>
                   <FormControl>
                     <Input placeholder="http://example.com/image.jpg" {...field} />
                   </FormControl>
