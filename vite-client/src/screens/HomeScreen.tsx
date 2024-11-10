@@ -10,7 +10,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import gridBackground from "../assets/3d-perspective-grid-very-long.svg";
 import csiCardQrImage from "../assets/csi qr code.png";
 import TextTransition, { presets } from "react-text-transition";
 import { useEffect, useState } from "react";

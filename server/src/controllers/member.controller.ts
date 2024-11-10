@@ -7,9 +7,11 @@ import {
   updateSocialUrlSchema,
 } from "../configs/schemas";
 import { jwtMemberAccessTokenConfig } from "../configs/jwt.config";
+import { parseArgs } from "node:util";
+import { unlinkSync } from "node:fs";
 
 export const membersController = (app: Elysia) =>
-  app.group("/member", (app) =>
+  app.group("/members", (app) =>
     app
       .use(jwtMemberAccessTokenConfig)
       .derive(async ({ headers, jwt_member_access_token }) => {
@@ -32,6 +34,20 @@ export const membersController = (app: Elysia) =>
         (app) =>
           app.group("/:memberId", (app) =>
             app
+              // .derive(async ({ set, params }) => {
+              //   const { memberId } = params;
+              //   const existingMember = await prisma.member.findUnique({
+              //     where: { memberId },
+              //   });
+              //   if (!existingMember) {
+              //     set.status = 404;
+              //     return {
+              //       message: "Member not found!",
+              //       status: 404,
+              //     };
+              //   }
+              //   return existingMember;
+              // })
               .get("", async ({ params }) => {
                 const { memberId } = params;
 
@@ -103,13 +119,45 @@ export const membersController = (app: Elysia) =>
                   body: updateMemberSchema,
                 },
                 (app) =>
-                  app.patch("", async ({ params, body }) => {
+                  app.patch("", async ({ set, params, body }) => {
                     const { memberId } = params;
                     try {
+                      const baseDir = "public/images/profile-pics/";
+                      let memberProfileUrl = body.memberImg?.name;
+
+                      // Fetch the existing member to get the current profile img path
+                      const existingMember = await prisma.member.findUnique({
+                        where: { memberId },
+                        select: { memberImg: true },
+                      });
+
+                      if (!existingMember) {
+                        set.status = 404;
+                        return {
+                          message: "Member not found!",
+                          status: 404,
+                        };
+                      }
+
+                      // Check if a new logo file is uploaded
+                      if (body.memberImg) {
+                        const newFileName = `${baseDir}${crypto.randomUUID()}.png`;
+
+                        // Delete the existing profile img file from the server if it exists
+                        if (existingMember.memberImg) {
+                          unlinkSync(existingMember.memberImg);
+                        }
+
+                        // Save the new logo file to the server
+                        await Bun.write(newFileName, body.memberImg);
+                        memberProfileUrl = newFileName;
+                      }
+
                       const updatedMember = await prisma.member.update({
                         where: { memberId },
                         data: {
                           ...body,
+                          memberImg: memberProfileUrl,
                         },
                       });
 

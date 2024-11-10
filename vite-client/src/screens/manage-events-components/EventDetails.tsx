@@ -127,7 +127,9 @@ const fetchEligibleCandidatesDetails = async (
 };
 const EventDetails = () => {
   const navigateTo = useNavigate();
-  const { eventId } = useParams();
+  // const { eventId } = useParams();
+  const eventId =  "v6bjJ8iQ2l-ed1456f8-e954-4550-831a-5872eb6a5e65";
+
   const [eventDetails, setEventDetails] = useState<EventSchema>();
   const [eligibleCandidates, setEligibleCandidates] = useState<
     EligibleCandidatesSchema[]

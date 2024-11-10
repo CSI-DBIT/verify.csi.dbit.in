@@ -48,7 +48,7 @@ const CertificateCode = ({
             </span>
             <Button
               href={`${clientUrl}/certificate/verify/${userDetails.uniqueCertificateCode}`}
-              className="bg-blue-600 rounded-lg text-center px-4 py-2 font-medium leading-4 text-white mt-2 hover:bg-blue-700"
+              className="bg-blue-600 rounded-lg text-center p-4 font-medium leading-4 text-white mt-2 hover:bg-blue-700"
             >
               View Certificate
             </Button>

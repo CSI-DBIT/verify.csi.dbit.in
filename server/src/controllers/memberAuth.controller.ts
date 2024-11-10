@@ -51,6 +51,7 @@ export const memberAuthController = (app: Elysia) =>
                     email,
                     gender: gender,
                     password: hashedPassword,
+                    memberImg:"public/images/profile-pics/verifydev-default-men-profile.jpg"
                   },
                 });
 

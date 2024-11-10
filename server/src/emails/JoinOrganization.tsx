@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Tailwind, Section, Text, Button, Img } from "@react-email/components";
-import { FooterSection } from "./FooterScetion";
+import { FooterSection } from "./FooterSection";
 
 const JoinedOrganizationEmail = ({ organizationDetails, userDetails, serverUrl, clientUrl }) => {
   return (

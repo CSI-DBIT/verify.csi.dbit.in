@@ -1,19 +1,15 @@
 import * as React from "react";
 import {
-  BookOpen,
   Bot,
-  Command,
-  Frame,
+  Landmark,
+  LayoutDashboard,
   LifeBuoy,
-  Map,
-  PieChart,
-  Play,
+  Scroll,
   Send,
-  Settings2,
+  Ticket,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -22,9 +18,9 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
 
 const data = {
   user: {
@@ -34,87 +30,53 @@ const data = {
   },
   navMain: [
     {
-      title: "Playground",
-      url: "#",
-      icon: Play,
-      isActive: true,
+      title: "Organizations",
+      url: "/dashboard/organizations",
+      icon: Landmark,
       items: [
         {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
+          title: "My Organizations",
+          url: "/dashboard/member/organizations",
         },
       ],
     },
     {
-      title: "Models",
-      url: "#",
+      title: "Events",
+      url: "/dashboard/events",
+      icon: Ticket,
+      items: [
+        {
+          title: "My Events",
+          url: "/dashboard/member/events",
+        },
+      ],
+    },
+    {
+      title: "Certificates",
+      url: "/dashboard/member/certificates",
+      icon: Scroll,
+    },
+    {
+      title: "Members",
+      url: "/dashboard/members",
       icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
     },
     {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
+      title: "Events",
+      url: "/dashboard/events",
+      icon: Ticket,
       items: [
         {
-          title: "Introduction",
-          url: "#",
+          title: "My Events",
+          url: "/dashboard/organization/events",
         },
         {
-          title: "Get Started",
-          url: "#",
+          title: "Participants",
+          url: "/dashboard/organization/events/participants",
         },
         {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
+          title: "Form Responses",
+          url: "/dashboard/organization/events/forms",
         },
       ],
     },
@@ -122,57 +84,56 @@ const data = {
   navSecondary: [
     {
       title: "Support",
-      url: "#",
+      url: "/support",
       icon: LifeBuoy,
     },
     {
       title: "Feedback",
-      url: "#",
+      url: "/feedback",
       icon: Send,
     },
   ],
-  projects: [
+  home: [
     {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
+      name: "Dashboard",
+      url: "/dashboard",
+      icon: LayoutDashboard,
     },
   ],
 };
 
+
+import verifyInitialLogo from "../assets/verifyInitialLogo.png";
+import { NavHome } from "./nav-home";
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Command className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Acme Inc</span>
-                  <span className="truncate text-xs">Enterprise</span>
-                </div>
-              </a>
-            </SidebarMenuButton>
+            <div className="flex items-center gap-2">
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground">
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarImage src={verifyInitialLogo} alt="verify dev logo" />
+                  <AvatarFallback className="rounded-lg">V@D</AvatarFallback>
+                </Avatar>
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-semibold">Verify@Dev</span>
+                <span className="truncate text-xs flex gap-1 items-center">
+                  Organization
+                </span>
+              </div>
+              {/* <Button size={"icon"} variant={"outline"}>
+                <QrCode />
+              </Button> */}
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
+        <NavHome home={data.home} />
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

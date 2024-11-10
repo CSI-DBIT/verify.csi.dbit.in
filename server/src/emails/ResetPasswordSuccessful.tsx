@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Tailwind, Section, Text, Button, Img } from "@react-email/components";
-import { FooterSection } from "./FooterScetion";
+import { FooterSection } from "./FooterSection";
 
 const ResetPasswordSuccessEmail = ({ userDetails, serverUrl, clientUrl }) => {
   return (
@@ -22,12 +22,6 @@ const ResetPasswordSuccessEmail = ({ userDetails, serverUrl, clientUrl }) => {
             Your password has been successfully reset. If you did not request
             this change, please contact our support team immediately.
           </Text>
-          <Button
-            href={`${clientUrl}/login`}
-            className="bg-blue-600 rounded-lg text-center px-4 py-2 font-medium text-white mt-4 hover:bg-blue-700"
-          >
-            Log In
-          </Button>
           <FooterSection serverUrl={serverUrl} />
         </Section>
       </Section>

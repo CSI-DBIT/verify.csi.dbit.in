@@ -6,9 +6,12 @@ CREATE TABLE "Organization" (
     "email" TEXT NOT NULL,
     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
     "password" TEXT NOT NULL,
+    "type" TEXT NOT NULL DEFAULT 'FREE_FOR_ALL',
+    "category" TEXT NOT NULL,
     "logo" TEXT,
     "address" TEXT,
     "phoneNo" TEXT,
+    "startDate" DATETIME,
     "refreshToken" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
@@ -62,6 +65,7 @@ CREATE TABLE "Membership" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "startDate" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "isFavourite" BOOLEAN NOT NULL DEFAULT false,
     "memberId" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -81,6 +85,7 @@ CREATE TABLE "Event" (
     "eventPoster" TEXT,
     "isMemberOnly" BOOLEAN NOT NULL,
     "eventDate" DATETIME NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'SCHEDULED',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "deletedAt" DATETIME,
@@ -118,6 +123,21 @@ CREATE TABLE "Certificate" (
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "deletedAt" DATETIME
+);
+
+-- CreateTable
+CREATE TABLE "Notification" (
+    "notificationId" TEXT NOT NULL PRIMARY KEY,
+    "type" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "isRead" BOOLEAN NOT NULL DEFAULT false,
+    "memberId" TEXT,
+    "organizationId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "deletedAt" DATETIME,
+    CONSTRAINT "Notification_memberId_fkey" FOREIGN KEY ("memberId") REFERENCES "Member" ("memberId") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Notification_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("orgId") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateIndex

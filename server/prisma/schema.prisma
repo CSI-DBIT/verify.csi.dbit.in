@@ -19,18 +19,23 @@ model Organization {
   email           String          @unique
   emailVerified   Boolean         @default(false)
   password        String
+  type            String          @default("FREE_FOR_ALL") // Access type
+  category        String          // Business type/category
   logo            String?
   address         String?
   phoneNo         String?
+  startDate       DateTime?
   eventCategories EventCategory[]
   socialUrls      SocialUrl[]     @relation("OrganizationSocialUrls")
   members         Membership[]
   events          Event[]         @relation("OrganizationEvents")
+  Notification    Notification[]
   refreshToken    String?
 
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
   deletedAt       DateTime?      
+
 }
 
 // EventCategory Model
@@ -38,8 +43,8 @@ model EventCategory {
   categoryId     String           @id @default(uuid())
   name           String
   organizationId String
-  organization   Organization      @relation(fields: [organizationId], references: [orgId])
-  events         Event[]           @relation("CategoryEvents")  // Add relationship to events
+  organization   Organization     @relation(fields: [organizationId], references: [orgId])
+  events         Event[]          @relation("CategoryEvents")  // Add relationship to events
 
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
@@ -52,9 +57,9 @@ model SocialUrl {
   platform       String
   url            String
   organizationId String?
-  organization   Organization?     @relation("OrganizationSocialUrls", fields: [organizationId], references: [orgId])
+  organization   Organization?    @relation("OrganizationSocialUrls", fields: [organizationId], references: [orgId])
   memberId       String?
-  member         Member?           @relation("MemberSocialUrls", fields: [memberId], references: [memberId])
+  member         Member?          @relation("MemberSocialUrls", fields: [memberId], references: [memberId])
 
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
@@ -74,11 +79,13 @@ model Member {
   memberImg      String?
   memberships    Membership[] 
   socialUrls     SocialUrl[]      @relation("MemberSocialUrls")
+  Notification   Notification[]
   refreshToken   String?
 
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   deletedAt      DateTime?
+
 }
 
 // Membership Model
@@ -86,6 +93,7 @@ model Membership {
   id             String           @id @default(uuid())
   startDate      DateTime         @default(now())
   status         String           @default("ACTIVE") //ACTIVE, INACTIVE, EXPIRED
+  isFavourite    Boolean          @default(false)
 
   memberId       String
   member         Member           @relation(fields: [memberId], references: [memberId])
@@ -113,6 +121,7 @@ model Event {
   eventPoster    String?
   isMemberOnly   Boolean
   eventDate      DateTime
+  status         String           @default("SCHEDULED") // SCHEDULED , ONGOING, COMPLETED
   participants   Participant[]
 
   createdAt      DateTime         @default(now())
@@ -157,5 +166,24 @@ model Certificate {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   deletedAt        DateTime?
+}
+
+// Notification Model
+model Notification {
+  notificationId String       @id @default(uuid())
+  type           String       // e.g., "JOIN_REQUEST", "MEMBER_JOINED", "WELCOME"
+  message        String
+  isRead         Boolean      @default(false) // To track if the notification is read or unread
+
+  // Optional relation fields for notification context
+  memberId       String?      
+  member         Member?      @relation(fields: [memberId], references: [memberId])
+
+  organizationId String?      
+  organization   Organization? @relation(fields: [organizationId], references: [orgId])
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
 }
 

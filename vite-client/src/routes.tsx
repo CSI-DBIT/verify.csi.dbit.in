@@ -1,19 +1,25 @@
 import { createBrowserRouter } from "react-router-dom";
 import HomeScreen from "./screens/HomeScreen";
 import PageNotFound from "./screens/PageNotFound";
-import CertificateAllocation from "./screens/CertificateAllocation";
 import CertificateScreen from "./screens/CertificateScreen";
-import CertificateUpload from "./screens/CertificateUpload";
-import { Dashboard } from "./screens/DashBoard";
 import EventDetails from "./screens/manage-events-components/EventDetails";
 import ManageEvent from "./screens/ManageEvent";
 import ManageMember from "./screens/ManageMember";
 import MemberScreen from "./screens/MemberScreen";
 import SignUpForm from "./screens/SignUpScreen";
-import Temp from "./screens/Temp";
-import Settings from "./screens/SettingsScreen";
-import Home from "./screens/DashboardHome";
-import Page from "./app/dashboard/page";
+import Dashboard from "./app/common/Dashboard";
+import Events from "./app/common/Events";
+import Organizations from "./app/common/Organizations";
+import MemberOrganization from "./app/members/manage/MemberOrganization";
+import MemberEvents from "./app/members/manage/MemberEvents";
+import MemberCertificates from "./app/members/MemberCertificates";
+import OrgMembers from "./app/organizations/manage/OrgMembers";
+import OrgEvents from "./app/organizations/manage/events/OrgEvents";
+import Settings from "./app/common/Settings";
+import Layout from "./app/common/Layout";
+import EventParticipants from "./app/organizations/manage/events/EventParticipants";
+import EventForms from "./app/organizations/manage/events/EventForms";
+import Members from "./app/common/Members";
 
 export const router = createBrowserRouter([
   {
@@ -30,20 +36,12 @@ export const router = createBrowserRouter([
     element: <CertificateScreen />,
   },
   {
-    path: "certificate-upload",
-    element: <CertificateUpload />,
-  },
-  {
     path: "signUp",
     element: <SignUpForm />,
   },
   {
     path: "manage/members",
     element: <ManageMember />,
-  },
-  {
-    path: "certificate-allocation",
-    element: <CertificateAllocation />,
   },
   {
     path: "manage/events",
@@ -54,44 +52,56 @@ export const router = createBrowserRouter([
     element: <EventDetails />,
   },
   {
-    path: "sidebar",
-    element: <Page />,
-  },
-  {
-    path: "temp",
-    element: <Temp />,
-    children: [
-      {
-        path: "events",
-        element: <ManageEvent />,
-      },
-      {
-        path: "members",
-        element: <ManageMember />,
-      },
-    ],
-  },
-  {
     path: "dashboard",
-    element: <Dashboard />,
+    element: <Layout />,
     children: [
       {
         path: "",
-        element: <Home />,
+        element: <Dashboard />,
+      },
+      {
+        path: "organizations",
+        element: <Organizations />,
       },
       {
         path: "events",
-        element: <ManageEvent />,
+        element: <Events />,
       },
       {
         path: "members",
-        element: <ManageMember />,
+        element: <Members />,
       },
       {
         path: "settings",
-        element: (
-          <Settings/>
-        ),
+        element: <Settings />,
+      },
+      {
+        path: "member/organizations",
+        element: <MemberOrganization />,
+      },
+      {
+        path: "member/events",
+        element: <MemberEvents />,
+      },
+      {
+        path: "member/certificates",
+        element: <MemberCertificates />,
+      },
+      {
+        path: "organization/members",
+        element: <OrgMembers />,
+      },
+      {
+        path: "organization/events",
+        element: <OrgEvents />,
+      },
+      {
+        path: "organization/events/participants",
+        element: <EventParticipants />,
+      },
+      {
+        path: "organization/events/forms",
+        element: <EventForms />,
       },
     ],
   },

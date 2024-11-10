@@ -59,6 +59,7 @@ export const organizationAuthController = (app: Elysia) =>
                     description,
                     email,
                     password: hashedPassword,
+                    logo:"public/images/profile-pics/verifydev-default-organization-profile.png"
                   },
                 });
 

@@ -1,8 +1,8 @@
 import * as React from "react";
 import { Tailwind, Section, Text, Button, Img } from "@react-email/components";
-import { FooterSection } from "./FooterScetion";
+import { FooterSection } from "./FooterSection";
 
-const AccountCreationEmail = ({ userDetails, serverUrl, clientUrl }) => {
+const AccountCreationEmail = ({ userDetails, accountType, serverUrl, clientUrl }) => {
   return (
     <Tailwind>
       <Section className="flex justify-center items-center w-full min-h-screen bg-zinc-800 text-white font-sans">
@@ -19,7 +19,9 @@ const AccountCreationEmail = ({ userDetails, serverUrl, clientUrl }) => {
           </Text>
           <Text className="text-zinc-300 mb-4">Dear {userDetails.name},</Text>
           <Text className="text-zinc-400 mb-4">
-            Your account has been successfully created! We’re thrilled to have you on board.
+            {accountType === "organization"
+              ? "Your organization account has been successfully created! You can now manage events, members, and more."
+              : "Your member account has been successfully created! You can now participate in events and verify your certificates."}
           </Text>
           <Button
             href={`${clientUrl}/login`}
@@ -38,12 +40,12 @@ const AccountCreationEmail = ({ userDetails, serverUrl, clientUrl }) => {
 };
 
 AccountCreationEmail.PreviewProps = {
-    userDetails: {
-      name: "Rahul",
-    },
-    serverUrl: "http://localhost:4000",
-    clientUrl: "http://localhost:3000",
-  };
-  
+  userDetails: {
+    name: "Rahul",
+  },
+  accountType: "organization", // or "organization"
+  serverUrl: "http://localhost:4000",
+  clientUrl: "http://localhost:3000",
+};
 
 export default AccountCreationEmail;

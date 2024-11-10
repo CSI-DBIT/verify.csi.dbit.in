@@ -5,9 +5,11 @@ export const signupOrganizationSchema = t.Object({
   email: t.String({ format: "email" }),
   password: t.String({ minLength: 8 }),
   description: t.String({ maxLength: 150, minLength: 1 }),
-  logo: t.Optional(t.String()),
+  type: t.String(),
+  logo: t.String(),
   address: t.Optional(t.String({ maxLength: 200 })),
   phoneNo: t.Optional(t.String({ maxLength: 20 })),
+  startDate: t.Optional(t.Date()),
 });
 export const loginOrganizationSchema = t.Object({
   email: t.String({ format: "email" }),
@@ -18,9 +20,13 @@ export const updatedOrganizationSchema = t.Partial(
   t.Object({
     orgName: t.String({ maxLength: 60, minLength: 3 }),
     description: t.String({ maxLength: 150, minLength: 1 }),
-    logo: t.String(),
+    type: t.String(),
+    logo: t.File({
+      type: "image/png",
+    }),
     address: t.String({ maxLength: 200 }),
     phoneNo: t.String({ maxLength: 20 }),
+    startDate: t.Date(),
   })
 );
 
@@ -31,7 +37,7 @@ export const signupMemberSchema = t.Object({
   gender: t.Enum({ male: "MALE", female: "FEMALE", other: "OTHER" }),
   address: t.Optional(t.String({ maxLength: 200 })),
   phoneNo: t.Optional(t.String({ maxLength: 10 })),
-  memberImg: t.Optional(t.String()),
+  memberImg: t.String(),
 });
 
 export const loginMemberSchema = t.Object({
@@ -45,13 +51,14 @@ export const updateMemberSchema = t.Partial(
     gender: t.Enum({ male: "MALE", female: "FEMALE", other: "OTHER" }),
     address: t.String({ maxLength: 200 }),
     phoneNo: t.String({ maxlength: 20 }),
-    memberImg: t.String(),
+    memberImg: t.File({ type: "image/png" }),
   })
 );
 
 export const addEventCategorySchema = t.Object({
   names: t.Array(t.String()),
 });
+
 export const updateEventCategorySchema = t.Object({
   categories: t.Array(
     t.Object({
@@ -82,7 +89,11 @@ export const updateSocialUrlSchema = t.Object({
 export const addEventSchema = t.Object({
   eventName: t.String(),
   description: t.String({ maxLength: 150, minLength: 1 }),
-  eventBannerImg: t.Optional(t.String()),
+  eventPoster: t.Optional(
+    t.File({
+      type: "image/png",
+    })
+  ),
   categoryId: t.String(),
   isMemberOnly: t.Boolean(),
   eventDate: t.Date(),
@@ -96,4 +107,13 @@ export const createMembershipSchema = t.Object({
 });
 export const updateMembershipSchema = t.Object({
   status: t.String(),
+});
+
+export const forgotPasswordSchema = t.Object({
+  email: t.String({ format: "email" }),
+});
+
+export const resetPasswordSchema = t.Object({
+  resetToken: t.String(),
+  newPassword: t.String({ minLength: 8 }),
 });
