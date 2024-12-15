@@ -35,9 +35,17 @@ export const organizationAuthController = (app: Elysia) =>
               cookie: { refresh_token },
             }) => {
               try {
-                const { orgName, description, email, password } = body;
+                const {
+                  orgName,
+                  description,
+                  email,
+                  password,
+                  type,
+                  category,
+                  startDate,
+                } = body;
 
-                // Check if organization already exists
+                // Check if organization acc with email exists
                 const existingOrganization =
                   await prisma.organization.findUnique({
                     where: { email },
@@ -50,6 +58,18 @@ export const organizationAuthController = (app: Elysia) =>
                     status: 422,
                   };
                 }
+                // Check if member acc with email exists
+                const existingMember = await prisma.member.findUnique({
+                  where: { email },
+                });
+
+                if (existingMember) {
+                  set.status = 422;
+                  return {
+                    message: "Member with this email already exists!",
+                    status: 422,
+                  };
+                }
 
                 // Hash password and create organization
                 const hashedPassword = await hashPassword(password);
@@ -59,7 +79,10 @@ export const organizationAuthController = (app: Elysia) =>
                     description,
                     email,
                     password: hashedPassword,
-                    logo:"public/images/profile-pics/verifydev-default-organization-profile.png"
+                    type,
+                    category,
+                    startDate,
+                    logo: "public/images/profile-pics/verifydev-default-organization-profile.png",
                   },
                 });
 
@@ -83,6 +106,22 @@ export const organizationAuthController = (app: Elysia) =>
                     })
                   )
                 );
+
+                // Create chatroom for the organization
+                const chatRoom = await prisma.chatRoom.create({
+                  data: {
+                    organizationId: newOrganization.orgId,
+                  },
+                });
+
+                const organizationWithChatRoom = await prisma.organization.findUnique({
+                  where: { orgId: newOrganization.orgId },
+                  include: {
+                    chatRoom: true, // Include chatRoom details
+                    chatRoomMessages: true, // Include associated messages if needed
+                  },
+                });
+                console.log(organizationWithChatRoom);
 
                 // Generate tokens
                 const accessToken = await jwt_org_access_token.sign({

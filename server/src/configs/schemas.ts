@@ -2,14 +2,13 @@ import { t } from "elysia";
 
 export const signupOrganizationSchema = t.Object({
   orgName: t.String({ maxLength: 60, minLength: 3 }),
+  description: t.String({ maxLength: 200, minLength: 1 }),
   email: t.String({ format: "email" }),
   password: t.String({ minLength: 8 }),
-  description: t.String({ maxLength: 150, minLength: 1 }),
   type: t.String(),
+  category: t.String(),
+  startDate: t.Date(),
   logo: t.String(),
-  address: t.Optional(t.String({ maxLength: 200 })),
-  phoneNo: t.Optional(t.String({ maxLength: 20 })),
-  startDate: t.Optional(t.Date()),
 });
 export const loginOrganizationSchema = t.Object({
   email: t.String({ format: "email" }),

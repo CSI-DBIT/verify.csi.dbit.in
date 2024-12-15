@@ -20,6 +20,8 @@ import Layout from "./app/common/Layout";
 import EventParticipants from "./app/organizations/manage/events/EventParticipants";
 import EventForms from "./app/organizations/manage/events/EventForms";
 import Members from "./app/common/Members";
+import ProtectedRoute from "./app/components/ProtectedRoute";
+import { TermsAndConditions } from "./app/pages/TermsAndCondition";
 
 export const router = createBrowserRouter([
   {
@@ -38,6 +40,10 @@ export const router = createBrowserRouter([
   {
     path: "signUp",
     element: <SignUpForm />,
+  },
+  {
+    path: "terms-and-conditions",
+    element: <TermsAndConditions />,
   },
   {
     path: "manage/members",
@@ -73,6 +79,10 @@ export const router = createBrowserRouter([
       },
       {
         path: "settings",
+        element: <Settings />,
+      },
+      {
+        path: "notifications",
         element: <Settings />,
       },
       {

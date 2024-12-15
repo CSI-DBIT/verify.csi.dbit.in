@@ -1,15 +1,24 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger, DialogClose } from "@/components/ui/dialog";
-import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import {
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import LoginForm from "./LoginForm";
-import SignUpForm from "./SignUpForm";
 import ForgotPasswordForm from "./ForgotPasswordForm";
 
 const AuthForm: React.FC = () => {
-  const [formType, setFormType] = useState<"login" | "signUp" | "forgotPassword">("login");
-
-  const switchToSignUp = () => setFormType("signUp");
+  const [formType, setFormType] = useState<
+    "login" | "signUp" | "forgotPassword"
+  >("login");
   const switchToLogin = () => setFormType("login");
   const switchToForgotPassword = () => setFormType("forgotPassword");
 
@@ -24,30 +33,27 @@ const AuthForm: React.FC = () => {
   return (
     <Dialog onOpenChange={(isOpen) => !isOpen && setFormType("login")}>
       <DialogTrigger asChild>
-        <Button variant="outline">
-          {formType === "login" ? "Login" : formType === "signUp" ? "Sign Up" : "Forgot Password"}
-        </Button>
+        <Button variant="outline">Login</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <div>
           <CardHeader>
             <CardTitle className="text-2xl">
-              {formType === "login" ? "Login" : formType === "signUp" ? "Sign Up" : "Forgot Password"}
+              {formType === "login" ? "Login" : "Forgot Password"}
             </CardTitle>
             <CardDescription>
               {formType === "login"
-                ? "Enter your organization code to login to your account"
-                : formType === "signUp"
-                ? "Create a new account with your email and organization code"
-                : "Enter your organization code or email to reset your password"}
+                ? "Enter your email linked to your organization or member account"
+                : "Enter your email to reset your password"}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {formType === "login" && (
-              <LoginForm switchToSignUp={switchToSignUp} switchToForgotPassword={switchToForgotPassword} />
+              <LoginForm switchToForgotPassword={switchToForgotPassword} />
             )}
-            {formType === "signUp" && <SignUpForm switchToLogin={switchToLogin} />}
-            {formType === "forgotPassword" && <ForgotPasswordForm switchToLogin={switchToLogin} />}
+            {formType === "forgotPassword" && (
+              <ForgotPasswordForm switchToLogin={switchToLogin} />
+            )}
           </CardContent>
           <DialogClose />
         </div>

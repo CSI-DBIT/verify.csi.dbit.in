@@ -1,4 +1,4 @@
-import { AppSidebar } from "@/components/app-sidebar";
+import { useSelector } from "react-redux";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,13 +8,15 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Link } from "react-router-dom";
+import { RootState } from "@/redux/store";
+import MemberSettings from "../members/MemberSettings";
+import OrgSettings from "../organizations/OrgSettings";
+
 const Settings = () => {
+  const { userType } = useSelector((state: RootState) => state.auth); // Access Redux store
+
   return (
     <main>
       <header className="flex h-16 shrink-0 items-center gap-2">
@@ -23,7 +25,7 @@ const Settings = () => {
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
-            <Link to={"/dashboard"}>
+              <Link to={"/dashboard"}>
                 <BreadcrumbLink asChild>
                   <BreadcrumbItem>
                     <BreadcrumbPage>Dashboard</BreadcrumbPage>
@@ -38,7 +40,11 @@ const Settings = () => {
           </Breadcrumb>
         </div>
       </header>
-      <section>common settings</section>
+
+      <section>
+        {userType === "MEMBER" && <MemberSettings />}
+        {userType === "ORGANIZATION" && <OrgSettings />}
+      </section>
     </main>
   );
 };

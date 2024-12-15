@@ -13,36 +13,43 @@ import {
 } from "../ui/form";
 
 const forgotPasswordSchema = z.object({
-  org_code_or_email: z
-    .string()
-    .min(2, { message: "Organization code or email must be at least 2 characters." }),
+  email: z.string().email().min(1, {
+    message: "Organization email is required",
+  }),
 });
 
 interface ForgotPasswordFormProps {
   switchToLogin: () => void;
 }
 
-const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ switchToLogin }) => {
+const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
+  switchToLogin,
+}) => {
   const forgotPasswordForm = useForm({
     resolver: zodResolver(forgotPasswordSchema),
-    defaultValues: { org_code_or_email: "" },
+    defaultValues: { email: "" },
   });
 
-  const onSubmitForgotPassword = (values: z.infer<typeof forgotPasswordSchema>) => {
+  const onSubmitForgotPassword = (
+    values: z.infer<typeof forgotPasswordSchema>
+  ) => {
     console.log("Forgot Password:", values);
   };
 
   return (
     <Form {...forgotPasswordForm}>
-      <form onSubmit={forgotPasswordForm.handleSubmit(onSubmitForgotPassword)} className="space-y-4">
+      <form
+        onSubmit={forgotPasswordForm.handleSubmit(onSubmitForgotPassword)}
+        className="space-y-4"
+      >
         <FormField
           control={forgotPasswordForm.control}
-          name="org_code_or_email"
+          name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Organization Code or Email</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="xh7e2w6s or email@example.com" {...field} />
+                <Input placeholder="email@example.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

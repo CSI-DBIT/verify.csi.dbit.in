@@ -11,6 +11,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
+import { Link } from "react-router-dom";
 
 const loginSchema = z.object({
   org_code: z
@@ -24,14 +25,10 @@ const loginSchema = z.object({
 });
 
 interface LoginFormProps {
-  switchToSignUp: () => void;
   switchToForgotPassword: () => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({
-  switchToSignUp,
-  switchToForgotPassword,
-}) => {
+const LoginForm: React.FC<LoginFormProps> = ({ switchToForgotPassword }) => {
   const loginForm = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: { org_code: "", password: "" },
@@ -52,9 +49,9 @@ const LoginForm: React.FC<LoginFormProps> = ({
           name="org_code"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Organization Code or Email</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="xh7e2w6s" {...field} />
+                <Input placeholder="jhon@doe.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -88,9 +85,9 @@ const LoginForm: React.FC<LoginFormProps> = ({
       </form>
       <div className="mt-4 text-center text-sm">
         Don't have an account?{" "}
-        <button type="button" onClick={switchToSignUp} className="underline">
+        <Link to={"/signup"} className="underline">
           Sign up
-        </button>
+        </Link>
       </div>
     </Form>
   );

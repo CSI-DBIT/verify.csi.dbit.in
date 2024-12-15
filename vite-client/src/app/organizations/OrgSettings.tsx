@@ -1,36 +1,24 @@
-import { AppSidebar } from "@/components/app-sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { updateUserDetails } from "@/redux/slices/authSlice";
+import { AppDispatch, RootState } from "@/redux/store";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 const OrgSettings = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { userDetails } = useSelector((state: RootState) => state.auth); // Access Redux store
+  const [formData, setFormData] = useState(userDetails); // Initial state from userDetails
+  // Save all changes
+  const handleSaveChanges = () => {
+    dispatch(updateUserDetails(formData));
+  };
   return (
     <main>
-      <header className="flex h-16 shrink-0 items-center gap-2">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Events</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
-      </header>
       <section>org settings</section>
+      <Separator className="my-4" />
+      <Button onClick={handleSaveChanges} className="w-full">
+        Save Changes
+      </Button>
     </main>
   );
 };

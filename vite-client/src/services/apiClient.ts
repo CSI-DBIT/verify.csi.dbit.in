@@ -1,11 +1,11 @@
-import { refreshToken } from '@/api/auth';
-import { setAccessToken } from '@/redux/features/authSlice';
+import { refreshToken } from '@/api/authApi';
+import { setAccessToken } from '@/redux/slices/authSlice';
 import { store } from '@/redux/store';
 import axios from 'axios';
 
 const apiClient = axios.create({
   baseURL: process.env.SERVER_BASE_URL,
-  withCredentials: true, // Ensure cookies are sent
+  withCredentials: true,
 });
 
 apiClient.interceptors.request.use((config) => {
