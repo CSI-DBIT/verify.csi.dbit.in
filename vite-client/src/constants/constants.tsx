@@ -1,4 +1,4 @@
-import { FacebookIcon, TwitterIcon, Linkedin, InstagramIcon } from "lucide-react";
+import { FacebookIcon, TwitterIcon, Linkedin, InstagramIcon, GlobeIcon } from "lucide-react";
 
 export const ORGANIZATION_CATEGORIES = [
   { id: 1, value: "ENTERPRISE", label: "Enterprise" },
@@ -258,3 +258,18 @@ export const SOCIAL_PLATFORMS = [
     icon: <InstagramIcon className="size-4 text-pink-500" />,
   },
 ];
+
+export const getSocialPlatformIcon = (platform: string) => {
+  switch (platform) {
+    case "Facebook":
+      return <FacebookIcon className="size-4 text-blue-600" />;
+    case "Twitter":
+      return <TwitterIcon className="size-4 text-blue-400" />;
+    case "LinkedIn":
+      return <Linkedin className="size-4 text-blue-700" />;
+    case "Instagram":
+      return <InstagramIcon className="size-4 text-pink-500" />;
+    default:
+      return <GlobeIcon className="size-4 text-gray-500" />;
+  }
+};
